@@ -1,8 +1,21 @@
 from characters.hero import hero
-    
+from destinations.prismeer import city
+from destinations.prismeer import city_menu
+
 if "__main__":
-    loop_variable = True
-    while loop_variable:
-        key = input("Digite sua acao \n").capitalize()
-        main_character = hero()
-        print(main_character.__getattribute__("hp"))
+    
+    main_character = hero()
+    prismeer = city()
+       
+    while True:
+        print(
+            "C - City \n"
+        )
+        key = input("Type your action \n").capitalize()
+        match key:
+            case "C":
+                print("You arrived at Prismeer!\n")
+                city_menu(prismeer, main_character)
+            case _:
+                print("Invalid action. Try again.\n")
+                
