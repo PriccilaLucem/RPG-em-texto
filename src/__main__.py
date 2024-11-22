@@ -1,21 +1,40 @@
+from pynput import keyboard
+from destinations.prismeer import city, city_menu
 from characters.hero import hero
-from destinations.prismeer import city
-from destinations.prismeer import city_menu
 
-if "__main__":
-    
-    main_character = hero()
-    prismeer = city()
-       
-    while True:
-        print(
-            "C - City \n"
-        )
-        key = input("Type your action \n").capitalize()
-        match key:
-            case "C":
+comando = []
+main_character = hero()
+prismeer = city.city()
+
+def tecla_pressionada(key):
+    global comando
+
+    try:
+        if key == keyboard.Key.enter:
+            input_usuario = ''.join(comando).strip().upper()
+            comando = []  
+
+            if input_usuario == "P":
                 print("You arrived at Prismeer!\n")
                 city_menu(prismeer, main_character)
-            case _:
-                print("Invalid action. Try again.\n")
-                
+            else:
+                print("P -- Prismeer")
+
+        elif hasattr(key, 'char') and key.char is not None:
+            comando.append(key.char)  
+        elif key == keyboard.Key.backspace:
+            if comando:
+                comando.pop()  
+    except Exception as e:
+        print(f"Erro ao processar a tecla: {e}")
+
+def tecla_soltada(key):
+    if key == keyboard.Key.esc:
+        print("Encerrando o programa...")
+        return False  
+
+with keyboard.Listener(on_press=tecla_pressionada, on_release=tecla_soltada) as listener:
+    print("Pressione as teclas e aperte Enter para enviar. (ESC para sair)")
+    print("P -- Prismeer")
+
+    listener.join()

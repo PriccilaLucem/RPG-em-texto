@@ -1,5 +1,6 @@
 from characters.hero import hero
-from character_model import character_model
+from models.character_model import character_model
+
 class seller_model(character_model):
     
     def __init__(self, name: str, speeches: list, backpack: list) -> None:

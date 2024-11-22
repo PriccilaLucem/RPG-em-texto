@@ -1,5 +1,5 @@
-from character_model import character_model
-from quests import quests
+from models.character_model import character_model
+from quests.quests import quests
 
 class character_with_a_quest_model(character_model):
     
