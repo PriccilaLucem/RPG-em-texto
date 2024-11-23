@@ -57,3 +57,6 @@ class Hero():
                 xp = quest.xp_given - (self.next_level_xp - self.experience)
                 self.level_up()
                 self.experience = xp
+    
+    def show_active_quests(self):
+        return "\n".join(str(quest) for quest in self.quests)

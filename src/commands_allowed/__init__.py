@@ -16,3 +16,11 @@ def prismeer_commands():
     C - Go to the center
     E - Exit the city
     """
+
+def billboard_commands():
+    return f"""
+    {global_commands()}
+    Q - Take a quest
+    E - Exit Billboard
+    N - Notes   
+    """

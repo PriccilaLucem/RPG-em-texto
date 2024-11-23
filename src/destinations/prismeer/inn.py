@@ -8,7 +8,6 @@ class Inn:
         print("You entered the inn. Would you like to rest?\n")
         print("Y - Yes\nN - No\n")
         while True:
-            print("Would you like to rest? (Y/N)")
             inn_choice = input().strip().upper()
             match inn_choice:
                 case "Y":

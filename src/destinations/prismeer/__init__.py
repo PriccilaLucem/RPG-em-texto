@@ -1,7 +1,8 @@
 from destinations.prismeer.city import City
 from characters.hero import Hero
 from global_state.global_state import should_exit, set_exit  
-from commands_allowed import global_commands, prismeer_commands
+from commands_allowed import  prismeer_commands, billboard_commands
+import curses
 def city_menu(prismeer: City, main_character: Hero, ) -> None:
     input()
     while not should_exit():  
@@ -14,7 +15,22 @@ def city_menu(prismeer: City, main_character: Hero, ) -> None:
 
         match city_key:
             case "Q":
-                print("You head to the billboard to take a quest.\n")
+                print(f"""
+                You head to the billboard to see what's written.
+                {billboard_commands()}
+                """)
+                billboard_key = input("What do you want to do?")
+                match billboard_key:
+                    case "Q":
+                        curses.wrapper(prismeer.billboard.billboard_quests_menu, main_character)
+                        print(main_character.show_active_quests())
+                    case "N":
+                        ...
+                    case "EXIT":
+                        set_exit()
+                    case "B":
+                        "Displaying inventory...\n"
+                        main_character.show_backpack()
             case "I":
                 prismeer.inn.pass_the_night(main_character)
             case "C":
