@@ -29,12 +29,7 @@ def tecla_pressionada(key):
     except Exception as e:
         print(f"Erro ao processar a tecla: {e}")
 
-def tecla_soltada(key):
-    if key == keyboard.Key.esc:
-        print("Encerrando o programa...")
-        return False  
-
-with keyboard.Listener(on_press=tecla_pressionada, on_release=tecla_soltada) as listener:
+with keyboard.Listener(on_press=tecla_pressionada) as listener:
     print("Pressione as teclas e aperte Enter para enviar. (ESC para sair)")
     print("P -- Prismeer")
 

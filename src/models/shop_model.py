@@ -12,6 +12,7 @@ class Shop_model():
                             You entered the {self.name} shop, what would you like to do?
                             T - Talk to the seller
                             B - Buy itens
+                            E - Leave the armor shop
                             """)
                 shop_speech = 0
                 while True:
@@ -24,7 +25,8 @@ class Shop_model():
                                         else:
                                                 print(self.seller.speech(-1))
                                 case "B":
-                                        # create an item class 
-                                        for item in self.seller.backpack:
-                                                print(item.__dict__)
-        
+                                        self.seller.show_inventary()
+
+                                case "E":
+                                        print("You are leaving the armor shop...")
+                                        break

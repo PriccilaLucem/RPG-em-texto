@@ -1,5 +1,6 @@
-from enum.rarity_enum import Rarity_Enum
+from enums.rarity_enum import Rarity_Enum
 from util.id_generator import IDGenerator
+from enums.weapon_type_enum import Weapon_Type_Enum
 class Weapon_model():
     
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: str, weapon_type: str) -> None:
@@ -12,8 +13,10 @@ class Weapon_model():
             self.rarity = rarity
         else:
             raise ValueError(f"Invalid rarity: {rarity}. Must be one of {list(Rarity_Enum)}")
-
-        self.weapon_type = weapon_type
+        if(isinstance(weapon_type, Weapon_Type_Enum )):
+            self.weapon_type = weapon_type
+        else: 
+            raise ValueError(f"Invalid weapon type: {weapon_type}. Must be one of{list(Weapon_Type_Enum)}")
     
     def __str__(self) -> str:
         return (

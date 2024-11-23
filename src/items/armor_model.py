@@ -1,7 +1,9 @@
 from util.id_generator import IDGenerator
-from enum.rarity_enum import Rarity_Enum
+from enums.rarity_enum import Rarity_Enum
+from enums.armor_type_enum import Armor_Type_Enum
+
 class ArmorModel:
-    def __init__(self, name: str, def_points: int, weight: float, value: int, rarity: str) -> None:
+    def __init__(self, name: str, def_points: int, weight: float, value: int, rarity: Rarity_Enum, type: Armor_Type_Enum) -> None:
         self.item_id = IDGenerator.generate_id() 
         self.name = name
         self.def_points = def_points
@@ -11,7 +13,11 @@ class ArmorModel:
             self.rarity = rarity
         else:
             raise ValueError((f"Invalid rarity: {rarity}. Must be one of {list(Rarity_Enum)}"))
-
+        if isinstance(type, Armor_Type_Enum):
+            self.type = type
+        else:
+            raise ValueError((f"Invalid armor_type: {type}. Must be one of {list(Armor_Type_Enum)}"))
+            
 
     def __str__(self) -> str:
         return (

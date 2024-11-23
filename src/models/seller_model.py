@@ -1,5 +1,5 @@
-from itens.armor_model import ArmorModel
-from itens.weapon_model import Weapon_model
+from items.armor_model import ArmorModel
+from items.weapon_model import Weapon_model
 from characters.hero import Hero
 from models.character_model import Character_model
 from typing import List, Union
@@ -10,6 +10,10 @@ class Seller_model(Character_model):
         super().__init__(name, speeches)
         self.backpack = backpack
     
+    def show_inventary(self):
+        for i in self.backpack:
+            print(i.__str__())
+        
     
     def sell_item(self, item_id: int, hero: Hero) -> None:
             for item in self.backpack:
