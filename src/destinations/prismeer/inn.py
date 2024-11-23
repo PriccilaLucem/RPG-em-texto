@@ -1,10 +1,10 @@
-from characters.hero import hero
+from characters.hero import Hero
 
 class Inn:
     def __init__(self, cost: int) -> None:
         self.cost = cost
     
-    def pass_the_night(self, main_character: hero) -> None:
+    def pass_the_night(self, main_character: Hero) -> None:
         while True:
             print("Would you like to rest? (Y/N)")
             inn_choice = input().strip().upper()

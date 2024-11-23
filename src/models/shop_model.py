@@ -1,13 +1,13 @@
-from models.seller_model import seller_model
-from characters.hero import hero
+from models.seller_model import Seller_model
+from characters.hero import Hero
 
-class shop_model():
+class Shop_model():
         def __init__(self, name: str, seller_name:str, speeches: list, backpack: list) -> None:
-                self.seller = seller_model(seller_name, speeches, backpack)
+                self.seller = Seller_model(seller_name, speeches, backpack)
                 self.name = name
         
 
-        def shop_interactions(self, main_character:hero):
+        def shop_interactions(self, main_character:Hero):
                 print(f"""
                             You entered the {self.name} shop, what would you like to do?
                             T - Talk to the seller

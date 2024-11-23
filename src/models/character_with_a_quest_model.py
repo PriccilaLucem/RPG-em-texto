@@ -1,8 +1,8 @@
-from models.character_model import character_model
-from quests.quests import quests
+from models.character_model import Character_model
+from quests.quests import Quests
 
-class character_with_a_quest_model(character_model):
+class Character_with_a_quest_model(Character_model):
     
-    def __init__(self, name: str, speeches: list, quest:quests) -> None:
+    def __init__(self, name: str, speeches: list, quest:Quests) -> None:
         super().__init__(name, speeches)    
-        self.quest:quests = quest
+        self.quest:Quests = quest

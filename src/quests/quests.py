@@ -1,7 +1,7 @@
 from typing import Any
 
 
-class quests():
+class Quests():
     QUESTS_POSSIBILITIES = []
      
     def __init__(self, difficult_stars: int, xp_given: int, gold_given: int, mission: str ) -> None:    

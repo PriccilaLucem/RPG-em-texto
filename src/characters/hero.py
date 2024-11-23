@@ -1,7 +1,7 @@
 from typing import Any, List
-from quests.quests import quests
+from quests.quests import Quests
 
-class hero():
+class Hero():
     
     def __init__(self) -> None:
         self.hp:int = 50
@@ -10,14 +10,16 @@ class hero():
         self.backpack = []
         
         self.equipments = {
-            
+            "torso": "",
+            "helmet": "",
+            "pants": "",  
         }
         
         self.experience:int = 0
-        self.next_level_xp: int= 100
+        self.next_level_xp:int = 100
         self.damage:int = 20
         self.level:int = 0
-        self.quests: List[quests] = []
+        self.quests: List[Quests] = []
         
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
@@ -33,10 +35,10 @@ class hero():
         self.next_level_xp = int(self.next_level_xp * 1.2)
         self.experience = 0
     
-    def append_quests(self, quest:quests):
+    def append_quests(self, quest:Quests):
         self.quests.append(quest)
         
-    def conclude_quests(self, quest:quests):
+    def conclude_quests(self, quest:Quests):
         if(quest in self.quests):
             self.gold += quest.gold_given
             if(self.next_level_xp >  self.experience + quest.xp_given):

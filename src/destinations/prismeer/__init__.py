@@ -1,7 +1,7 @@
-from destinations.prismeer.city import city
-from characters.hero import hero
+from destinations.prismeer.city import City
+from characters.hero import Hero
 
-def city_menu(prismeer: city, main_character: hero) -> None:
+def city_menu(prismeer: City, main_character: Hero) -> None:
     inn = prismeer.inn
     while True:
         print(
@@ -30,7 +30,7 @@ def city_menu(prismeer: city, main_character: hero) -> None:
                 print("Invalid choice. Try again.\n")
 
 
-def visit_city_center(prismeer: city, main_character: hero) -> None:
+def visit_city_center(prismeer: City, main_character: Hero) -> None:
     count_armor_speech = 1
     while True:
         print(

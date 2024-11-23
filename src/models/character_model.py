@@ -1,4 +1,4 @@
-class character_model():
+class Character_model():
     def __init__(self, name: str, speeches: list) -> None:
         self.name = name
         self.speeches = speeches    

@@ -1,11 +1,11 @@
 from pynput import keyboard
 from destinations.prismeer import city_menu
-from destinations.prismeer.city import city
-from characters.hero import hero
+from destinations.prismeer.city import City
+from characters.hero import Hero
 
 comando = []
-main_character = hero()
-prismeer = city()
+main_character = Hero()
+prismeer = City()
 
 def tecla_pressionada(key):
     global comando
