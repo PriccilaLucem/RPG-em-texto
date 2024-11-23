@@ -1,13 +1,16 @@
-from typing import Any, List
+from typing import Any, List, Union
 from quests.quests import Quests
-
+from items import armor_model, weapon_model
+from enums import weapon_type_enum, rarity_enum
 class Hero():
     
     def __init__(self) -> None:
         self.hp:int = 50
         self.max_hp:int = 50
         self.gold:int = 0
-        self.backpack = []
+        self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [
+        weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD)
+        ]
         
         self.equipments = {
             "torso": "",
@@ -19,7 +22,7 @@ class Hero():
         self.next_level_xp:int = 100
         self.damage:int = 20
         self.level:int = 0
-        self.quests: List[Quests] = []
+        self.quests: List[Quests] = [] 
         
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
@@ -38,6 +41,13 @@ class Hero():
     def append_quests(self, quest:Quests):
         self.quests.append(quest)
         
+    def init_a_quest(self, quest:Quests):
+        self.quests.append(quest)
+    
+    def show_backpack(self):
+        for i in self.backpack:
+            print(i)
+    
     def conclude_quests(self, quest:Quests):
         if(quest in self.quests):
             self.gold += quest.gold_given

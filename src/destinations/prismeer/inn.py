@@ -5,6 +5,8 @@ class Inn:
         self.cost = cost
     
     def pass_the_night(self, main_character: Hero) -> None:
+        print("You entered the inn. Would you like to rest?\n")
+        print("Y - Yes\nN - No\n")
         while True:
             print("Would you like to rest? (Y/N)")
             inn_choice = input().strip().upper()

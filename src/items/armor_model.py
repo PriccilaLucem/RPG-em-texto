@@ -10,11 +10,11 @@ class ArmorModel:
         self.weight = weight
         self.value = value
         if isinstance(rarity, Rarity_Enum):
-            self.rarity = rarity
+            self.rarity = rarity.name.lower()
         else:
             raise ValueError((f"Invalid rarity: {rarity}. Must be one of {list(Rarity_Enum)}"))
         if isinstance(type, Armor_Type_Enum):
-            self.type = type
+            self.type = type.name.lower()
         else:
             raise ValueError((f"Invalid armor_type: {type}. Must be one of {list(Armor_Type_Enum)}"))
             

@@ -10,11 +10,11 @@ class Weapon_model():
         self.weight = weight
         self.value = value
         if(isinstance(rarity, Rarity_Enum)):
-            self.rarity = rarity
+            self.rarity = rarity.name
         else:
             raise ValueError(f"Invalid rarity: {rarity}. Must be one of {list(Rarity_Enum)}")
         if(isinstance(weapon_type, Weapon_Type_Enum )):
-            self.weapon_type = weapon_type
+            self.weapon_type = weapon_type.name
         else: 
             raise ValueError(f"Invalid weapon type: {weapon_type}. Must be one of{list(Weapon_Type_Enum)}")
     

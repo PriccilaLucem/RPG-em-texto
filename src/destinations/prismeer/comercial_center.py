@@ -25,9 +25,7 @@ class Comercial_center():
         ArmorModel("Knight’s Chestplate", 7, 12.5, 75, Rarity_Enum.RARE, Armor_Type_Enum.TORSO),
         ArmorModel("Hardened Leather Pants", 3, 7.5, 35, Rarity_Enum.COMMON, Armor_Type_Enum.PANTS),
         ArmorModel("Golden Helmet", 6, 5.5, 100, Rarity_Enum.RARE, Armor_Type_Enum.HELMET),
-        ArmorModel("Mythril Greaves", 8, 10.0, 150, Rarity_Enum.EPIC, Armor_Type_Enum.BOOTS),
         ArmorModel("Silver Chestplate", 6, 10.0, 90, Rarity_Enum.UNCOMMON, Armor_Type_Enum.TORSO),
-        ArmorModel("Dragon Scale Pants", 12, 15.0, 200, Rarity_Enum.LEGENDARY, Armor_Type_Enum.PANTS),
         ArmorModel("Plated Boots", 5, 8.0, 50, Rarity_Enum.UNCOMMON, Armor_Type_Enum.BOOTS)
         
         ])
@@ -56,7 +54,7 @@ class Comercial_center():
         "Thank you hero!"
         ],
         quest=Quests(2,100,50, "Help the brothes of Damon in OwBear cave!")
-                                            
-        )
+                        
+)
 
     
