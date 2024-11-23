@@ -1,4 +1,8 @@
-def city_menu(prismeer, main_character) -> None:
+from destinations.prismeer.city import city
+from characters.hero import hero
+
+def city_menu(prismeer: city, main_character: hero) -> None:
+    inn = prismeer.inn
     while True:
         print(
             """
@@ -16,24 +20,36 @@ def city_menu(prismeer, main_character) -> None:
             case "I":
                 print("You entered the inn. Would you like to rest?\n")
                 print("Y - Yes\nN - No\n")
-                while True:
-                    inn_input = input().strip().upper()
-                    match inn_input:
-                        case "Y":
-                            if main_character.gold < prismeer.inn.cost:
-                                print("You don't have enough gold!")
-                            else:
-                                prismeer.inn.pass_the_night(main_character)
-                                print("You rested at the inn.")
-                            break
-                        case "N":
-                            break
-                        case _:
-                            print("Invalid choice. Try again.")
+                inn.pass_the_night(main_character)
             case "B":
-                print("You walk to the bustling city center.\n")
+                visit_city_center(prismeer, main_character)
             case "E":
                 print("Leaving Prismeer...\n")
                 break
             case _:
                 print("Invalid choice. Try again.\n")
+
+
+def visit_city_center(prismeer: city, main_character: hero) -> None:
+    count_armor_speech = 1
+    while True:
+        print(
+            """
+            Welcome to the city center:
+            A - Visit the armor shop
+            W - Visit the weapon shop
+            E - Exit to city menu
+            """
+        )
+        center_key = input("Where do you want to go? ").strip().upper()
+        match center_key:
+            case "A":
+                prismeer.downtown.armor_shop.shop_interactions(main_character)
+            case "W":
+                print(prismeer.downtown.weapon_shop.seller.speech(0))
+                count_armor_speech += 1
+            case "E":
+                print("Returning to city menu...\n")
+                break
+            case _:
+                print("Invalid choice. Try again.")

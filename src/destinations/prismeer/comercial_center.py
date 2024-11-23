@@ -5,12 +5,12 @@ from quests.quests import quests
 
 class comercial_center():
     def __init__(self) -> None:
-        self.armor_shop = shop_model("Two Brothers Armory", [
+        self.armor_shop = shop_model("Two Brothers Armory", "Baron",[
         "Welcome to Two Brothers Armory, what would you like to buy?",
         "We have a great Amory since the foundation of Prissmer",
         "Take a look in my armory, feel at home"], [])
         
-        self.weapon_shop = shop_model("Brotherhood of the swords", [
+        self.weapon_shop = shop_model("Brotherhood of the swords", "Chimaru", [
             "Yo, here we seel swords, only swords. We don't like other weapons",
             "We here opened as a bar, but now we sell swords, because swords are the best",
             "Are you gonna buy or just taking a look?"

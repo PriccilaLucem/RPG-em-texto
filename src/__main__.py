@@ -1,10 +1,11 @@
 from pynput import keyboard
-from destinations.prismeer import city, city_menu
+from destinations.prismeer import city_menu
+from destinations.prismeer.city import city
 from characters.hero import hero
 
 comando = []
 main_character = hero()
-prismeer = city.city()
+prismeer = city()
 
 def tecla_pressionada(key):
     global comando
@@ -37,4 +38,4 @@ with keyboard.Listener(on_press=tecla_pressionada, on_release=tecla_soltada) as 
     print("Pressione as teclas e aperte Enter para enviar. (ESC para sair)")
     print("P -- Prismeer")
 
-    listener.join()
+    listener.join() 

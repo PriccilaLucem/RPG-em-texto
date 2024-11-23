@@ -4,4 +4,4 @@ class character_model():
         self.speeches = speeches    
     
     def speech(self, list_index:int) -> str:
-        return self.speech[list_index]
+        return self.speeches[list_index]
