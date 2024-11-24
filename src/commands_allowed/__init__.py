@@ -23,3 +23,11 @@ def billboard_commands():
     E - Exit Billboard
     N - Notes   
     """
+
+def shop_commands():
+    return f"""
+    You entered the shop. What would you like to do?"
+    T - Talk to the seller
+    B - Buy items
+    E - Leave the shop
+    """

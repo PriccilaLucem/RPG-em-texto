@@ -10,9 +10,8 @@ class Seller_model(Character_model):
         super().__init__(name, speeches)
         self.backpack = backpack
     
-    def show_inventary(self):
-        for i in self.backpack:
-            print(i.__str__())
+    def show_backpack(self):
+        return "\n".join(map(str, self.backpack))  
         
     
     def sell_item(self, item_id: int, hero: Hero) -> None:

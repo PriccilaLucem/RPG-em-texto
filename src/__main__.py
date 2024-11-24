@@ -1,93 +1,80 @@
 import curses
 import time
-from threading import Event
 from destinations.prismeer.city import City
 from characters.hero import Hero
 from destinations.prismeer import city_menu
 from history.history import init_of_the_history
-from commands_allowed import game_init
 from global_state.global_state import set_exit, should_exit
-
+from util.display_message_log import display_message_log
 main_character = Hero()
 prismeer = City()
 
-
-def key_pressed_event(key, message_log: list, story_visible: dict):
+def key_pressed_event(key, message_log: list, stdscr: curses.window):
     """Handle keypress events and log messages."""
     try:
         if key == ord('P') or key == ord('p'):  
             message = "You arrived at Prismeer!"
             message_log.append(message)
-            story_visible["visible"] = False  # Hide the story
+            city_menu(prismeer, main_character, stdscr)
         elif key == ord('B') or key == ord('b'):
             message = "Displaying inventory..."
-            message_log.append(message)
+            backpack_content = main_character.show_backpack()
+            for line in backpack_content.splitlines():
+                message_log.append(line) 
+
         elif key == 27:  
             message = "Exiting game..."
-            message_log.append(message)
             set_exit()
 
     except Exception as e:
         message_log.append(f"Error while processing key press: {e}")
 
 
-def display_message_log(stdscr: curses.window, message_log: list):
-    """Display the message log at the bottom of the screen."""
-    h, w = stdscr.getmaxyx()  
-    log_start_line = h - len(message_log) - 1
+def game_loop(stdscr: curses.window):
+    """Main game loop."""
+    curses.curs_set(0)  
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
-    for i, message in enumerate(message_log[-(h - 2):]):  
-        stdscr.addstr(log_start_line + i, 0, message[:w]) 
+    message_log = []
 
-
-def main_game_loop(stdscr: curses.window):
-    # Configure the curses window
-    stdscr.nodelay(False)  # Make getch blocking for proper key detection
-    stdscr.keypad(True)  # Enable keypad input for special keys
-
-    message_log = []  # Initialize the message log
-    story_visible = {"visible": True}  # Track whether the story should be displayed
-
-    # Retrieve the story text
-    story_text = init_of_the_history()
+    story_text = "This is the beginning of your journey...\nYou face an unknown adventure.\n"
     story_lines = story_text.splitlines()
+    
+    message_log.append("Welcome to the game! Press ESC to exit.")
 
-    while True:
+    story_visible = True
+
+    while not should_exit():
         stdscr.clear()
 
-        # Display static content
         stdscr.addstr(0, 0, "Game is running...\n")
         stdscr.addstr(1, 0, "Press any key (ESC to exit)...\n")
-        stdscr.addstr(2, 0, game_init())
-        # Conditionally display the story (persistent content)
-        if story_visible["visible"]:
-            for i, line in enumerate(story_lines, start=3):
-                stdscr.addstr(i, 0, line)
+        stdscr.addstr(2, 0, "    B - View Backpack\n")
+        stdscr.addstr(3, 0, "    P - Prismeer\n")
 
-        # Display the message log at the bottom
+        if story_visible:
+                    for line in story_lines:
+                        message_log.append(line)  # Adiciona cada linha da história ao message_log
+                    message_log.append("Press any key to continue...")
+        else:
+            message_log.append("Exploration Mode Activated.")
+        
         display_message_log(stdscr, message_log)
 
         stdscr.refresh()
 
-        # Handle user input
-        try:
-            c = stdscr.getch()  # Wait for user input
-            if c == 27:  # ESC key
-                message_log.append("Exiting game...")
-                break
-            elif c != -1:
-                key_pressed_event(c, message_log, story_visible)
+        key = stdscr.getch()
 
-        except Exception as e:
-            message_log.append(f"Error while processing key press: {e}")
+        key_pressed_event(key, message_log, stdscr)
 
-        time.sleep(0.1)  # Small delay for smoother loop execution
-
+        if key == 27:  
+            break
 
 def main(stdscr):
     """Entry point for the curses application."""
     try:
-        main_game_loop(stdscr)
+        game_loop(stdscr)
     except KeyboardInterrupt:
         print("Game interrupted.")
     finally:

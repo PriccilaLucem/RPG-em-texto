@@ -45,8 +45,7 @@ class Hero():
         self.quests.append(quest)
     
     def show_backpack(self):
-        for i in self.backpack:
-            print(i)
+        return "\n".join(map(str, self.backpack))  
     
     def conclude_quests(self, quest:Quests):
         if(quest in self.quests):
@@ -60,3 +59,5 @@ class Hero():
     
     def show_active_quests(self):
         return "\n".join(str(quest) for quest in self.quests)
+    
+    

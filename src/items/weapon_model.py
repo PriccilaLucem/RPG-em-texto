@@ -19,15 +19,8 @@ class Weapon_model():
             raise ValueError(f"Invalid weapon type: {weapon_type}. Must be one of{list(Weapon_Type_Enum)}")
     
     def __str__(self) -> str:
-        return (
-            f"Name: {self.name}\n"
-            f"Attack Points: {self.attack_points}\n"
-            f"Weight: {self.weight} kg\n"
-            f"Value: {self.value} gold\n"
-            f"Rarity: {self.rarity}\n"
-            f"Weapon Type: {self.weapon_type}\n"
-        )
-        
+        return f"{self.name} - {self.attack_points} DEF, {self.weight}kg, {self.value} gold ({self.rarity} {self.weapon_type})"
+
     def sell(self) -> int:
         print(f"You sold {self.name} for {self.value} gold.")
         return self.value

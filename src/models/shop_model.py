@@ -1,97 +1,116 @@
 import curses
+from typing import List
 from models.seller_model import Seller_model
 from characters.hero import Hero
+from global_state.global_state import should_exit, set_exit
+from commands_allowed import shop_commands
 
-class Shop_model():
-    def __init__(self, name: str, seller_name: str, speeches: list, backpack: list) -> None:
-        self.seller = Seller_model(seller_name, speeches, backpack)
+class Shop_model:
+    def __init__(self, name: str, seller_name: str, speeches: List[str], backpack) -> None:
         self.name = name
+        self.seller = Seller_model(seller_name, speeches, backpack)
 
-    def shop_interactions(self, main_character: Hero, stdscr) -> None:
-        curses.curs_set(0)  # Hide the cursor
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Highlighted text color
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Normal text color
+    def shop_interactions(self, main_character: Hero, stdscr: curses.window) -> None:
+        """Exibe o menu principal do Shop."""
+        curses.curs_set(0)
+        stdscr.clear()
 
-        shop_speech = 0
-        while True:
-            stdscr.clear()
-            stdscr.addstr(f"You entered the {self.name} shop. What would you like to do?\n")
-            stdscr.addstr("T - Talk to the seller\n")
-            stdscr.addstr("B - Buy items\n")
-            stdscr.addstr("E - Leave the shop\n")
+        stdscr.addstr(f"Welcome to {self.name}!\n")
+        stdscr.addstr(shop_commands())
+        stdscr.refresh()
+
+        while not should_exit():
+            stdscr.clear()  
+            stdscr.addstr(f"Welcome to {self.name}!\n")
+            stdscr.addstr(shop_commands())
             stdscr.refresh()
 
-            shop_key = stdscr.getch()
+            key = stdscr.getch()
 
-            if shop_key == ord('T'):
-                # Talk to the seller
-                if shop_speech < len(self.seller.speeches):
-                    stdscr.clear()
-                    stdscr.addstr(self.seller.speech(shop_speech))
-                    shop_speech += 1
-                else:
-                    stdscr.clear()
-                    stdscr.addstr(self.seller.speech(-1))  # End of seller's speeches
-                stdscr.refresh()
-                stdscr.getch()  # Wait for user to press a key before returning to the menu
-
-            elif shop_key == ord('B'):
-                # Buy items
+            if key in {ord('B'), ord('b')}:  
+                self.show_inventory(stdscr, main_character)
+            elif key in {ord('I'), ord('i')}: 
                 stdscr.clear()
-                if not self.seller.inventory:
-                    stdscr.addstr("The shop is out of stock!\n")
-                else:
-                    stdscr.addstr("Available items for sale:\n")
-                    for idx, item in enumerate(self.seller.inventory):
-                        stdscr.addstr(f"{idx + 1}. {item.name} - {item.price} gold\n")
-                    stdscr.addstr("\nUse UP/DOWN arrows to navigate and ENTER to select an item.\n")
-                    stdscr.refresh()
-
-                    selected_index = 0  # Start at the top of the list
-                    while True:
-                        stdscr.clear()
-                        stdscr.addstr("Available items for sale:\n")
-                        for idx, item in enumerate(self.seller.inventory):
-                            if idx == selected_index:
-                                stdscr.addstr(f"--> {item.name} - {item.price} gold\n", curses.color_pair(1))  # Highlight selected item
-                            else:
-                                stdscr.addstr(f"    {item.name} - {item.price} gold\n", curses.color_pair(2))  # Normal items
-                        stdscr.refresh()
-
-                        key = stdscr.getch()  # Get user input
-
-                        if key == curses.KEY_UP and selected_index > 0:
-                            selected_index -= 1
-                        elif key == curses.KEY_DOWN and selected_index < len(self.seller.inventory) - 1:
-                            selected_index += 1
-                        elif key == 10:  # Enter key to select an item
-                            selected_item = self.seller.inventory[selected_index]
-                            if main_character.gold >= selected_item.price:
-                                main_character.gold -= selected_item.price
-                                main_character.add_item(selected_item)
-                                stdscr.clear()
-                                stdscr.addstr(f"You bought {selected_item.name} for {selected_item.price} gold!\n")
-                                stdscr.refresh()
-                                curses.napms(1000)  # Wait for a second before returning to the shop menu
-                                break  # Exit buying items menu
-                            else:
-                                stdscr.clear()
-                                stdscr.addstr("You don't have enough gold.\n")
-                                stdscr.refresh()
-                                curses.napms(1000)  # Wait for a second before returning to the shop menu
-                                break  # Exit buying items menu
-                        elif key == 27:  # Escape key to exit the buying items menu
-                            break  # Exit buying items menu
-
-            elif shop_key == ord('E'):
-                # Exit shop
-                stdscr.clear()
-                stdscr.addstr("You are leaving the shop...\n")
+                stdscr.addstr(main_character.show_backpack())
                 stdscr.refresh()
                 curses.napms(1000)
-                break  # Exit the shop
-
+            elif key in {ord('E'), ord('e')}:  
+                stdscr.clear()
+                stdscr.addstr("Thank you for visiting! Come again.\n")
+                stdscr.refresh()
+                curses.napms(1000)
+                break
+            elif key == 27: 
+                set_exit()
             else:
-                # Invalid key pressed
-                continue
+                stdscr.clear()
+                stdscr.addstr("Invalid key pressed. Try again.\n")
+                stdscr.refresh()
+                curses.napms(1000)
+
+
+    def show_inventory(self, stdscr: curses.window, main_character: Hero) -> None:
+        """Displays the available items in the shop with scrolling."""
+        if not self.seller.backpack:
+            stdscr.clear()
+            stdscr.addstr("The shop is out of stock!\n")
+            stdscr.refresh()
+            stdscr.getch()
+            return
+
+        curses.curs_set(0)
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+        selected_index = 0 
+        max_height, max_width = stdscr.getmaxyx() 
+        item_list_height = max_height - 4 
+
+        items = self.seller.backpack
+
+        while not should_exit():
+            stdscr.clear()
+
+            stdscr.addstr(f"Items for Sale in {self.name}\n")
+            stdscr.addstr(f"Use UP/DOWN arrows to navigate, ENTER to buy, ESC to exit\n")
+
+            start_idx = selected_index - (selected_index % item_list_height)
+            end_idx = min(start_idx + item_list_height, len(self.seller.backpack))
+            for idx in range(start_idx, end_idx):
+                item = items[idx]
+                if idx == selected_index:
+                    stdscr.addstr(f"--> {item.__str__()}\n", curses.color_pair(1))
+                else:
+                    stdscr.addstr(f"    {item.__str__()}\n")
+
+            stdscr.refresh()
+
+            key = stdscr.getch()
+
+            if key == curses.KEY_UP and selected_index > 0:
+                selected_index -= 1  
+            elif key == curses.KEY_DOWN and selected_index < len(items) - 1:
+                selected_index += 1  
+            elif key == 10:  
+                selected_item = items[selected_index]
+                stdscr.clear()
+
+                if main_character.gold >= selected_item.value:
+                    main_character.gold -= selected_item.value
+                    main_character.backpack.append(selected_item)
+                    self.seller.backpack.remove(selected_item)
+                    stdscr.addstr(f"You bought {selected_item.name} for {selected_item.value} gold!\n")
+                else:
+                    stdscr.addstr("You don't have enough gold to buy this item.\n")
+
+                stdscr.refresh()
+                curses.napms(1000)
+            elif key == 27:  
+                stdscr.clear()
+                stdscr.addstr("Exiting shop inventory.\n")
+                stdscr.refresh()
+                curses.napms(1000)
+                break
+            elif key in {ord('M'), ord('m')}: 
+                self.shop_interactions(stdscr, main_character)
+                break

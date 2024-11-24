@@ -19,14 +19,8 @@ class ArmorModel:
             raise ValueError((f"Invalid armor_type: {type}. Must be one of {list(Armor_Type_Enum)}"))
             
 
-    def __str__(self) -> str:
-        return (
-            f"Name: {self.name}\n"
-            f"Defense Points: {self.def_points}\n"
-            f"Weight: {self.weight} kg\n"
-            f"Value: {self.value} gold\n"
-            f"Rarity: {self.rarity}\n"
-        )
+    def __str__(self): 
+        return f"{self.name} - {self.def_points} DEF, {self.weight}kg, {self.value} gold ({self.rarity} {self.type})"
         
     def sell(self) -> int:
         print(f"You sold {self.name} for {self.value} gold.")
