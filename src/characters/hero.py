@@ -7,7 +7,7 @@ class Hero():
     def __init__(self) -> None:
         self.hp:int = 50
         self.max_hp:int = 50
-        self.gold:int = 0
+        self.gold:int = 1000000
         self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [
         weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD)
         ]

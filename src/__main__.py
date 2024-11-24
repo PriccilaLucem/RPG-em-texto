@@ -1,93 +1,93 @@
-from threading import Thread, Event
-from pynput import keyboard
-import queue
+import curses
 import time
+from threading import Event
 from destinations.prismeer.city import City
 from characters.hero import Hero
 from destinations.prismeer import city_menu
 from history.history import init_of_the_history
 from commands_allowed import game_init
+from global_state.global_state import set_exit, should_exit
 
-command_queue = queue.Queue()
-comando = []
 main_character = Hero()
 prismeer = City()
-exit_event = Event()  
 
-def tecla_pressionada(key):
-    """Handle keypress events."""
-    global comando
 
+def key_pressed_event(key, message_log: list, story_visible: dict):
+    """Handle keypress events and log messages."""
     try:
-        if key == keyboard.Key.enter:
-            input_usuario = ''.join(comando).strip().upper()
-            comando.clear()  
+        if key == ord('P') or key == ord('p'):  
+            message = "You arrived at Prismeer!"
+            message_log.append(message)
+            story_visible["visible"] = False  # Hide the story
+        elif key == ord('B') or key == ord('b'):
+            message = "Displaying inventory..."
+            message_log.append(message)
+        elif key == 27:  
+            message = "Exiting game..."
+            message_log.append(message)
+            set_exit()
 
-            if input_usuario == "P":
-                print("You arrived at Prismeer!\n")
-                city_menu(prismeer, main_character)  
-            elif input_usuario == "EXIT":
-                print("Global command received: Exiting...")
-                command_queue.put("EXIT")
-                exit_event.set()  
-            elif input_usuario == "B":
-                print("Displaying inventory...\n")
-                main_character.show_backpack() 
-            else:
-                game_init()
-                
-        elif hasattr(key, 'char') and key.char is not None:
-            comando.append(key.char)
-
-        elif key == keyboard.Key.backspace:
-            if comando:
-                comando.pop()
-    except Exception as e:  
-        print(f"Error processing key press: {e}")
+    except Exception as e:
+        message_log.append(f"Error while processing key press: {e}")
 
 
-def start_listening():
-    def stop_listener(listener):
-        exit_event.wait()
-        listener.stop()  
+def display_message_log(stdscr: curses.window, message_log: list):
+    """Display the message log at the bottom of the screen."""
+    h, w = stdscr.getmaxyx()  
+    log_start_line = h - len(message_log) - 1
 
-    with keyboard.Listener(on_press=tecla_pressionada) as listener:
-        stop_thread = Thread(target=stop_listener, args=(listener,), daemon=True)
-        stop_thread.start()
-        listener.join()
+    for i, message in enumerate(message_log[-(h - 2):]):  
+        stdscr.addstr(log_start_line + i, 0, message[:w]) 
 
 
-def process_global_commands():
-    """Process commands from the global command queue."""
+def main_game_loop(stdscr: curses.window):
+    # Configure the curses window
+    stdscr.nodelay(False)  # Make getch blocking for proper key detection
+    stdscr.keypad(True)  # Enable keypad input for special keys
+
+    message_log = []  # Initialize the message log
+    story_visible = {"visible": True}  # Track whether the story should be displayed
+
+    # Retrieve the story text
+    story_text = init_of_the_history()
+    story_lines = story_text.splitlines()
+
     while True:
-        if not command_queue.empty():
-            command = command_queue.get()
-            if command == "EXIT":
-                print("Exiting the game...")
+        stdscr.clear()
+
+        # Display static content
+        stdscr.addstr(0, 0, "Game is running...\n")
+        stdscr.addstr(1, 0, "Press any key (ESC to exit)...\n")
+        stdscr.addstr(2, 0, game_init())
+        # Conditionally display the story (persistent content)
+        if story_visible["visible"]:
+            for i, line in enumerate(story_lines, start=3):
+                stdscr.addstr(i, 0, line)
+
+        # Display the message log at the bottom
+        display_message_log(stdscr, message_log)
+
+        stdscr.refresh()
+
+        # Handle user input
+        try:
+            c = stdscr.getch()  # Wait for user input
+            if c == 27:  # ESC key
+                message_log.append("Exiting game...")
                 break
+            elif c != -1:
+                key_pressed_event(c, message_log, story_visible)
+
+        except Exception as e:
+            message_log.append(f"Error while processing key press: {e}")
+
+        time.sleep(0.1)  # Small delay for smoother loop execution
 
 
-def main_game_loop():
-
-    init_of_the_history()
-    print(game_init())
-    while not exit_event.is_set():
-        time.sleep(0.1)
-        if not command_queue.empty():
-            command = command_queue.get()
-            if command == "EXIT":
-                print("Global command received: Exiting game loop.")
-                break
-
-def main():
-    input_thread = Thread(target=start_listening, daemon=True)
-    input_thread.start()
-
-    command_thread = Thread(target=process_global_commands, daemon=True)
-    command_thread.start()
-
+def main(stdscr):
+    """Entry point for the curses application."""
     try:
-        main_game_loop()
+        main_game_loop(stdscr)
     except KeyboardInterrupt:
         print("Game interrupted.")
     finally:
@@ -95,4 +95,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    curses.wrapper(main)

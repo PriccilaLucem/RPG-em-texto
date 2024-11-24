@@ -1,8 +1,9 @@
 from destinations.prismeer.city import City
 from characters.hero import Hero
 from global_state.global_state import should_exit, set_exit  
-from commands_allowed import  prismeer_commands, billboard_commands
+from commands_allowed import  prismeer_commands
 import curses
+
 def city_menu(prismeer: City, main_character: Hero, ) -> None:
     input()
     while not should_exit():  
@@ -15,22 +16,7 @@ def city_menu(prismeer: City, main_character: Hero, ) -> None:
 
         match city_key:
             case "Q":
-                print(f"""
-                You head to the billboard to see what's written.
-                {billboard_commands()}
-                """)
-                billboard_key = input("What do you want to do?")
-                match billboard_key:
-                    case "Q":
-                        curses.wrapper(prismeer.billboard.billboard_quests_menu, main_character)
-                        print(main_character.show_active_quests())
-                    case "N":
-                        ...
-                    case "EXIT":
-                        set_exit()
-                    case "B":
-                        "Displaying inventory...\n"
-                        main_character.show_backpack()
+                prismeer.billboard.billboard_menu(main_character)
             case "I":
                 prismeer.inn.pass_the_night(main_character)
             case "C":
@@ -47,29 +33,44 @@ def city_menu(prismeer: City, main_character: Hero, ) -> None:
             case _:
                 print(f"Invalid choice. Try again. {city_key}\n")
 
-def visit_city_center(prismeer: City, main_character: Hero) -> None:
-    while not should_exit():  
-        print(
-            """
-            Welcome to the city center:
-            A - Visit the armor shop
-            W - Visit the weapon shop
-            E - Exit to city menu
-            EXIT - Quit the game
-            """
-        )
-        center_key = input("Where do you want to go? ").strip().upper()
+def visit_city_center(prismeer: City, main_character: Hero, stdscr) -> None:
+    curses.curs_set(0)  # Hide the cursor
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
 
-        match center_key:
-            case "A":
-                prismeer.downtown.armor_shop.shop_interactions(main_character)
-            case "W":
-                print(prismeer.downtown.weapon_shop.seller.speech(0))
-            case "E":
-                print("Returning to city menu...\n")
-                break
-            case "EXIT":
-                print("Exiting the game...\n")
-                set_exit()
-            case _:
-                print("Invalid choice. Try again.")
+    while not should_exit():
+        stdscr.clear()
+        stdscr.addstr("""
+        Welcome to the city center:
+        A - Visit the armor shop
+        W - Visit the weapon shop
+        E - Exit to city menu
+        EXIT - Quit the game
+        """)
+        stdscr.refresh()
+
+        center_key = stdscr.getch()  # Wait for user input
+
+        # Handle the key press based on the user's input
+        if center_key == ord('A'):
+            prismeer.downtown.armor_shop.shop_interactions(main_character, stdscr)
+        elif center_key == ord('W'):
+            prismeer.downtown.weapon_shop.shop_interactions(main_character, stdscr)
+        elif center_key == ord('E'):
+            stdscr.clear()
+            stdscr.addstr("Returning to city menu...\n")
+            stdscr.refresh()
+            curses.napms(1000)  # Wait for 1 second before returning
+            break
+        elif center_key == ord('X') or center_key == ord('Q'):  # EXIT or Quit the game
+            stdscr.clear()
+            stdscr.addstr("Exiting the game...\n")
+            stdscr.refresh()
+            set_exit()
+            break
+        else:
+            stdscr.clear()
+            stdscr.addstr("Invalid choice. Try again.\n")
+            stdscr.refresh()
+            curses.napms(1000)  # Wait for 1 second before clearing the error message

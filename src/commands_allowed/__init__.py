@@ -1,6 +1,5 @@
 def global_commands():
     return"""
-    EXIT - Quit the game
     B - View Backpack"""
           
 def game_init():

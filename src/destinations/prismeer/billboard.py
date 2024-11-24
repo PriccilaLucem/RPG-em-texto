@@ -3,9 +3,30 @@ import curses
 from quests.quests import Quests
 from quests import generate_random_quests
 from characters.hero import Hero
+from commands_allowed import billboard_commands
+from global_state.global_state import set_exit
+from characters.hero import Hero
+
 class Billboard():
     def __init__(self) -> None:
         self.quests: List[Quests] = generate_random_quests()
+    
+    def billboard_menu(self, main_character:Hero) -> None:
+        print(f"""
+                You head to the billboard to see what's written.
+                {billboard_commands()}
+                """)
+        billboard_key = input("What do you want to do?")
+        match billboard_key:
+            case "Q":
+                curses.wrapper(self.billboard_quests_menu, main_character)
+            case "N":
+                ...
+            case "EXIT":
+                set_exit()
+            case "B":
+                "Displaying inventory...\n"
+                main_character.show_backpack()
     
     def show_quests(self) -> None:
         """Print all available quests."""
