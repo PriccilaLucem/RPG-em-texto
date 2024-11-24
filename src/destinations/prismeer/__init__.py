@@ -17,7 +17,7 @@ def city_menu(prismeer: City, main_character: Hero, stdscr: curses.window) -> No
                 if city_key == ord('Q') or city_key == ord('q'):
                     prismeer.billboard.billboard_menu(stdscr, main_character)
                 elif city_key == ord('I') or city_key == ord('i'):
-                    prismeer.inn.pass_the_night(main_character)
+                    prismeer.inn.pass_the_night(main_character, stdscr)
                 elif city_key == ord('C') or city_key == ord('c'):
                     visit_city_center(prismeer, main_character, stdscr)
                 elif city_key == ord('E') or city_key == ord('e'):

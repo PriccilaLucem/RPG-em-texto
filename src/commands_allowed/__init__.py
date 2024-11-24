@@ -27,7 +27,8 @@ def billboard_commands():
 def shop_commands():
     return f"""
     You entered the shop. What would you like to do?"
+    {global_commands()}
     T - Talk to the seller
-    B - Buy items
+    S - Buy items
     E - Leave the shop
     """

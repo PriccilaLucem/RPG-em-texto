@@ -6,4 +6,4 @@ class City():
     def __init__(self) -> None:
         self.downtown:Comercial_center = Comercial_center()
         self.billboard: Billboard = Billboard()
-        self.inn:Inn = Inn(20)    
+        self.inn:Inn = Inn(20, "The Wandering Willow")

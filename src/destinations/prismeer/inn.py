@@ -1,25 +1,39 @@
 from characters.hero import Hero
-
+import curses
 class Inn:
-    def __init__(self, cost: int) -> None:
+    def __init__(self, cost: int, name) -> None:
         self.cost = cost
+        self.name = name
     
-    def pass_the_night(self, main_character: Hero) -> None:
-        print("You entered the inn. Would you like to rest?\n")
-        print("Y - Yes\nN - No\n")
+    def pass_the_night(self, main_character: Hero, stdscr:curses.window ) -> None:
+        stdscr.clear()
+        stdscr.refresh()
         while True:
-            inn_choice = input().strip().upper()
-            match inn_choice:
-                case "Y":
-                    if main_character.gold < self.cost:
-                        print("You don't have enough gold!")
-                    else:
-                        main_character.gold -= self.cost
-                        main_character.hp = main_character.max_hp
-                        print(f"You rested at the inn. Remaining gold: {main_character.gold}")
-                    break
-                case "N":
-                    print("You chose not to rest.\n")
-                    break
-                case _:
-                    print("Invalid choice. Try again.")
+            stdscr.addstr(f"You entered the {self.name}. Would you like to rest?\n")
+            stdscr.addstr("Y - Yes\nN - No\n")
+            inn_choice = stdscr.getch()
+            if inn_choice == ord("Y") or inn_choice == ord("y"):
+
+                if main_character.gold < self.cost:
+                    stdscr.addstr("You don't have enough gold!")
+                    stdscr.refresh()
+                else:
+                    main_character.gold -= self.cost
+                    main_character.hp = main_character.max_hp
+                    stdscr.addstr(f"You rested at the inn. Remaining gold: {main_character.gold}")
+                    stdscr.refresh()
+                curses.napms(2000)
+                break
+            elif inn_choice == ord("N") or inn_choice == ord("n"):
+                stdscr.addstr("You chose not to rest.\n")
+                stdscr.refresh()
+                curses.napms(2000)
+                break
+            else:
+                    stdscr.clear()
+                    stdscr.addstr("Invalid choice. Try again.\n")
+                    stdscr.refresh()
+                    curses.napms(1000)
+                    stdscr.clear()
+                
+                

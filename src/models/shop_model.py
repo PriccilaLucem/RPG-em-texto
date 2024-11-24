@@ -18,7 +18,7 @@ class Shop_model:
         stdscr.addstr(f"Welcome to {self.name}!\n")
         stdscr.addstr(shop_commands())
         stdscr.refresh()
-
+        speech_accounted = 0
         while not should_exit():
             stdscr.clear()  
             stdscr.addstr(f"Welcome to {self.name}!\n")
@@ -27,19 +27,32 @@ class Shop_model:
 
             key = stdscr.getch()
 
-            if key in {ord('B'), ord('b')}:  
+            if key in {ord('s'), ord('S')}:  
                 self.show_inventory(stdscr, main_character)
-            elif key in {ord('I'), ord('i')}: 
-                stdscr.clear()
-                stdscr.addstr(main_character.show_backpack())
-                stdscr.refresh()
-                curses.napms(1000)
+            elif key in {ord("B"), ord("b")}:
+                    stdscr.clear()
+                    stdscr.addstr("Displaying inventory...\n")
+                    stdscr.addstr(main_character.show_backpack())  
+                    stdscr.refresh()
+                    stdscr.getch()
             elif key in {ord('E'), ord('e')}:  
                 stdscr.clear()
                 stdscr.addstr("Thank you for visiting! Come again.\n")
                 stdscr.refresh()
                 curses.napms(1000)
                 break
+            elif key in {ord("T"), ord("t")}:
+                if speech_accounted < len(self.seller.speeches):
+                    stdscr.clear()
+                    stdscr.addstr(self.seller.speech(speech_accounted))
+                    speech_accounted += 1
+                    stdscr.refresh()
+                    curses.napms(2000)
+                else:
+                    stdscr.clear()
+                    stdscr.addstr(self.seller.speech(2))
+                    stdscr.refresh()
+                    curses.napms(2000)
             elif key == 27: 
                 set_exit()
             else:
