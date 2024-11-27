@@ -4,6 +4,8 @@ from models.character_with_a_quest_model import Character_with_a_quest_model
 from destinations.prismeer.items import generate_armor_from_prismeer_seller, generate_weapon_from_prismeer_seller
 from characters.hero import Hero
 from typing import List, Union
+from quests.quests import Quests
+
 class Comercial_center():
     def __init__(self) -> None:
         self.armor_shop = Shop_model("Two Brothers Armory", "Baron",[
@@ -28,7 +30,7 @@ class Comercial_center():
         "Hero! Hero! Please you have to help my brothers... They tried to take the treasure of OwBear and now they are trapped in his cave!", 
         "Thank you hero!"
         ],
-        (1,2,100,25, "Help the brothes of Damon in OwBear cave!"))
+        Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!"))
         ]
 
     def talk_to_npc(self, key:int, main_character:Hero):

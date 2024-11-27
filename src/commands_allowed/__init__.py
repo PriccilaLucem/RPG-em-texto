@@ -32,3 +32,10 @@ def shop_commands():
     S - Buy items
     E - Leave the shop
     """
+
+def cave_commands():
+    return f"""
+    {global_commands()}
+    Enter - Enter the cave
+    E - Go to Prismeer's surroundings
+    """

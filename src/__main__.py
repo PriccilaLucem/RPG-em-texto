@@ -5,21 +5,26 @@ from destinations.prismeer import city_menu
 from history.history import init_of_the_history
 from global_state.global_state import set_exit, should_exit
 from util.display_message import display_message
+from destinations.cave import cave
+from destinations.cave.owl_bear_cave import OwlBearCave
 
 main_character = Hero()
 prismeer = City()
+owl_bear_cave = OwlBearCave()
 
-def key_pressed_event(key, stdscr: curses.window):
+def key_pressed_event(key, stdscr: curses.window, allow_enter_cave: bool):
     key_actions = {
         "P": lambda: city_menu(prismeer, main_character, stdscr),
         "B": lambda: display_message(stdscr, "Displaying inventory...\n" + main_character.show_backpack(), 0),
         "E": lambda: display_message(stdscr, "Exiting game...", 0) or set_exit(),
-        chr(27): lambda: display_message(stdscr, "Exiting game...", 0) or set_exit(),  # ESC key
+        "C": lambda: cave(owl_bear_cave, main_character, stdscr) if allow_enter_cave else display_message(stdscr, "The cave is not accessible yet.", 1000),
+        chr(27): lambda: display_message(stdscr, "Exiting game...", 0) or set_exit(),  
     }
-
+    
     try:
         action = key_actions.get(chr(key).upper(), lambda: display_message(stdscr, "Invalid choice. Try again.", 1000))
         action()
+        
     except Exception as e:
         display_message(stdscr, f"Error while processing key press: {e}", 1000)
 
@@ -40,12 +45,13 @@ def game_loop(stdscr: curses.window):
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
     history = init_of_the_history()
-    display_message(stdscr, history, 10000)  
+    display_message(stdscr, history, 0)  
 
     while not should_exit():
-        render_ui(stdscr)
+        allow_enter_cave = any(quest.id == 1 for quest in main_character.quests)
+        render_ui(stdscr, allow_enter_cave)
         key = stdscr.getch()  
-        key_pressed_event(key, stdscr)
+        key_pressed_event(key, stdscr, allow_enter_cave)
 
 def main(stdscr):
     

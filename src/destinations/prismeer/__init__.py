@@ -26,11 +26,11 @@ def city_menu(prismeer: City, main_character: Hero, stdscr: curses.window) -> No
                 27: lambda: (set_exit(), display_message(stdscr, "Exiting the game...")),
             }
             
-            if chr(city_key).upper() in key_actions:
-                key_actions[chr(city_key).upper()]()
-            elif city_key in {ord('e'), ord('E')}:
-                display_message(stdscr, "Leaving Prismeer...", 1000)
+            if city_key in {ord('e'), ord('E')}:
+                key_actions['E']()
                 break
+            elif chr(city_key).upper() in key_actions:
+                key_actions[chr(city_key).upper()]()
             elif city_key == 27:
                 key_actions[27]()            
             else:

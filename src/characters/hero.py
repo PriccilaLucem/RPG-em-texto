@@ -22,7 +22,7 @@ class Hero():
         self.next_level_xp:int = 100
         self.damage:int = 20
         self.level:int = 0
-        self.quests: List[Quests] = [] 
+        self.quests: List[Quests] = [Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!")] 
         self.concluded_quests: List[Quests] = []
 
     def __getattribute__(self, name: str) -> Any:
