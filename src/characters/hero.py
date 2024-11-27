@@ -23,7 +23,8 @@ class Hero():
         self.damage:int = 20
         self.level:int = 0
         self.quests: List[Quests] = [] 
-        
+        self.concluded_quests: List[Quests] = []
+
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
     

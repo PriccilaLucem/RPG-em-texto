@@ -5,51 +5,41 @@ from quests import generate_random_quests
 from characters.hero import Hero
 from commands_allowed import billboard_commands
 from global_state.global_state import set_exit,should_exit
-
+from util.display_message import display_message
 class Billboard():
     def __init__(self) -> None:
         self.quests: List[Quests] = generate_random_quests()
 
+    
     def billboard_menu(self, stdscr: curses.window, main_character: Hero) -> None:
         curses.curs_set(0)
-        stdscr.clear()
-        
-        stdscr.addstr("You head to the billboard to see what's written.\n")
-        stdscr.addstr(billboard_commands())
-        stdscr.refresh()
-    
-        while not should_exit():  
-            stdscr.clear()
-            stdscr.addstr("You head to the billboard to see what's written.\n")
-            stdscr.addstr(billboard_commands())
-            stdscr.refresh()
-        
-            key = stdscr.getch() 
-    
-            if key == ord('Q') or key == ord('q'):  
-                self.show_quests(stdscr, main_character)
-            elif key == ord('I') or key == ord('i'):  
-                stdscr.clear()  
-                stdscr.addstr(main_character.show_backpack())
-                stdscr.refresh()
-                curses.napms(1000)  
-            elif key == ord("N") or key == ord("n"):  
-                pass
-            elif key == ord("E") or key == ord("e"):  
+
+        key_actions = {
+            "Q": lambda: self.show_quests(stdscr, main_character),
+            "I": lambda: display_message(stdscr, main_character.show_backpack(), 1000),
+            "N": lambda: None,  
+            "E": lambda: display_message(stdscr, "You pressed E. Exiting quest selection.", 1000) or "BREAK",
+            27: lambda: set_exit(),  
+        }
+
+        while not should_exit():
+            try:
                 stdscr.clear()
-                stdscr.addstr("You pressed E. Exiting quest selection.\n")
+                stdscr.addstr("You head to the billboard to see what's written.\n")
+                stdscr.addstr(billboard_commands())
                 stdscr.refresh()
-                curses.napms(1000)
-                break
-            elif key == 27:  
-                set_exit()
-            else:
-                stdscr.clear()                
-                stdscr.refresh()
-                stdscr.addstr("You pressed an invalid key.\n")
-    
-    
-    
+
+                key = stdscr.getch()
+                action = key_actions.get(chr(key).upper() if key < 256 else None, lambda: display_message(stdscr, "You pressed an invalid key.", 1000))
+                result = action()
+                if result == "BREAK":
+                    break
+
+            except Exception as e:
+                display_message(stdscr, f"An error occurred: {e}", 2000)
+
+
+
     def show_quests(self, stdscr: curses.window, main_character: Hero) -> None:
         """Display all available quests on the billboard."""
         if not self.quests:

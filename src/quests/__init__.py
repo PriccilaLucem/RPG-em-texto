@@ -31,6 +31,6 @@ def generate_random_quests(n: int = 5) -> List[Quests]:
         difficulty = random.randint(1, 3)
         reward = difficulty * random.randint(10, 20)  
         xp_given = difficulty * random.randint(20, 50)
-        quests.append(Quests(difficulty, xp_given, reward, f"{title}: {description}"))
+        quests.append(Quests(None, difficulty, xp_given, reward, f"{title}: {description}"))
 
     return quests

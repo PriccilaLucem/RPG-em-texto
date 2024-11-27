@@ -1,9 +1,9 @@
 from models.shop_model import Shop_model
 from models.character_model import Character_model
 from models.character_with_a_quest_model import Character_with_a_quest_model
-from quests.quests import Quests
 from destinations.prismeer.items import generate_armor_from_prismeer_seller, generate_weapon_from_prismeer_seller
-
+from characters.hero import Hero
+from typing import List, Union
 class Comercial_center():
     def __init__(self) -> None:
         self.armor_shop = Shop_model("Two Brothers Armory", "Baron",[
@@ -18,18 +18,27 @@ class Comercial_center():
             "Are you gonna buy or just taking a look?"
         ],generate_weapon_from_prismeer_seller())
         
-        self.person1 = Character_model("Afrac", [
+        self.npcs: List[Union[Character_model, Character_with_a_quest_model]]  = [Character_model("Afrac", [
             "Hello There i'm Afrac, nice to meet you"
-        ])    
-        self.person2 = Character_model("Osvaldo",[
+        ]), 
+        Character_model("Osvaldo",[
             "Do you have any vodka? I want to drink"
-        ])
-        self.person3 = Character_with_a_quest_model("Damon", [
+        ]),
+        Character_with_a_quest_model("Damon", [
         "Hero! Hero! Please you have to help my brothers... They tried to take the treasure of OwBear and now they are trapped in his cave!", 
         "Thank you hero!"
         ],
-        quest=Quests(2,100,25, "Help the brothes of Damon in OwBear cave!")
-                        
-)
+        (1,2,100,25, "Help the brothes of Damon in OwBear cave!"))
+        ]
 
-    
+    def talk_to_npc(self, key:int, main_character:Hero):
+        npc_to_talk = self.npcs[key-1]
+        if any(quest.id == 1 for quest in main_character.concluded_quests) and key == 3:
+            return npc_to_talk.speech(1)
+        else:
+            return npc_to_talk.speech(0)
+                
+
+    def append_npc_quest(self, main_character: Hero):
+        main_character.append_quests(self.npcs[2].quest)
+        self.npcs[2].quest = None
