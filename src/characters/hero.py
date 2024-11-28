@@ -2,17 +2,18 @@ from typing import Any, List, Union, Optional, Dict
 from quests.quests import Quests
 from items import armor_model, weapon_model
 from enums import weapon_type_enum, rarity_enum
-
+from models.abilities_model import Ability_Model
 class Hero():
     
     def __init__(self) -> None:
-        self.hp:int = 50
+        self.name: str = "Hero" 
+        self.health_points:int = 50
         self.max_hp:int = 50
         self.gold:int = 1000000
         self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [
         weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD)
         ]
-        
+        self.abilities: List[Ability_Model] = []
         self.equipments: Dict[str, Optional[Union[armor_model.ArmorModel, weapon_model.Weapon_model]]] = {
             "torso": None,
             "helmet": None,

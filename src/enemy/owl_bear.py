@@ -3,6 +3,7 @@ from enums.weakness_enum import WeaknessEnum
 from enums.immunity_enum import ImmunityEnum
 from enums.enemy_type_enum import EnemyType
 from abilities.crushing_hug import CrushingHug
+
 class owl_bear(Enemy_model):
     def __init__(self, 
                   name="Owlbear",
@@ -13,7 +14,7 @@ class owl_bear(Enemy_model):
                     critical_hit_chance=0.05,
                     resistance_factor=1.0,
                     health_points=100,
-                    speed=10,
+                    speed=15,
                     weakness=[WeaknessEnum.FIRE.value, WeaknessEnum.SILVER_WEAPONS.value],
                     immunities=[ImmunityEnum.POISON.value, ImmunityEnum.NON_MAGICAL_WEAPONS.value],
                     abilities=[CrushingHug],
