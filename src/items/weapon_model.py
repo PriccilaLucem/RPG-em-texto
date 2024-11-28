@@ -3,7 +3,7 @@ from util.id_generator import IDGenerator
 from enums.weapon_type_enum import Weapon_Type_Enum
 class Weapon_model():
     
-    def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: str, weapon_type: str) -> None:
+    def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: str, weapon_type: str, critical_hit_chance: float) -> None:
         self.item_id = IDGenerator.generate_id() 
         self.name = name
         self.attack_points = attack_points
@@ -17,6 +17,7 @@ class Weapon_model():
             self.weapon_type = weapon_type.name
         else: 
             raise ValueError(f"Invalid weapon type: {weapon_type}. Must be one of{list(Weapon_Type_Enum)}")
+        self.critical_hit_chance = critical_hit_chance
     
     def __str__(self) -> str:
         return f"{self.name} - {self.attack_points} DEF, {self.weight}kg, {self.value} gold ({self.rarity} {self.weapon_type})"
