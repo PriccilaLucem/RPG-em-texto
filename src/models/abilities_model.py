@@ -1,23 +1,16 @@
-from typing import Union
-from characters.hero import Hero
-from models.enemy_model import EnemyModel
 from util.id_generator import IDGenerator
 from enums.skill_type_enum import SkillTypeEnum
 
 class Ability_Model():
-    def __init__(self, name: str, type: SkillTypeEnum,  cooldown: int,  damage: int  = 0, effect_value: int = 0) -> None:
+    def __init__(self, name: str, type: SkillTypeEnum,  cooldown: int,  level = 0, damage: int  = 0, effect_value: int = 0) -> None:
         self.id = IDGenerator.generate_id()
         self.name = name
         self.cooldown = cooldown
         self.current_cooldown = 0
         self.type = type
-        self.damage = damage
+        self.damage = damage + (level * 0.5)
         self.effect_value = effect_value
-
-    def use_ability(self, target: Union[EnemyModel, Hero]) -> str:
-
-        raise NotImplementedError("Subclasses devem implementar o método 'use_ability'.")
-
+        
     def reduce_cooldown(self):
         if self.current_cooldown > 0:
             self.current_cooldown -= 1

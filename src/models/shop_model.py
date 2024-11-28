@@ -32,7 +32,7 @@ class Shop_model:
             elif key in {ord("B"), ord("b")}:
                     stdscr.clear()
                     stdscr.addstr("Displaying inventory...\n")
-                    stdscr.addstr(main_character.show_backpack())  
+                    stdscr.addstr(main_character.show_inventory())  
                     stdscr.refresh()
                     stdscr.getch()
             elif key in {ord('E'), ord('e')}:  

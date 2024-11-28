@@ -125,11 +125,11 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> None:
         for ability in character.abilities:
             ability.reduce_cooldown()
 
-    # Dicionário de ações do herói
     actions: dict[str, Callable[[], None]] = {
         "A": lambda: attack(hero, enemy),
         "D": lambda: display_message(stdscr, "Hero defends!"),
-        "S": lambda: use_skill(hero, stdscr, enemy),
+        "S": lambda: use_skill(hero, stdscr, enemy) if hero.abilities else display_message(stdscr, "Hero does not have any abilities!", 1000)
+
     }
 
     display_message(stdscr, f"⚔️ Combat begins between Hero and {enemy.name}!")

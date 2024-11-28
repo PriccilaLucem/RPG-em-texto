@@ -6,6 +6,7 @@ from characters.hero import Hero
 from commands_allowed import billboard_commands
 from global_state.global_state import set_exit,should_exit
 from util.display_message import display_message
+
 class Billboard():
     def __init__(self) -> None:
         self.quests: List[Quests] = generate_random_quests()
@@ -16,7 +17,7 @@ class Billboard():
 
         key_actions = {
             "Q": lambda: self.show_quests(stdscr, main_character),
-            "I": lambda: display_message(stdscr, main_character.show_backpack(), 1000),
+            "I": lambda: display_message(stdscr, main_character.show_inventory(), 1000),
             "N": lambda: None,  
             "E": lambda: display_message(stdscr, "You pressed E. Exiting quest selection.", 1000) or "BREAK",
             27: lambda: set_exit(),  

@@ -10,7 +10,7 @@ def cave(owl_bear_cave: OwlBearCave, main_character: Hero, stdscr: curses.window
 
     actions = {
         chr(10): lambda: display_message(stdscr, "Entering cave...", 1000),
-        "B": lambda: display_inventory(main_character, stdscr),
+        "B": lambda: display_message(stdscr, f"Displaying inventory...\n{main_character.show_inventory()}", 1000),
         "E": lambda: display_message(stdscr, "Returning to previous menu...", 1000) or exit_loop(),
         chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit()
     }
@@ -36,7 +36,7 @@ def cave(owl_bear_cave: OwlBearCave, main_character: Hero, stdscr: curses.window
 
 def display_inventory(main_character: Hero, stdscr: curses.window) -> None:
 
-    inventory = main_character.show_backpack()
+    inventory = main_character.show_inventory()
     display_message(stdscr, f"Displaying inventory...\n{inventory}", 1000)
 
 def handle_error(stdscr: curses.window, e: Exception) -> None:

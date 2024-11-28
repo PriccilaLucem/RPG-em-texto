@@ -3,6 +3,7 @@ from quests.quests import Quests
 from items import armor_model, weapon_model
 from enums import weapon_type_enum, rarity_enum
 from models.abilities_model import Ability_Model
+import curses
 class Hero():
     
     def __init__(self) -> None:
@@ -11,7 +12,7 @@ class Hero():
         self.max_hp:int = 50
         self.gold:int = 1000000
         self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [
-        weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD)
+        weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD, 0.1)
         ]
         self.abilities: List[Ability_Model] = []
         self.equipments: Dict[str, Optional[Union[armor_model.ArmorModel, weapon_model.Weapon_model]]] = {
@@ -42,7 +43,10 @@ class Hero():
     def level_up(self) -> Any:
         self.level += 1
         self.max_hp += 10
-        self.hp += 10
+        self.health_points += 10
+        self.defense_points += 0.5
+        self.attack_points += 0.5
+        self.speed = self.speed * 1.1
         self.damage = self.damage + self.level + 2
         self.next_level_xp = int(self.next_level_xp * 1.2)
         self.experience = 0
@@ -53,9 +57,6 @@ class Hero():
     def init_a_quest(self, quest:Quests):
         self.quests.append(quest)
     
-    def show_backpack(self):
-        return "\n".join(map(str, self.backpack))  
-    
     def conclude_quests(self, quest:Quests):
         if(quest in self.quests):
             self.gold += quest.gold_given
@@ -65,9 +66,6 @@ class Hero():
                 xp = quest.xp_given - (self.next_level_xp - self.experience)
                 self.level_up()
                 self.experience = xp
-    
-    def show_active_quests(self):
-        return "\n".join(str(quest) for quest in self.quests)
     
     def equip_item(self, item: Union[armor_model.ArmorModel, weapon_model.Weapon_model]) -> str:
         if item not in self.backpack:
@@ -81,14 +79,13 @@ class Hero():
                 self.backpack.append(self.equipments["weapon"])
             
             self.equipments["weapon"] = item
-        
+            self.critical_hit_chance += item.critical_hit_chance
         elif isinstance(item, armor_model.ArmorModel):
-            slot = item.type  
+            slot = item.type
             if slot not in self.equipments:
                 return f"Slot {slot} inválido para armadura."
             
-            self.defense_points += item.defense_points
-            self.resistance_factor += item.resistance_factor
+            self.defense_points += item.def_points
             
             if self.equipments[slot] is not None:
                 self.backpack.append(self.equipments[slot])
@@ -97,3 +94,34 @@ class Hero():
         
         self.backpack.remove(item)
         return f"Item {item} equipado com sucesso!"
+    
+    def show_inventory(self, stdscr: curses.window):
+        current_row = 0
+        
+        while True:
+            stdscr.clear()
+            stdscr.addstr("Use ↑ and ↓ to navigate, Enter to select an item, and 'q' to quit.\n\n")
+            
+            for idx, item in enumerate(self.backpack):
+                if idx == current_row:
+                    stdscr.addstr(f"> {item}\n", curses.A_REVERSE)
+                else:
+                    stdscr.addstr(f"  {item}\n")
+            
+            key = stdscr.getch()
+            
+            if key == curses.KEY_UP and current_row > 0:
+                current_row -= 1
+            elif key == curses.KEY_DOWN and current_row < len(self.backpack) - 1:
+                current_row += 1
+            elif key == ord('\n'):  # Enter key
+                selected_item = self.backpack[current_row]
+                result = self.equip_item(selected_item)
+                stdscr.clear()
+                stdscr.addstr(result + "\n")
+                stdscr.addstr("Press any key to continue...")
+                stdscr.getch()
+            elif key == ord('q'):  # Quit
+                break
+            
+            stdscr.refresh()

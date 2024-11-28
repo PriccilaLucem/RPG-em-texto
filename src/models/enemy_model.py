@@ -22,7 +22,8 @@ class EnemyModel:
                  abilities: Optional[List[Ability_Model]] = None, 
                  exp_points: int = 0, 
                  drops: Optional[List[DropModel]] = None, 
-                 location: str = "unknown"
+                 location: str = "unknown",
+                 level: int = 0
                  ) -> None:
         self.name = name
         
@@ -44,7 +45,7 @@ class EnemyModel:
         self.exp_points = exp_points
         self.drops = drops or []
         self.location = location
-
+        self.level = level
     def use_skills(self, target) -> str:
 
         if not self.abilities:
