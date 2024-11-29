@@ -32,7 +32,7 @@ class Hero():
         self.quests: List[Quests] = [Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!")] 
         self.concluded_quests: List[Quests] = []
         self.speed = 10 
-
+        self.attack_multiplier = 1
 
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
@@ -47,7 +47,7 @@ class Hero():
         self.defense_points += 0.5
         self.attack_points += 0.5
         self.speed = self.speed * 1.1
-        self.damage = self.damage + self.level + 2
+        self.attack_points = self.attack_points + self.level + 2
         self.next_level_xp = int(self.next_level_xp * 1.2)
         self.experience = 0
     
@@ -57,15 +57,24 @@ class Hero():
     def init_a_quest(self, quest:Quests):
         self.quests.append(quest)
     
-    def conclude_quests(self, quest:Quests):
-        if(quest in self.quests):
-            self.gold += quest.gold_given
-            if(self.next_level_xp >  self.experience + quest.xp_given):
-                self.experience += quest.xp_given
-            else:
-                xp = quest.xp_given - (self.next_level_xp - self.experience)
-                self.level_up()
-                self.experience = xp
+    def conclude_quests(self, quest: Quests):
+        # Verifica se a quest é válida e está na lista
+        if not quest:
+            raise ValueError("Quest cannot be None.")
+        if quest not in self.quests:
+            raise ValueError("Quest is not part of the active quests list.")
+    
+        # Adiciona o ouro da quest
+        self.gold += quest.gold_given
+    
+        # Adiciona experiência e verifica se há necessidade de subir de nível
+        if self.experience + quest.xp_given < self.next_level_xp:
+            self.experience += quest.xp_given
+        else:
+            # Calcula o XP remanescente após o level up
+            remaining_xp = (self.experience + quest.xp_given) - self.next_level_xp
+            self.level_up()
+            self.experience = remaining_xp
     
     def equip_item(self, item: Union[armor_model.ArmorModel, weapon_model.Weapon_model]) -> str:
         if item not in self.backpack:

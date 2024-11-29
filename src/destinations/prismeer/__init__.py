@@ -21,7 +21,7 @@ def city_menu(prismeer: City, main_character: Hero, stdscr: curses.window) -> No
                 'Q': lambda: prismeer.billboard.billboard_menu(stdscr, main_character),
                 'I': lambda: prismeer.inn.pass_the_night(main_character, stdscr),
                 'C': lambda: visit_city_center(prismeer, main_character, stdscr),
-                'B': lambda: display_message(stdscr, "Displaying inventory...\n" + main_character.show_inventory()),
+                'B': lambda: display_message(stdscr, "Displaying inventory...\n" + main_character.show_inventory(stdscr)()),
                 'E': lambda: display_message(stdscr, "Leaving Prismeer...", 1000),
                 27: lambda: (set_exit(), display_message(stdscr, "Exiting the game...")),
             }

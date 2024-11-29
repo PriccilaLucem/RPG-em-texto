@@ -20,7 +20,7 @@ class Weapon_model():
         self.critical_hit_chance = critical_hit_chance
     
     def __str__(self) -> str:
-        return f"{self.name} - {self.attack_points} DEF, {self.weight}kg, {self.value} gold ({self.rarity} {self.weapon_type})"
+        return f"{self.name} - {self.attack_points} ATK, {self.weight}kg, {self.value} gold ({self.rarity} {self.weapon_type})"
 
     def sell(self) -> int:
         print(f"You sold {self.name} for {self.value} gold.")

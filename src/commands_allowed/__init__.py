@@ -39,3 +39,11 @@ def cave_commands():
     Enter - Enter the cave
     E - Go to Prismeer's surroundings
     """
+
+def inside_cave_commands():
+    return f"""
+    {global_commands()}
+    1 - Talk to first brother
+    2 - Talk to second brother
+    E - Go to outside the cave
+    """

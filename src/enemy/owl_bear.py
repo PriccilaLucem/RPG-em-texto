@@ -4,7 +4,7 @@ from enums.immunity_enum import ImmunityEnum
 from enums.enemy_type_enum import EnemyType
 from abilities.crushing_hug import CrushingHug
 
-class owl_bear(EnemyModel):
+class OwlBear(EnemyModel):
     def __init__(self, 
                   name="Owlbear",
                     type=EnemyType.BEAST,

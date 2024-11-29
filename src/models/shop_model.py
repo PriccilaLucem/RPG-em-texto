@@ -28,11 +28,11 @@ class Shop_model:
             key = stdscr.getch()
 
             if key in {ord('s'), ord('S')}:  
-                self.show_inventory(stdscr, main_character)
+                self.show_inventory(stdscr)(stdscr, main_character)
             elif key in {ord("B"), ord("b")}:
                     stdscr.clear()
                     stdscr.addstr("Displaying inventory...\n")
-                    stdscr.addstr(main_character.show_inventory())  
+                    stdscr.addstr(main_character.show_inventory(stdscr)())  
                     stdscr.refresh()
                     stdscr.getch()
             elif key in {ord('E'), ord('e')}:  
