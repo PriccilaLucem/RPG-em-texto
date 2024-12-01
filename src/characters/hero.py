@@ -3,6 +3,7 @@ from quests.quests import Quests
 from items import armor_model, weapon_model
 from enums import weapon_type_enum, rarity_enum
 from models.abilities_model import Ability_Model
+from models.character_class_model import CharacterClass
 import curses
 class Hero():
     
@@ -11,17 +12,16 @@ class Hero():
         self.health_points:int = 50
         self.max_hp:int = 50
         self.gold:int = 1000000
-        self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [
-        weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD, 0.1)
-        ]
+        self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD, 0.1)]
         self.abilities: List[Ability_Model] = []
         self.equipments: Dict[str, Optional[Union[armor_model.ArmorModel, weapon_model.Weapon_model]]] = {
             "torso": None,
             "helmet": None,
             "pants": None,
             "boots": None,
+            "weapons": None
         }
-        
+        self.character_class:CharacterClass = None 
         self.experience:int = 0
         self.next_level_xp:int = 100
         self.attack_points:int = 20
@@ -40,16 +40,36 @@ class Hero():
     def __setattr__(self, name: str, value: Any) -> None:
         super().__setattr__(name, value)
     
-    def level_up(self) -> Any:
+    def level_up(self):
         self.level += 1
         self.max_hp += 10
         self.health_points += 10
         self.defense_points += 0.5
         self.attack_points += 0.5
-        self.speed = self.speed * 1.1
-        self.attack_points = self.attack_points + self.level + 2
+        self.speed *= 1.1
+        self.attack_points += self.level + 2
         self.next_level_xp = int(self.next_level_xp * 1.2)
         self.experience = 0
+    
+        if self.character_class:
+            if self.character_class.name == "Fighter":
+                self.attack_points += 3
+                self.defense_points += 2
+                self.health_points += 5
+            elif self.character_class.name == "Rogue":
+                self.attack_points += 2
+                self.critical_hit_chance += 2
+                self.speed += 2
+            elif self.character_class.name == "Wizard":
+                self.resistance_factor += 0.1
+            elif self.character_class.name == "Cleric":
+                self.defense_points += 1
+                self.health_points += 5
+            elif self.character_class.name == "Paladin":
+                self.attack_points += 2
+                self.defense_points += 2
+                self.resistance_factor += 0.05
+
     
     def append_quests(self, quest:Quests):
         self.quests.append(quest)
@@ -58,20 +78,16 @@ class Hero():
         self.quests.append(quest)
     
     def conclude_quests(self, quest: Quests):
-        # Verifica se a quest é válida e está na lista
         if not quest:
             raise ValueError("Quest cannot be None.")
         if quest not in self.quests:
             raise ValueError("Quest is not part of the active quests list.")
-    
-        # Adiciona o ouro da quest
+
         self.gold += quest.gold_given
-    
-        # Adiciona experiência e verifica se há necessidade de subir de nível
+
         if self.experience + quest.xp_given < self.next_level_xp:
             self.experience += quest.xp_given
         else:
-            # Calcula o XP remanescente após o level up
             remaining_xp = (self.experience + quest.xp_given) - self.next_level_xp
             self.level_up()
             self.experience = remaining_xp
@@ -123,14 +139,51 @@ class Hero():
                 current_row -= 1
             elif key == curses.KEY_DOWN and current_row < len(self.backpack) - 1:
                 current_row += 1
-            elif key == ord('\n'):  # Enter key
+            elif key == ord('\n'):  
                 selected_item = self.backpack[current_row]
                 result = self.equip_item(selected_item)
                 stdscr.clear()
                 stdscr.addstr(result + "\n")
                 stdscr.addstr("Press any key to continue...")
                 stdscr.getch()
-            elif key == ord('q'):  # Quit
+            elif key == ord('q'):  
                 break
             
             stdscr.refresh()
+
+    def choose_character_class(self, character_class: CharacterClass):
+        if not isinstance(character_class, CharacterClass):
+            raise ValueError("Invalid character class.")
+
+        self.character_class = character_class
+
+        # Reinicializar modificações baseadas em classe
+        self.attack_points = 20
+        self.defense_points = 20
+        self.speed = 10
+
+        # Aplicar bônus específicos da classe escolhida
+        if character_class.name == "Fighter":
+            self.attack_points += 10
+            self.defense_points += 5
+            self.speed += 2
+            self.abilities.extend(["Shield Bash", "Power Strike"])
+        elif character_class.name == "Rogue":
+            self.attack_points += 7
+            self.critical_hit_chance += 10
+            self.speed += 5
+            self.abilities.extend(["Backstab", "Evasion"])
+        elif character_class.name == "Wizard":
+            self.abilities.extend(["Fireball", "Teleport"])
+            self.resistance_factor += 0.2
+            self.critical_hit_chance += 5
+        elif character_class.name == "Cleric":
+            self.defense_points += 8
+            self.abilities.extend(["Heal", "Turn Undead"])
+            self.resistance_factor += 0.3
+        elif character_class.name == "Paladin":
+            self.attack_points += 5
+            self.defense_points += 10
+            self.abilities.extend(["Divine Smite", "Aura of Protection"])
+
+        return f"Class {character_class.name} chosen successfully!"

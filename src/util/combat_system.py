@@ -23,8 +23,9 @@ def attack(attacker: Union[EnemyModel, Hero], defenser : Union[EnemyModel, Hero]
 
 def defend(defender: Union[EnemyModel, Hero], attacker: Union[EnemyModel, Hero]) -> int:
     
-    base_damage = attacker.attack_points - defender.defense_points
-    base_damage *= attacker.attack_multiplier
+    roll = random.randint(1, 20)
+    
+    base_damage = (attacker.attack_points + roll)  - defender.defense_points
 
     if base_damage < 0:
         base_damage = 0
@@ -36,9 +37,6 @@ def defend(defender: Union[EnemyModel, Hero], attacker: Union[EnemyModel, Hero])
 
     return int(mitigated_damage)
 
-import random
-import curses
-from typing import Union
 
 def use_skill(
     caster: Union[Hero, EnemyModel],

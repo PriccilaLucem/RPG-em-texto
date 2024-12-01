@@ -6,6 +6,7 @@ import curses
 from util.display_message import display_message
 from util.combat_system import combat
 from history.history import the_real_init
+from util.choose_character_class import get_character_class
 
 def exit_loop():
     raise StopIteration
@@ -62,31 +63,55 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
 
             if not combat(stdscr, main_character, owl_bear_cave.owl_bear):
                 display_message(stdscr, the_real_init(), 10000)
+                display_message(stdscr, "Choose your class:", 1000)
+
+                classes = ["Fighter", "Rogue", "Wizard", "Cleric", "Paladin"]
+                class_message = "\n".join(f"{idx + 1}. {cls}" for idx, cls in enumerate(classes))
+                display_message(stdscr, class_message, 3000)
+
+                try:
+                    stdscr.addstr("Enter the number of your choice: ")
+                    choice = int(stdscr.getkey()) - 1
+                    if 0 <= choice < len(classes):
+                        selected_class = classes[choice]
+                        character_class = get_character_class(selected_class)
+                        main_character.choose_character_class(character_class)
+                        display_message(stdscr, f"You chose {selected_class}.", 2000)
+                    else:
+                        display_message(stdscr, "Invalid choice. Defaulting to Fighter.", 2000)
+                        main_character.choose_character_class(get_character_class("Fighter"))
+                except Exception as e:
+                    display_message(stdscr, f"Error choosing class: {e}. Defaulting to Fighter.", 2000)
+                    main_character.choose_character_class(get_character_class("Fighter"))
+
+                # História pós-combate
                 display_message(stdscr, (
                     "You wake up to Damon’s brothers frantically trying to wake you up. "
                     "As you look to the side, you see the lifeless body of the OwlBear and wonder how it all happened..."
                 ), 5000)
 
                 main_character.health_points = 50  
-
                 quest_to_remove = next((quest for quest in main_character.quests if quest.id == 1), None)
                 if quest_to_remove:
                     main_character.conclude_quests(quest_to_remove)
                     main_character.quests.remove(quest_to_remove)
 
-        try:
-            stdscr.clear()
-            stdscr.addstr(inside_cave_commands())  
-            stdscr.refresh()
+                try:
+                    stdscr.clear()
+                    stdscr.addstr(inside_cave_commands())  
+                    stdscr.refresh()
 
-            owl_bear_cave_key = stdscr.getch()
-            action = actions.get(
-                chr(owl_bear_cave_key).upper(),
-                lambda: display_message(stdscr, "Invalid choice. Try again.", 1000)
-            )
-            action()
+                    owl_bear_cave_key = stdscr.getch()
+                    action = actions.get(
+                        chr(owl_bear_cave_key).upper(),
+                        lambda: display_message(stdscr, "Invalid choice. Try again.", 1000)
+                    )
+                    action()
 
-        except StopIteration:
-            break 
-        except Exception as e:
-            display_message(stdscr, f"An error occurred: {e}", 2000)
+                except StopIteration:
+                    break 
+                except Exception as e:
+                    display_message(stdscr, f"An error occurred: {e}", 2000)
+        else:
+            display_message(stdscr, "Not ready, come back later!", 2000)
+            break

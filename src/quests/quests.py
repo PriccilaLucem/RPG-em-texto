@@ -13,4 +13,3 @@ class Quests:
 
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
-
