@@ -112,11 +112,13 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
         return roll
 
     def perform_action(character: Union[Hero, EnemyModel], opponent: Union[Hero, EnemyModel]) -> None:
+        """Escolhe e realiza uma ação para o personagem."""
         action: str = random.choices(
             ["attack", "use_skill", "defend"], 
             weights=[4, 2, 1],  
             k=1  
         )[0]
+
         if action == "attack":
             damage: int = attack(character, opponent)
             opponent.health_points -= damage
@@ -124,9 +126,11 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
                 stdscr,
                 f"{character.name} attacks {opponent.name} and deals {damage} damage!"
             )
+
         elif action == "use_skill" and character.abilities:
             message: str = use_skill(character, stdscr, opponent)
             display_message(stdscr, message, 1000)
+
         elif action == "defend":
             mitigated_damage: int = defend(character, opponent)
             display_message(
@@ -135,7 +139,18 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
                 1000
             )
 
+    def hero_action_input() -> str:
+        """Obtém a ação do herói do jogador."""
+        stdscr.addstr(0, 0, "Press A to Attack, S to use Skill, or D to Defend: ")
+        stdscr.refresh()
+        while True:
+            hero_action: str = chr(stdscr.getch()).upper()
+            if hero_action in actions:
+                return hero_action
+            display_message(stdscr, "Invalid action! Try again.", 1000)
+
     def reduce_all_cooldowns(character: Union[Hero, EnemyModel]) -> None:
+        """Reduz os tempos de recarga de todas as habilidades."""
         for ability in character.abilities:
             ability.reduce_cooldown()
 
@@ -143,7 +158,6 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
         "A": lambda: attack(hero, enemy),
         "D": lambda: display_message(stdscr, "Hero defends!"),
         "S": lambda: use_skill(hero, stdscr, enemy) if hero.abilities else display_message(stdscr, "Hero does not have any abilities!", 1000)
-
     }
 
     display_message(stdscr, f"⚔️ Combat begins between Hero and {enemy.name}!", 1000)
@@ -165,13 +179,17 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
                 break
 
             if attacker == hero:
-                stdscr.addstr(0, 0, "Press A to Attack, S to use Skill, or D to Defend: ")
-                stdscr.refresh()
-                hero_action: str = chr(stdscr.getch()).upper()
-                if hero_action in actions:
-                    actions[hero_action]()
-                else:
-                    display_message(stdscr, "Invalid action! Hero hesitates!", 1000)
+                hero_action: str = hero_action_input()
+                if hero_action == "A":
+                    damage = attack(hero, enemy)
+                    enemy.health_points -= damage
+                    display_message(stdscr, f"{hero.name} attacks {enemy.name} and deals {damage} damage!")
+                elif hero_action == "S":
+                    message = use_skill(hero, stdscr, enemy)
+                    display_message(stdscr, message, 1000)
+                elif hero_action == "D":
+                    mitigated_damage = defend(hero, enemy)
+                    display_message(stdscr, f"{hero.name} braces for the next attack and mitigates {mitigated_damage} damage!", 1000)
             else:
                 perform_action(attacker, defender)
 

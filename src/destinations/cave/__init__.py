@@ -62,7 +62,7 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
             display_message(stdscr, intro_message, 3000)
 
             if not combat(stdscr, main_character, owl_bear_cave.owl_bear):
-                display_message(stdscr, the_real_init, 3000)
+                display_message(stdscr, the_real_init(), 3000)
                 main_character.choose_character_class(stdscr)                
 
                 display_message(stdscr, (
