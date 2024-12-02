@@ -62,29 +62,9 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
             display_message(stdscr, intro_message, 3000)
 
             if not combat(stdscr, main_character, owl_bear_cave.owl_bear):
-                display_message(stdscr, the_real_init(), 10000)
-                display_message(stdscr, "Choose your class:", 1000)
+                display_message(stdscr, the_real_init, 3000)
+                main_character.choose_character_class(stdscr)                
 
-                classes = ["Fighter", "Rogue", "Wizard", "Cleric", "Paladin"]
-                class_message = "\n".join(f"{idx + 1}. {cls}" for idx, cls in enumerate(classes))
-                display_message(stdscr, class_message, 3000)
-
-                try:
-                    stdscr.addstr("Enter the number of your choice: ")
-                    choice = int(stdscr.getkey()) - 1
-                    if 0 <= choice < len(classes):
-                        selected_class = classes[choice]
-                        character_class = get_character_class(selected_class)
-                        main_character.choose_character_class(character_class)
-                        display_message(stdscr, f"You chose {selected_class}.", 2000)
-                    else:
-                        display_message(stdscr, "Invalid choice. Defaulting to Fighter.", 2000)
-                        main_character.choose_character_class(get_character_class("Fighter"))
-                except Exception as e:
-                    display_message(stdscr, f"Error choosing class: {e}. Defaulting to Fighter.", 2000)
-                    main_character.choose_character_class(get_character_class("Fighter"))
-
-                # História pós-combate
                 display_message(stdscr, (
                     "You wake up to Damon’s brothers frantically trying to wake you up. "
                     "As you look to the side, you see the lifeless body of the OwlBear and wonder how it all happened..."

@@ -1,7 +1,10 @@
-from enums.skill_type_enum import SkillTypeEnum
-from models.abilities_model import Ability_Model
+from models.abilities_model import DamageAbility
 
-class CrushingHug(Ability_Model):
-    def __init__(self, level) -> None:
-        super().__init__("Crushing hug", SkillTypeEnum.DAMAGE, 5, 30 + (level* 0.5), 0)
-
+class CrushingHug(DamageAbility):
+    def __init__(self, level: int) -> None:
+        base_damage = 30 + (level * 0.5)
+        super().__init__(
+            name="Crushing Hug",
+            cooldown=5,
+            damage=base_damage
+        )

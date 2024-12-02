@@ -1,12 +1,12 @@
 from models.character_class_model import CharacterClass
-
+from abilities.paladin_abilities import DivineSmite, OathOfDevotion, AuraOfProtection, LayOnHands, ShieldOfFaith
 class Paladin(CharacterClass):
     def __init__(self):
         super().__init__(
             name="Paladin",
             health=12,  
             primary_stat="Strength",  
-            abilities=["Divine Sense", "Lay on Hands", "Aura of Protection"],
+            abilities=[DivineSmite(), OathOfDevotion(), AuraOfProtection(), LayOnHands(), ShieldOfFaith()],
             proficiencies=["Heavy Armor", "Martial Weapons", "Shields"],  
             spell_slots=2, 
         )

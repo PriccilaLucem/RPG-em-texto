@@ -8,8 +8,8 @@ from enums.skill_type_enum import SkillTypeEnum
 
 def attack(attacker: Union[EnemyModel, Hero], defenser : Union[EnemyModel, Hero]) -> int:
 
-    base_damage = (attacker.attack_points * attacker.attack_multiplier) - defenser.defense_points
-
+    roll = random.randint(1,20)
+    base_damage = (attacker.attack_points + roll * 0.5) * attacker.attack_multiplier  - defenser.defense_points
     if base_damage < 0:
         base_damage = (defenser.defense_points - attacker.attack_points)
 
@@ -46,11 +46,11 @@ def use_skill(
     if isinstance(caster, Hero):
         stdscr.addstr("Escolha a habilidade pelo ID (número): ")
         stdscr.refresh()
-        
+
         while True:
             skill_id = stdscr.getch()
             try:
-                skill_id = int(chr(skill_id)) 
+                skill_id = int(chr(skill_id))
             except ValueError:
                 stdscr.addstr("ID da habilidade inválido. Tente novamente.\n")
                 stdscr.refresh()
@@ -69,32 +69,36 @@ def use_skill(
         return f"A habilidade {skill.name} está em cooldown por {skill.current_cooldown} turnos!"
 
     if skill.type == SkillTypeEnum.DAMAGE:
-        target.health_points -= skill.damage
-        stdscr.addstr(f"{caster.name} usou {skill.name} para causar {skill.damage} de dano em {target.name}!\n")
-    
+        damage = skill.damage
+        target.health_points = max(0, target.health_points - damage)
+        stdscr.addstr(f"{caster.name} usou {skill.name} causando {damage} de dano em {target.name}!\n")
+
     elif skill.type == SkillTypeEnum.HEAL:
         heal_amount = skill.effect_value
         caster.health_points = min(caster.max_hp, caster.health_points + heal_amount)
-        stdscr.addstr(f"{caster.name} usou {skill.name} para curar {heal_amount} pontos de vida!\n")
-    
+        stdscr.addstr(f"{caster.name} usou {skill.name} curando {heal_amount} pontos de vida!\n")
+
     elif skill.type == SkillTypeEnum.BUFF:
-        caster.attack_points += skill.effect_value
-        stdscr.addstr(f"{caster.name} usou {skill.name} para aumentar o ataque em {skill.effect_value}!\n")
-    
+        buff_amount = skill.effect_value
+        caster.attack_points += buff_amount
+        stdscr.addstr(f"{caster.name} usou {skill.name} aumentando seu ataque em {buff_amount}!\n")
+
     elif skill.type == SkillTypeEnum.DEBUFF:
-        target.defense_points -= skill.effect_value
-        stdscr.addstr(f"{caster.name} usou {skill.name} para reduzir a defesa de {target.name} em {skill.effect_value}!\n")
-    
+        debuff_amount = skill.effect_value
+        target.defense_points = max(0, target.defense_points - debuff_amount)
+        stdscr.addstr(f"{caster.name} usou {skill.name} reduzindo a defesa de {target.name} em {debuff_amount}!\n")
+
     elif skill.type == SkillTypeEnum.UTILITY:
-        stdscr.addstr(f"{caster.name} usou {skill.name}, causando um efeito especial!\n")
-    
+        stdscr.addstr(f"{caster.name} usou {skill.name}, ativando um efeito especial!\n")
+
     else:
         stdscr.addstr(f"{caster.name} tentou usar {skill.name}, mas não teve efeito.\n")
-    
+
     skill.current_cooldown = skill.cooldown
-    
     stdscr.refresh()
+
     return f"Habilidade {skill.name} utilizada com sucesso!"
+
 
 
 def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:

@@ -1,6 +1,6 @@
 from enums.enemy_type_enum import EnemyType
 from typing import List, Optional
-from models.abilities_model import Ability_Model
+from models.abilities_model import BaseAbility
 from enums.immunity_enum import ImmunityEnum
 from enums.weakness_enum import WeaknessEnum
 from models.drop_model import DropModel
@@ -19,7 +19,7 @@ class EnemyModel:
                  speed: int, 
                  weakness: Optional[List[WeaknessEnum]] = None, 
                  immunities: Optional[List[ImmunityEnum]] = None, 
-                 abilities: Optional[List[Ability_Model]] = None, 
+                 abilities: Optional[List[BaseAbility]] = None, 
                  exp_points: int = 0, 
                  drops: Optional[List[DropModel]] = None, 
                  location: str = "unknown",
