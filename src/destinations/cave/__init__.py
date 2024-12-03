@@ -6,7 +6,6 @@ import curses
 from util.display_message import display_message
 from util.combat_system import combat
 from history.history import the_real_init
-from util.choose_character_class import get_character_class
 
 def exit_loop():
     raise StopIteration
@@ -55,9 +54,9 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
         if not combat_done and any(quest.id == 1 for quest in main_character.quests):
             combat_done = True  
             intro_message = """
-                As you enter the cave, you see two people staring at you, nervously.
-                They are looking behind you!
-                The OwlBear is angry at you and starts running into your direction!
+            As you enter the cave, you see two people staring at you, nervously.
+            They are looking behind you!
+            The OwlBear is angry at you and starts running into your direction!
             """
             display_message(stdscr, intro_message, 3000)
 

@@ -1,12 +1,9 @@
-from items.armor_model import ArmorModel
-from items.weapon_model import Weapon_model
 from characters.hero import Hero
 from models.character_model import Character_model
-from typing import List, Union
 
 class Seller_model(Character_model):
     
-    def __init__(self, name: str, speeches: list, backpack: List[Union[ArmorModel, Weapon_model]]) -> None:
+    def __init__(self, name: str, speeches: list, backpack) -> None:
         super().__init__(name, speeches)
         self.backpack = backpack
     

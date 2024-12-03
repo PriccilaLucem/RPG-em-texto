@@ -1,7 +1,6 @@
 from typing import Any, List, Union, Optional, Dict
 from quests.quests import Quests
-from items import armor_model, weapon_model
-from enums import weapon_type_enum, rarity_enum
+from models.item_model import ArmorModel, WeaponModel
 from models.abilities_model import BaseAbility
 from models.character_class_model import CharacterClass
 from classes.cleric import Cleric
@@ -19,9 +18,9 @@ class Hero():
         self.health_points:int = 50
         self.max_hp:int = 50
         self.gold:int = 1000000
-        self.backpack:List[Union[armor_model.ArmorModel, weapon_model.Weapon_model]] = [weapon_model.Weapon_model("Wooden sword", 2, 0.5, 5, rarity_enum.Rarity_Enum.COMMON, weapon_type_enum.Weapon_Type_Enum.SWORD, 0.1)]
+        self.backpack:List[Union[WeaponModel, ArmorModel]] = []
         self.abilities: List[BaseAbility] = []
-        self.equipments: Dict[str, Optional[Union[armor_model.ArmorModel, weapon_model.Weapon_model]]] = {
+        self.equipments: Dict[str, Optional[Union[ArmorModel, WeaponModel]]] = {
             "torso": None,
             "helmet": None,
             "pants": None,
@@ -45,7 +44,8 @@ class Hero():
         self.dodge_chance = 0
         self.health = 100
         self.last_attack_damage = 0
-
+        self.carry_weight = 10
+        self.weight = 0
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
     
@@ -68,20 +68,23 @@ class Hero():
                 self.attack_points += 3
                 self.defense_points += 2
                 self.health_points += 5
+                self.carry_weight += 2
             elif self.character_class.name == "Rogue":
                 self.attack_points += 2
                 self.critical_hit_chance += 2
                 self.speed += 2
+                self.carry_weight += 1
             elif self.character_class.name == "Wizard":
                 self.resistance_factor += 0.1
             elif self.character_class.name == "Cleric":
                 self.defense_points += 1
                 self.health_points += 5
+                self.carry_weight += 3
             elif self.character_class.name == "Paladin":
                 self.attack_points += 2
                 self.defense_points += 2
                 self.resistance_factor += 0.05
-
+                self.carry_weight += 4
     
     def append_quests(self, quest:Quests):
         self.quests.append(quest)
@@ -104,33 +107,53 @@ class Hero():
             self.level_up()
             self.experience = remaining_xp
     
-    def equip_item(self, item: Union[armor_model.ArmorModel, weapon_model.Weapon_model]) -> str:
+    def equip_item(self, item: Union[ArmorModel, WeaponModel]) -> str:
         if item not in self.backpack:
             return f"Item {item} não está na mochila."
-        
-        if isinstance(item, weapon_model.Weapon_model):
+
+        current_equipped_item = None
+        weight_to_add = item.weight
+
+        if isinstance(item, WeaponModel):
+            current_equipped_item = self.equipments.get("weapon")
+        elif isinstance(item, ArmorModel):
+            slot = item.type
+            current_equipped_item = self.equipments.get(slot)
+
+        if current_equipped_item:
+            weight_to_add -= current_equipped_item.weight
+
+        if self.weight + weight_to_add > self.carry_weight:
+            return "Você não pode equipar este item, pois ele excede sua capacidade de carga."
+
+        if isinstance(item, WeaponModel):
             self.attack_points += item.attack_points
-            self.critical_hit_chance += item.critical_hit_chance
-            
-            if "weapon" in self.equipments and self.equipments["weapon"] is not None:
-                self.backpack.append(self.equipments["weapon"])
-            
+            self.last_attack_damage += item.damage
+            self.weight += item.weight
+
+            if current_equipped_item:
+                self.backpack.append(current_equipped_item)
+                self.weight -= current_equipped_item.weight
+
             self.equipments["weapon"] = item
-            self.critical_hit_chance += item.critical_hit_chance
-        elif isinstance(item, armor_model.ArmorModel):
+
+        elif isinstance(item, ArmorModel):
             slot = item.type
             if slot not in self.equipments:
                 return f"Slot {slot} inválido para armadura."
-            
+
             self.defense_points += item.def_points
-            
-            if self.equipments[slot] is not None:
-                self.backpack.append(self.equipments[slot])
-            
+            self.weight += item.weight
+
+            if current_equipped_item:
+                self.backpack.append(current_equipped_item)
+                self.weight -= current_equipped_item.weight
+
             self.equipments[slot] = item
-        
+
         self.backpack.remove(item)
         return f"Item {item} equipado com sucesso!"
+
     
     def show_inventory(self, stdscr: curses.window):
         current_row = 0
@@ -202,4 +225,18 @@ class Hero():
         elif selected_class == "Paladin":
             self.character_class = Paladin()
 
+        self.apply_class(self.character_class)
+
         return f"Class {selected_class} chosen successfully!"
+        
+        
+    
+    def apply_class(self, character_class: CharacterClass):
+        """Applies a character class to the hero."""
+        self.character_class = character_class
+        self.health += character_class.health
+        self.proficiencies.extend(character_class.proficiencies)
+        self.abilities = character_class.abilities
+        self.primary_stat = character_class.primary_stat
+        self.spell_slots = character_class.spell_slots
+        self.action_points += character_class.action_points if hasattr(character_class, 'action_points') else 0
