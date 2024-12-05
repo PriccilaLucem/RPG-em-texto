@@ -6,6 +6,7 @@ class Weapon_Type_Enum(Enum):
     BOW = "Bow"
     AXE = "Axe"
     CLUB = "Club"
-    LONG_SWORD = "Long_sword"
+    LONG_SWORD = "Long sword"
     SHIELD = "Shield"
     CROSSBOW = "Crossbow"
+    WAND = "Wand"

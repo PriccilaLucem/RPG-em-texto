@@ -5,3 +5,4 @@ class Armor_Type_Enum(Enum):
     HELMET = "helmet"
     PANTS = "pants"
     BOOTS = "boots"
+    SHIELD = "shield"

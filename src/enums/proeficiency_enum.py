@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Proficiency_Enum(Enum):
+class Proeficiency_Enum(Enum):
     LIGHT_ARMOR = "Light Armor"
     HEAVY_ARMOR = "Heavy Armor"
     MACES = "Maces"
@@ -13,3 +13,4 @@ class Proficiency_Enum(Enum):
     AXES = "Axes"
     WANDS = "Wands"
     SPELLBOOKS = "Spellbooks"
+    BOWS = "Bows"
