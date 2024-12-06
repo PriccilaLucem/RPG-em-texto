@@ -21,7 +21,7 @@ def city_menu(prismeer: City, main_character: Hero, stdscr: curses.window) -> No
                 'Q': lambda: prismeer.billboard.billboard_menu(stdscr, main_character),
                 'I': lambda: prismeer.inn.pass_the_night(main_character, stdscr),
                 'C': lambda: visit_city_center(prismeer, main_character, stdscr),
-                'B': lambda: display_message(stdscr, "Displaying inventory...\n" + main_character.show_inventory(stdscr)()),
+                'S': lambda: main_character.show_status(stdscr),
                 'E': lambda: display_message(stdscr, "Leaving Prismeer...", 1000),
                 27: lambda: (set_exit(), display_message(stdscr, "Exiting the game...")),
             }
@@ -45,13 +45,15 @@ def visit_city_center(prismeer: City, main_character: Hero, stdscr: curses.windo
         try:
             display_message(stdscr, 
                 """Welcome to the city center:\n
+                S - Show Status
                 A - Visit the armor shop
                 W - Visit the weapon shop
                 E - Exit to city menu
                 1 - Talk to Afrac
                 2 - Talk to Osvaldo
                 3 - Talk to Damon
-                EXIT - Quit the game\n""", 
+                EXIT - Quit the game\n""",
+                 
                 0)
 
             center_key = stdscr.getch()
@@ -60,6 +62,7 @@ def visit_city_center(prismeer: City, main_character: Hero, stdscr: curses.windo
                 'A': lambda: prismeer.downtown.armor_shop.shop_interactions(main_character, stdscr),
                 'W': lambda: prismeer.downtown.weapon_shop.shop_interactions(main_character, stdscr),
                 'E': lambda: display_message(stdscr, "Returning to city menu...", 1000) or exit_loop(),
+                'S': lambda: main_character.show_status(stdscr),
                 27: lambda: (set_exit(), display_message(stdscr, "Exiting the game...")),
             }
             

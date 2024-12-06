@@ -3,7 +3,7 @@ from enums.armor_type_enum import Armor_Type_Enum
 from enums.rarity_enum import Rarity_Enum
 from util.calculate_def_atk import calculate_attack, calculate_defense
 def generate_armor_from_prismeer_seller():
-    return [
+    return[
         LightArmor("Leather Vest", calculate_defense(5.0, 1), 5.0, 15, Rarity_Enum.COMMON, Armor_Type_Enum.TORSO),
         HeavyArmor("Iron Chestplate", calculate_defense(10.5, 2), 10.5, 50, Rarity_Enum.UNCOMMON, Armor_Type_Enum.TORSO),
         LightArmor("Rusty Helmet", calculate_defense(5.0, 1), 5.0, 20, Rarity_Enum.COMMON, Armor_Type_Enum.HELMET),
@@ -17,7 +17,6 @@ def generate_armor_from_prismeer_seller():
         LightArmor("Silver Chestplate", calculate_defense(10.0, 2), 10.0, 90, Rarity_Enum.UNCOMMON, Armor_Type_Enum.TORSO),
         HeavyArmor("Plated Boots", calculate_defense(8.0, 2), 8.0, 50, Rarity_Enum.UNCOMMON, Armor_Type_Enum.BOOTS)
     ]
-
 def generate_weapon_from_prismeer_seller():
     return [
         Sword("Steel Longsword", calculate_attack(8.0, 2, 0.2), 8.0, 60, Rarity_Enum.UNCOMMON, 0.2),

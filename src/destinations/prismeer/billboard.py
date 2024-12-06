@@ -17,7 +17,7 @@ class Billboard():
 
         key_actions = {
             "Q": lambda: self.show_quests(stdscr, main_character),
-            "I": lambda: display_message(stdscr, main_character.show_inventory(stdscr)(), 1000),
+            "S": lambda: main_character.show_status(stdscr),
             "N": lambda: None,  
             "E": lambda: display_message(stdscr, "You pressed E. Exiting quest selection.", 1000) or "BREAK",
             27: lambda: set_exit(),  

@@ -3,14 +3,13 @@ from quests.quests import Quests
 from models.item_model import ArmorModel, WeaponModel
 from models.abilities_model import BaseAbility
 from models.character_class_model import CharacterClass
+import curses
 from classes.cleric import Cleric
 from classes.paladin import Paladin
 from classes.rogue import Rogue
-from classes.paladin import Paladin
-from classes.wizard import Wizard
 from classes.warrior import Warrior
+from classes.wizard import Wizard
 
-import curses
 class Hero():
     
     def __init__(self) -> None:
@@ -109,7 +108,7 @@ class Hero():
     
     def equip_item(self, item: Union[ArmorModel, WeaponModel]) -> str:
         if item not in self.backpack:
-            return f"Item {item} não está na mochila."
+            return f"Item {item.name} não está na mochila."
 
         current_equipped_item = None
         weight_to_add = item.weight
@@ -126,9 +125,11 @@ class Hero():
         if self.weight + weight_to_add > self.carry_weight:
             return "Você não pode equipar este item, pois ele excede sua capacidade de carga."
 
+        proficiency_bonus = 2 if any(p in self.proficiencies for p in item.proeficiency) else -5
+
         if isinstance(item, WeaponModel):
-            self.attack_points += item.attack_points
-            self.last_attack_damage += item.damage
+            self.attack_points += item.attack_points + proficiency_bonus
+            self.last_attack_damage += item.critical_hit_chance
             self.weight += item.weight
 
             if current_equipped_item:
@@ -142,7 +143,7 @@ class Hero():
             if slot not in self.equipments:
                 return f"Slot {slot} inválido para armadura."
 
-            self.defense_points += item.def_points
+            self.defense_points += item.def_points + proficiency_bonus
             self.weight += item.weight
 
             if current_equipped_item:
@@ -152,39 +153,161 @@ class Hero():
             self.equipments[slot] = item
 
         self.backpack.remove(item)
-        return f"Item {item} equipado com sucesso!"
+        return f"Item {item.name} equipado com sucesso!"
 
     
-    def show_inventory(self, stdscr: curses.window):
-        current_row = 0
-        
+    def show_status(self, stdscr: curses.window):
+        sections = [
+            "Health: {}/{}".format(self.health_points, self.max_hp),
+            "Gold: {}".format(self.gold),
+            "Experience: {}/{} (Level {})".format(self.experience, self.next_level_xp, self.level),
+            "Attack Points: {}".format(self.attack_points),
+            "Defense Points: {}".format(self.defense_points),
+            "Critical Hit Chance: {}%".format(self.critical_hit_chance),
+            "Dodge Chance: {}%".format(self.dodge_chance),
+            "Resistance Factor: {}".format(self.resistance_factor),
+            "Speed: {}".format(self.speed),
+            "Carry Weight: {}/{}".format(self.weight, self.carry_weight),
+            "Equipments",
+            "Backpack",
+            "Abilities",
+            "Quests",
+            "Proficiencies",
+            "Last Attack Damage: {}".format(self.last_attack_damage),
+            "Extra Actions: {}".format(self.extra_actions),
+        ]
+
+        stdscr.clear()
+        current_selection = 0
+        top_index = 0
+
+        while True:
+            height, width = stdscr.getmaxyx()
+            visible_height = height - 1 
+            stdscr.clear()
+
+            for i in range(visible_height):
+                idx = top_index + i
+                if idx >= len(sections):
+                    break
+                if idx == current_selection:
+                    stdscr.addstr(i, 0, f"> {sections[idx]}", curses.A_REVERSE)
+                else:
+                    stdscr.addstr(i, 0, sections[idx])
+
+            stdscr.refresh()
+
+            key = stdscr.getch()
+
+            if key == curses.KEY_DOWN: 
+                if current_selection < len(sections) - 1:
+                    current_selection += 1
+                    if current_selection >= top_index + visible_height:
+                        top_index += 1
+            elif key == curses.KEY_UP: 
+                if current_selection > 0:
+                    current_selection -= 1
+                    if current_selection < top_index:
+                        top_index -= 1
+            elif key == 10:  
+                self.show_section_details(stdscr, sections[current_selection])
+            elif key == ord('q'):  
+                stdscr.clear()
+                stdscr.refresh()
+                break
+
+    def show_section(self, stdscr: curses.window, title: str, content: list):
+        """Função genérica para exibir uma seção com suporte a rolagem."""
+        top_index = 0
+
         while True:
             stdscr.clear()
-            stdscr.addstr("Use ↑ and ↓ to navigate, Enter to select an item, and 'q' to quit.\n\n")
-            
-            for idx, item in enumerate(self.backpack):
-                if idx == current_row:
-                    stdscr.addstr(f"> {item}\n", curses.A_REVERSE)
-                else:
-                    stdscr.addstr(f"  {item}\n")
-            
+            height, width = stdscr.getmaxyx()
+            visible_height = height - 2  
+
+            stdscr.addstr(0, 0, title.center(width), curses.A_BOLD | curses.A_UNDERLINE)
+            stdscr.addstr(1, 0, "Use ↑ e ↓ para navegar e 'q' para voltar.\n")
+
+            for i in range(visible_height):
+                idx = top_index + i
+                if idx >= len(content):
+                    break
+                stdscr.addstr(i + 2, 0, content[idx])
+
+            stdscr.refresh()
             key = stdscr.getch()
-            
-            if key == curses.KEY_UP and current_row > 0:
-                current_row -= 1
-            elif key == curses.KEY_DOWN and current_row < len(self.backpack) - 1:
+
+            if key == curses.KEY_DOWN:
+                if top_index + visible_height < len(content):
+                    top_index += 1
+            elif key == curses.KEY_UP:
+                if top_index > 0:
+                    top_index -= 1
+            elif key == ord('q'):
+                break
+
+
+    def show_inventory(self, stdscr: curses.window):
+        """Mostra o inventário do jogador com navegação e seleção."""
+        current_row = 0
+
+        while True:
+            stdscr.clear()
+            height, width = stdscr.getmaxyx()
+            visible_height = height - 3 
+
+            stdscr.addstr(0, 0, "Inventário".center(width), curses.A_BOLD | curses.A_UNDERLINE)
+            stdscr.addstr(1, 0, "Use ↑ e ↓ para navegar, Enter para selecionar, 'q' para sair.\n")
+
+            for i in range(visible_height):
+                idx = current_row - (current_row % visible_height) + i
+                if idx >= len(self.backpack):
+                    break
+                if idx == current_row:
+                    stdscr.addstr(i + 2, 0, f"> {self.backpack[idx]}", curses.A_REVERSE)
+                else:
+                    stdscr.addstr(i + 2, 0, f"  {self.backpack[idx]}")
+
+            stdscr.refresh()
+            key = stdscr.getch()
+
+            if key == curses.KEY_DOWN and current_row < len(self.backpack) - 1:
                 current_row += 1
-            elif key == ord('\n'):  
+            elif key == curses.KEY_UP and current_row > 0:
+                current_row -= 1
+            elif key == ord('\n') and len(self.backpack) > 0:
                 selected_item = self.backpack[current_row]
                 result = self.equip_item(selected_item)
+                self.show_section(stdscr, "Item Selecionado", [result, "Pressione 'q' para voltar."])
+            elif key == ord('q'):
                 stdscr.clear()
-                stdscr.addstr(result + "\n")
-                stdscr.addstr("Press any key to continue...")
-                stdscr.getch()
-            elif key == ord('q'):  
+                stdscr.refresh()
                 break
-            
-            stdscr.refresh()
+
+
+    def show_section_details(self, stdscr: curses.window, section: str):
+        """Mostra os detalhes de uma seção."""
+        if section == "Backpack":
+            content = ["Conteúdo da Mochila:"]
+            content.extend(f"- {item}" for item in self.backpack or ["Your backpack is empty."])
+        elif section == "Equipments":
+            content = ["Equipamentos:"]
+            content.extend(f"{item_type.capitalize()}: {item if item else 'None'}" for item_type, item in self.equipments.items())
+        elif section == "Abilities":
+            content = ["Habilidades:"]
+            content.extend(f"- {ability}" for ability in self.abilities)
+        elif section == "Quests":
+            content = ["Missões Ativas:"]
+            content.extend(f"- {quest}" for quest in self.quests)
+            content.append("Missões Concluídas:")
+            content.extend(f"- {quest}" for quest in self.concluded_quests)
+        elif section == "Proficiencies":
+            content = ["Proficiências:"]
+            content.extend(f"- {proficiency}" for proficiency in self.proficiencies)
+        else:
+            content = [f" {section}."]
+        self.show_section(stdscr, section, content)
+
 
     def choose_character_class(self, stdscr: curses.window):
         classes = ["Fighter", "Rogue", "Wizard", "Cleric", "Paladin"]
@@ -239,4 +362,3 @@ class Hero():
         self.abilities = character_class.abilities
         self.primary_stat = character_class.primary_stat
         self.spell_slots = character_class.spell_slots
-        self.action_points += character_class.action_points if hasattr(character_class, 'action_points') else 0

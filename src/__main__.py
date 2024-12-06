@@ -15,9 +15,9 @@ owl_bear_cave = OwlBearCave()
 def key_pressed_event(key, stdscr: curses.window, allow_enter_cave: bool):
     key_actions = {
         "P": lambda: city_menu(prismeer, main_character, stdscr),
-        "B": lambda: main_character.show_inventory(stdscr)(stdscr),
         "E": lambda: display_message(stdscr, "Exiting game...", 0) or set_exit(),
         "C": lambda: cave(owl_bear_cave, main_character, stdscr) if allow_enter_cave else display_message(stdscr, "The cave is not accessible yet.", 1000),
+        "S": lambda: main_character.show_status(stdscr),
         chr(27): lambda: display_message(stdscr, "Exiting game...", 0) or set_exit(),  
     }
     
@@ -32,7 +32,7 @@ def render_ui(stdscr:curses.window, allow_enter_cave):
 
     stdscr.addstr(0, 0, "Game is running...\n")
     stdscr.addstr(1, 0, "Press any key (ESC to exit)...\n")
-    stdscr.addstr(2, 0, "    B - View Backpack\n")
+    stdscr.addstr(2, 0, "    S - View Status\n")
     stdscr.addstr(3, 0, "    P - Prismeer\n")
     if allow_enter_cave:
         stdscr.addstr(4, 0, "    C - Cave\n")

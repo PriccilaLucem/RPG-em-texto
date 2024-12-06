@@ -1,6 +1,6 @@
 def global_commands():
     return"""
-    B - View Backpack"""
+    S - View Status"""
           
 def game_init():
     return f"""

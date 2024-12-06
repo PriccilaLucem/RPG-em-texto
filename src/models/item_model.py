@@ -34,13 +34,13 @@ class ArmorModel(ItemModel):
         return f"{self.name} - {self.def_points} DEF, {self.weight}kg, {self.value} gold ({self.rarity} {self.type})"
 
 class HeavyArmor(ArmorModel):
-    def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], armor_type: Armor_Type_Enum, def_points: int) -> None:
-        super().__init__(name, value, rarity, weight, proeficiency, armor_type, def_points)
+    def __init__(self, name: str, def_points:int, weight:float, value: int, rarity: Rarity_Enum, armor_type: Armor_Type_Enum) -> None:
+        super().__init__(name, value, rarity, weight, [Proeficiency_Enum.HEAVY_ARMOR], armor_type, def_points)
         self.armor_class = "Heavy"
 
 class LightArmor(ArmorModel):
-    def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], armor_type: Armor_Type_Enum, def_points: int) -> None:
-        super().__init__(name, value, rarity, weight, proeficiency, armor_type, def_points)
+    def __init__(self, name: str, def_points:int, weight:float, value: int, rarity: Rarity_Enum, armor_type: Armor_Type_Enum) -> None:
+        super().__init__(name, value, rarity, weight, [Proeficiency_Enum.LIGHT_ARMOR], armor_type, def_points)
         self.armor_class = "Light"
 
 
@@ -57,22 +57,21 @@ class WeaponModel(ItemModel):
     def __str__(self) -> str:
         return f"{self.name} - {self.attack_points} ATK, {self.weight}kg, {self.value} gold ({self.rarity} {self.weapon_type})"
 
-
 class Sword(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
-        super().__init__(name, attack_points, weight, value, Proeficiency_Enum.SWORDS, rarity, Weapon_Type_Enum.SWORD, critical_hit_chance)
+        super().__init__(name, value, rarity, weight, [Proeficiency_Enum.SWORDS], Weapon_Type_Enum.SWORD, attack_points, critical_hit_chance)
 
 class Axe(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
-        super().__init__(name, attack_points, weight, value, Proeficiency_Enum.AXES, rarity, Weapon_Type_Enum.AXE, critical_hit_chance)
+        super().__init__(name, value, rarity, weight, [Proeficiency_Enum.AXES], Weapon_Type_Enum.AXE, attack_points, critical_hit_chance)
 
 class Bow(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
-        super().__init__(name, attack_points, weight, value, Proeficiency_Enum.BOWS, rarity, Weapon_Type_Enum.BOW, critical_hit_chance)
+        super().__init__(name, value, rarity, weight, [Proeficiency_Enum.BOWS], Weapon_Type_Enum.BOW, attack_points, critical_hit_chance)
 
 class Dagger(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
-        super().__init__(name, attack_points, rarity, weight, value, [Proeficiency_Enum.DAGGERS, Proeficiency_Enum], Weapon_Type_Enum.DAGGER, critical_hit_chance)
+        super().__init__(name, value, rarity, weight, [Proeficiency_Enum.DAGGERS], Weapon_Type_Enum.DAGGER, attack_points, critical_hit_chance)
 
 def sell_item(item: ItemModel) -> int:
     return item.sell()
@@ -86,7 +85,7 @@ class LightShield(Shield):
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.SHIELDS, Proeficiency_Enum.LIGHT_ARMOR], def_points)
 
 class HeavyShield(Shield):
-    def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], def_points: int) -> None:
+    def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, def_points: int) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.SHIELDS, Proeficiency_Enum.HEAVY_ARMOR], def_points)
 
 class Mace(WeaponModel):
