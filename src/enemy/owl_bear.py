@@ -3,7 +3,7 @@ from enums.weakness_enum import WeaknessEnum
 from enums.immunity_enum import ImmunityEnum
 from enums.enemy_type_enum import EnemyType
 from abilities.crushing_hug import CrushingHug
-
+from drops.drops import sharp_claws, owl_bear_pelt 
 class OwlBear(EnemyModel):
     def __init__(self, 
                   name="Owlbear",
@@ -18,7 +18,7 @@ class OwlBear(EnemyModel):
                     weakness=[WeaknessEnum.FIRE.value, WeaknessEnum.SILVER_WEAPONS.value],
                     immunities=[ImmunityEnum.POISON.value, ImmunityEnum.NON_MAGICAL_WEAPONS.value],
                     exp_points=250,
-                    drops=["owlbear pelt", "sharp claws"],
+                    drops=[sharp_claws, owl_bear_pelt],
                     location="forest/cave",
                     level = 10, 
     ) -> None:

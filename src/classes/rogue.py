@@ -1,5 +1,5 @@
 from models.character_class_model import CharacterClass
-from abilities.rogue_abilities import DisarmTrap, Evasion, SneakAttack, UncannyDodge, UtilityAbility,DamageAbility 
+from abilities.rogue_abilities import DisarmTrap, Evasion, SneakAttack, UncannyDodge
 class Rogue(CharacterClass):
     def __init__(self):
         super().__init__(
@@ -11,8 +11,6 @@ class Rogue(CharacterClass):
                 Evasion(),
                 SneakAttack(),
                 UncannyDodge(),
-                UtilityAbility(),
-                DamageAbility()
             ],
             proficiencies=["Light Armor", "Daggers", "Shortswords", "Thieves' Tools"],
             spell_slots=0,

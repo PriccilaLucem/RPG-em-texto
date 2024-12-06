@@ -361,4 +361,4 @@ class Hero():
         self.proficiencies.extend(character_class.proficiencies)
         self.abilities = character_class.abilities
         self.primary_stat = character_class.primary_stat
-        self.spell_slots = character_class.spell_slots
+        self.spell_slots = character_class.spell_slots 

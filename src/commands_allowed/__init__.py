@@ -45,5 +45,6 @@ def inside_cave_commands():
     {global_commands()}
     1 - Talk to first brother
     2 - Talk to second brother
+    3 - Scavenge Owlbear
     E - Go to outside the cave
     """

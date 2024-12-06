@@ -45,6 +45,7 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
         "E": lambda: display_message(stdscr, "Returning to outside the cave...", 1000) or exit_loop(),
         "1": lambda: display_message(stdscr, owl_bear_cave.talk_to_npc(1), 1000),
         "2": lambda: display_message(stdscr, owl_bear_cave.talk_to_npc(2), 1000),
+        "3": lambda: display_message(stdscr, owl_bear_cave.owl_bear.drop_items(main_character), 3000),
         chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit(),
     }
 

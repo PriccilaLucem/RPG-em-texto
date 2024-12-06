@@ -204,6 +204,7 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
 
     if hero.health_points > 0:
         display_message(stdscr, "🏆 Hero is victorious!", 2000)
+        enemy.drop_items(hero)
         return True
     else:
         display_message(stdscr, f"💔 Hero has been defeated by {enemy.name}.", 2000)
