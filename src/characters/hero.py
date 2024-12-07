@@ -9,12 +9,13 @@ from classes.paladin import Paladin
 from classes.rogue import Rogue
 from classes.warrior import Warrior
 from classes.wizard import Wizard
+from collections import Counter
 
 class Hero():
     
     def __init__(self) -> None:
         self.name: str = "Hero" 
-        self.health_points:int = 50
+        self.health_points:int = -1
         self.max_hp:int = 50
         self.gold:int = 1000000
         self.backpack:List[Union[WeaponModel, ArmorModel]] = []
@@ -289,20 +290,24 @@ class Hero():
         """Mostra os detalhes de uma seção."""
         if section == "Backpack":
             content = ["Conteúdo da Mochila:"]
-            content.extend(f"- {item}" for item in self.backpack or ["Your backpack is empty."])
+            if self.backpack:
+                item_counts = Counter(self.backpack)
+                content.extend(f"- {quantity}x {item}" for item, quantity in item_counts.items())
+            else:
+                content.append("- Your backpack is empty.")
         elif section == "Equipments":
-            content = ["Equipamentos:"]
+            content = ["Equipments:"]
             content.extend(f"{item_type.capitalize()}: {item if item else 'None'}" for item_type, item in self.equipments.items())
         elif section == "Abilities":
-            content = ["Habilidades:"]
+            content = ["Skills:"]
             content.extend(f"- {ability}" for ability in self.abilities)
         elif section == "Quests":
-            content = ["Missões Ativas:"]
+            content = ["Active quests:"]
             content.extend(f"- {quest}" for quest in self.quests)
-            content.append("Missões Concluídas:")
+            content.append("Concluded quests:")
             content.extend(f"- {quest}" for quest in self.concluded_quests)
         elif section == "Proficiencies":
-            content = ["Proficiências:"]
+            content = ["Proficiencies:"]
             content.extend(f"- {proficiency}" for proficiency in self.proficiencies)
         else:
             content = [f" {section}."]

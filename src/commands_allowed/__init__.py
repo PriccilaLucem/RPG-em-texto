@@ -39,7 +39,12 @@ def cave_commands():
     Enter - Enter the cave
     E - Go to Prismeer's surroundings
     """
-
+def mine_cave_commands():
+    return f"""
+    {global_commands()}
+    M - Mine some ores
+    E - Leave to outside the cave
+    """
 def inside_cave_commands():
     return f"""
     {global_commands()}

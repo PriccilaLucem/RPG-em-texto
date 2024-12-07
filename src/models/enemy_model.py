@@ -74,7 +74,7 @@ class EnemyModel:
         if not self.loot_collected:
             dropped_items = []
             for item in self.drops:
-                if random.random() <= rarity_probabilities.get(item.rarity.lower(), 0):
+                if random.random() <= rarity_probabilities.get(item.rarity, 0):
                     dropped_items.append(item)
     
             if not dropped_items and self.drops:

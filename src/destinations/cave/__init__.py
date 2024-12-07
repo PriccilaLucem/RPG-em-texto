@@ -1,11 +1,12 @@
 from destinations.cave.owl_bear_cave import OwlBearCave
 from characters.hero import Hero
 from global_state.global_state import should_exit, set_exit
-from commands_allowed import cave_commands, inside_cave_commands
+from commands_allowed import cave_commands, inside_cave_commands, mine_cave_commands
 import curses
 from util.display_message import display_message
 from util.combat_system import combat
 from history.history import the_real_init
+from ores.ores import mine
 
 def exit_loop():
     raise StopIteration
@@ -96,5 +97,22 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
 
                 npc_interactions() 
         else:
-            display_message(stdscr, "Not ready, come back later!", 2000)
-            break
+            while not should_exit():
+                stdscr.clear()
+                stdscr.addstr(mine_cave_commands())
+                stdscr.refresh()
+                actions = {
+                    "S": lambda: main_character.show_status(stdscr),
+                    "E": lambda: display_message(stdscr, "Returning to outside the cave...", 1000) or exit_loop(),
+                    "M": lambda: mine(stdscr, owl_bear_cave.ores, main_character),
+                    # if not owl_bear_cave.has_already_mined else display_message(stdscr, "You have already mined this turn.", 1000),
+                    chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit(),
+                }
+                owl_bear_cave_key = stdscr.getch()
+                action = actions.get(
+                    chr(owl_bear_cave_key).upper(),
+                    lambda: display_message(stdscr, "Invalid choice. Try again.", 1000)
+                )
+                action()
+
+                

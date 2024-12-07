@@ -13,7 +13,7 @@ class ItemModel:
         self.name = name
         self.value = value
         if isinstance(rarity, Rarity_Enum):
-            self.rarity = rarity.name.lower()
+            self.rarity = rarity
         else:
             raise ValueError(f"Invalid rarity: {rarity}. Must be one of {list(Rarity_Enum)}")
         self.weight = weight 
