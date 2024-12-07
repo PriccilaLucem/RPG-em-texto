@@ -48,7 +48,10 @@ def game_loop(stdscr: curses.window):
     display_message(stdscr, history, 0)  
 
     while not should_exit():
-        allow_enter_cave = any(quest.id == 1 for quest in main_character.quests)
+        allow_enter_cave = any(
+            quest.id == 1
+            for quest in (main_character.quests or []) + (main_character.concluded_quests or [])
+        )
         render_ui(stdscr, allow_enter_cave)
         key = stdscr.getch()  
         key_pressed_event(key, stdscr, allow_enter_cave)

@@ -104,8 +104,11 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
                 actions = {
                     "S": lambda: main_character.show_status(stdscr),
                     "E": lambda: display_message(stdscr, "Returning to outside the cave...", 1000) or exit_loop(),
-                    "M": lambda: mine(stdscr, owl_bear_cave.ores, main_character),
-                    # if not owl_bear_cave.has_already_mined else display_message(stdscr, "You have already mined this turn.", 1000),
+                    "M": lambda: (
+                        display_message(stdscr, "You have already mined this turn.", 1000)
+                        if owl_bear_cave.has_already_mined
+                        else setattr(owl_bear_cave, "has_already_mined", mine(stdscr, owl_bear_cave.ores, main_character))
+                    ),
                     chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit(),
                 }
                 owl_bear_cave_key = stdscr.getch()

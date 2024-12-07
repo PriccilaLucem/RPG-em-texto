@@ -12,7 +12,7 @@ silver_ore = Ores(name="Silver Ore", value=30, rarity=Rarity_Enum.UNCOMMON, weig
 platinum_ore = Ores(name="Platinum Ore", value=100,rarity= Rarity_Enum.EPIC, weight=1.2)
 mythril_ore = Ores(name="Mythril Ore", value=250,rarity= Rarity_Enum.LEGENDARY, weight=1)
 
-def mine(stdscr: curses.window, ores: List['Ores'], main_character: Hero) -> bool:
+def mine(stdscr: curses.window, ores: List[Ores], main_character: Hero) -> bool:
     rarity_probabilities = {
         Rarity_Enum.COMMON: 1.0,       # 100% chance
         Rarity_Enum.UNCOMMON: 0.5,     # 50% chance
@@ -21,23 +21,36 @@ def mine(stdscr: curses.window, ores: List['Ores'], main_character: Hero) -> boo
         Rarity_Enum.LEGENDARY: 0.05    # 5% chance
     }
     mined_ores = []
-    
+    max_lines, max_cols = stdscr.getmaxyx()  # Get terminal dimensions
+    display_line = 0  # Start from the top
+
     stdscr.clear()
-    stdscr.addstr("Mining ores...\n")
+    stdscr.addstr(display_line, 0, "Mining ores...\n")
+    display_line += 1
     stdscr.refresh()
 
     while len(mined_ores) < 10:
         ore = random.choice(ores)
         if random.random() <= rarity_probabilities.get(ore.rarity, 0):
             mined_ores.append(ore)
-            stdscr.addstr(f"Ore mined: {ore}\n")
+          
+            if display_line >= max_lines - 1:  
+                stdscr.clear()
+                display_line = 0
+            
+            stdscr.addstr(display_line, 0, f"Ore mined: {ore}\n")
+            display_line += 1
             stdscr.refresh()
-            curses.napms(500)  
 
-    main_character.backpack.extend(mined_ores)
+            main_character.add_to_inventory(ore)
+            curses.napms(500) 
 
-    stdscr.addstr("\nMining complete! Press any key to return.\n")
+    if display_line >= max_lines - 1:
+        stdscr.clear()
+        display_line = 0
+
+    stdscr.addstr(display_line, 0, "\nMining complete! Press any key to return.\n")
     stdscr.refresh()
-    stdscr.getch() 
+    stdscr.getch()
 
     return True

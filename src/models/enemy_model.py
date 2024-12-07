@@ -76,11 +76,8 @@ class EnemyModel:
             for item in self.drops:
                 if random.random() <= rarity_probabilities.get(item.rarity, 0):
                     dropped_items.append(item)
-    
-            if not dropped_items and self.drops:
-                dropped_items.append(random.choice(self.drops))
+                    main_character.add_to_inventory(random.choice(self.drops))
             self.loot_collected = True
-            main_character.backpack.extend(dropped_items)
             return f"{self.name} dropped: {[str(item) for item in dropped_items]}"
         
         return f"The loot from {self.name} has already been collected."

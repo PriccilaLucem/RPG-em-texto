@@ -44,7 +44,7 @@ class Hero():
         self.dodge_chance = 0
         self.health = 100
         self.last_attack_damage = 0
-        self.carry_weight = 10
+        self.carry_weight = 50
         self.weight = 0
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
@@ -99,14 +99,14 @@ class Hero():
             raise ValueError("Quest is not part of the active quests list.")
 
         self.gold += quest.gold_given
-
+        self.concluded_quests.append(quest)
         if self.experience + quest.xp_given < self.next_level_xp:
             self.experience += quest.xp_given
         else:
             remaining_xp = (self.experience + quest.xp_given) - self.next_level_xp
             self.level_up()
             self.experience = remaining_xp
-    
+
     def equip_item(self, item: Union[ArmorModel, WeaponModel]) -> str:
         if item not in self.backpack:
             return f"Item {item.name} não está na mochila."
@@ -292,7 +292,8 @@ class Hero():
             content = ["Conteúdo da Mochila:"]
             if self.backpack:
                 item_counts = Counter(self.backpack)
-                content.extend(f"- {quantity}x {item}" for item, quantity in item_counts.items())
+                content.extend(f"- {quantity}x {item.name} (Valor: {item.value}, Peso: {item.weight})"
+                               for item, quantity in item_counts.items())
             else:
                 content.append("- Your backpack is empty.")
         elif section == "Equipments":
@@ -367,3 +368,7 @@ class Hero():
         self.abilities = character_class.abilities
         self.primary_stat = character_class.primary_stat
         self.spell_slots = character_class.spell_slots 
+    
+    def add_to_inventory(self, item):
+        self.backpack.append(item)
+        self.weight += item.weight
