@@ -1,5 +1,5 @@
 from typing import Any, List, Union, Optional, Dict
-from quests.quests import Quests
+from quests.quests import Quests, CollectableQuest
 from models.item_model import ArmorModel, WeaponModel
 from models.abilities_model import BaseAbility
 from models.character_class_model import CharacterClass
@@ -27,7 +27,7 @@ class Hero():
             "boots": None,
             "weapons": None
         }
-        self.character_class:CharacterClass = None 
+        self.character_class:CharacterClass = Warrior() 
         self.experience:int = 0
         self.next_level_xp:int = 100
         self.attack_points:int = 20
@@ -35,8 +35,8 @@ class Hero():
         self.level:int = 0
         self.critical_hit_chance = 5
         self.resistance_factor = 1
-        self.quests: List[Quests] = [Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!")] 
-        self.concluded_quests: List[Quests] = []
+        self.quests: List[Union[Quests, CollectableQuest]] = [] 
+        self.concluded_quests: List[Union[Quests, CollectableQuest]] = [Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!")]
         self.speed = 10 
         self.attack_multiplier = 1
         self.proficiencies = []
@@ -86,7 +86,7 @@ class Hero():
                 self.resistance_factor += 0.05
                 self.carry_weight += 4
     
-    def append_quests(self, quest:Quests):
+    def append_quests(self, quest:Union[Quests, CollectableQuest]):
         self.quests.append(quest)
         
     def init_a_quest(self, quest:Quests):
@@ -100,6 +100,7 @@ class Hero():
 
         self.gold += quest.gold_given
         self.concluded_quests.append(quest)
+        self.quests.remove(quest)
         if self.experience + quest.xp_given < self.next_level_xp:
             self.experience += quest.xp_given
         else:
@@ -362,8 +363,8 @@ class Hero():
     
     def apply_class(self, character_class: CharacterClass):
         """Applies a character class to the hero."""
-        self.character_class = character_class
         self.health += character_class.health
+        self.max_hp += character_class.health
         self.proficiencies.extend(character_class.proficiencies)
         self.abilities = character_class.abilities
         self.primary_stat = character_class.primary_stat
@@ -372,3 +373,22 @@ class Hero():
     def add_to_inventory(self, item):
         self.backpack.append(item)
         self.weight += item.weight
+
+    def remove_items_from_backpack(self, items_to_be_collected):
+        for item, quantity in items_to_be_collected:
+            available_quantity = sum(1 for i in self.backpack if i == item)
+            if available_quantity < quantity:
+                raise ValueError(f"Not enough {item.name} in the backpack. Needed {quantity}, found {available_quantity}.")
+
+        for item, quantity in items_to_be_collected:
+            count = 0
+            for i in range(len(self.backpack) - 1, -1, -1):  
+                if self.backpack[i] == item:
+                    self.backpack.pop(i)
+                    self.weight -= item.weight
+                    count += 1
+                    if count == quantity:  
+                        break
+    
+    def find_quest_by_id(self, quest_id: int):
+        return next((quest for quest in self.quests if quest.id == quest_id), None)

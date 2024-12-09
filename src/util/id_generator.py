@@ -1,5 +1,5 @@
 class IDGenerator:
-    current_id = 1
+    current_id = 3
 
     @staticmethod
     def generate_id():

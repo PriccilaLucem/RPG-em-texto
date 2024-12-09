@@ -4,7 +4,7 @@ from models.character_with_a_quest_model import Character_with_a_quest_model
 from destinations.prismeer.items import generate_armor_from_prismeer_seller, generate_weapon_from_prismeer_seller
 from characters.hero import Hero
 from typing import List, Union
-from quests.quests import Quests
+from quests import prismeer_owl_bear_quest, prismeer_blacksmith_quest
 
 class Comercial_center():
     def __init__(self) -> None:
@@ -26,21 +26,39 @@ class Comercial_center():
         Character_model("Osvaldo",[
             "Do you have any vodka? I want to drink"
         ]),
-        Character_with_a_quest_model("Damon", [
+        Character_with_a_quest_model(name="Damon", speeches=[
         "Hero! Hero! Please you have to help my brothers... They tried to take the treasure of OwBear and now they are trapped in his cave!", 
-        "Thank you hero!"
-        ],
-        Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!"))
-        ]
+        "Thank you hero!"],
+        quest=prismeer_owl_bear_quest ),
+        
+        Character_with_a_quest_model(name="Walver", speeches=[
+            "You are not ready!",
+            "Please help me find some ores",
+            "Thank you, now you can use my forge"
+        ], quest=prismeer_blacksmith_quest)
+    ]
 
     def talk_to_npc(self, key:int, main_character:Hero):
         npc_to_talk = self.npcs[key-1]
         if any(quest.id == 1 for quest in main_character.concluded_quests) and key == 3:
             return npc_to_talk.speech(1)
+        if key == 4:
+            if any(quest.id == 2 for quest in main_character.concluded_quests):
+                return npc_to_talk.speech(2)   
+            elif main_character.character_class == None:
+                return npc_to_talk.speech(0)
+            
+            else:
+                return npc_to_talk.speech(1)  
+
         else:
             return npc_to_talk.speech(0)
-                
+        
 
-    def append_npc_quest(self, main_character: Hero):
-        main_character.append_quests(self.npcs[2].quest)
-        self.npcs[2].quest = None
+    def append_npc_quest(self, main_character: Hero, npc_key: int = None):
+        if npc_key is not None:
+            npc = self.npcs[npc_key - 1]
+            if isinstance(npc, Character_with_a_quest_model)  and npc.quest is not None:
+                main_character.append_quests(npc.quest)
+                npc.quest = None
+        
