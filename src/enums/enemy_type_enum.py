@@ -11,3 +11,4 @@ class EnemyType(Enum):
     INSECT = "Insect"          
     GIANT = "Giant"            
     CELESTIAL = "Celestial"    
+    MAGICAL = "Magical"

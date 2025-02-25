@@ -3,10 +3,10 @@ from typing import List, Optional
 from models.abilities_model import BaseAbility
 from enums.immunity_enum import ImmunityEnum
 from enums.weakness_enum import WeaknessEnum
-from models.drop_model import DropModel
+from models.item_model import ItemsUsedToCraft
 import random
 from characters.hero import Hero
-from models.item_model import Drops
+from models.item_model import ItemsUsedToCraft
 from enums.rarity_enum import Rarity_Enum
 import random
 class EnemyModel:
@@ -24,7 +24,7 @@ class EnemyModel:
                  immunities: Optional[List[ImmunityEnum]] = None, 
                  abilities: Optional[List[BaseAbility]] = None, 
                  exp_points: int = 0, 
-                 drops: Optional[List[DropModel]] = None, 
+                 drops: Optional[List[ItemsUsedToCraft]] = None, 
                  location: str = "unknown",
                  level: int = 0
                  ) -> None:
@@ -46,7 +46,7 @@ class EnemyModel:
         self.immunities = immunities or []
         self.abilities = abilities or []
         self.exp_points = exp_points
-        self.drops:List[Drops] = drops or []
+        self.drops:List[ItemsUsedToCraft] = drops or []
         self.location = location
         self.level = level
         self.loot_collected = False 

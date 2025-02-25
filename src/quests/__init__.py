@@ -2,7 +2,7 @@ import random
 from typing import List
 from quests.quests import Quests
 from quests.quests import CollectableQuest
-from ores.ores import iron_ore
+from resources.cave.ores import iron_ore
 
 def generate_random_quests(n: int = 5) -> List[Quests]:
     quest_data = [

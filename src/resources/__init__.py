@@ -1,16 +1,10 @@
+import curses
 import random
 from typing import List
+from models.item_model import ItemsUsedToCraft
 from enums.rarity_enum import Rarity_Enum
-from models.item_model import Ores
-import curses
 
-iron_ore = Ores(name="Iron Ore", value=10, rarity=Rarity_Enum.COMMON, weight=2)
-gold_ore = Ores(name="Gold Ore", value=50, rarity=Rarity_Enum.RARE, weight=1.5)
-silver_ore = Ores(name="Silver Ore", value=30, rarity=Rarity_Enum.UNCOMMON, weight=1.8)
-platinum_ore = Ores(name="Platinum Ore", value=100,rarity= Rarity_Enum.EPIC, weight=1.2)
-mythril_ore = Ores(name="Mythril Ore", value=250,rarity= Rarity_Enum.LEGENDARY, weight=1)
-
-def mine(stdscr: curses.window, ores: List[Ores], main_character) -> bool:
+def mine(stdscr: curses.window, ores: List[ItemsUsedToCraft], main_character) -> bool:
     rarity_probabilities = {
         Rarity_Enum.COMMON: 1.0,       # 100% chance
         Rarity_Enum.UNCOMMON: 0.5,     # 50% chance
@@ -23,7 +17,7 @@ def mine(stdscr: curses.window, ores: List[Ores], main_character) -> bool:
     display_line = 0  
 
     stdscr.clear()
-    stdscr.addstr(display_line, 0, "Mining ores...\n")
+    stdscr.addstr(display_line, 0, "Mining Ores...\n")
     display_line += 1
     stdscr.refresh()
 

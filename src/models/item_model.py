@@ -4,7 +4,6 @@ from enums.rarity_enum import Rarity_Enum
 from enums.armor_type_enum import Armor_Type_Enum
 from enums.weapon_type_enum import Weapon_Type_Enum
 from typing import List
-
 # Item father class
 
 class ItemModel:
@@ -124,11 +123,8 @@ class ItemsUsedToCraft(ItemModel):
 
     def __str__(self):
         return f"{self.name} (Rarity: {self.rarity}, Weight: {self.weight})"
-
-class Ores(ItemsUsedToCraft):
-    def __init__(self, name, value, rarity, weight):
+    
+class Food(ItemsUsedToCraft):
+    def __init__(self, name, value, rarity, weight, health_recovery: str):
         super().__init__(name, value, rarity, weight)
-
-class Drops(ItemsUsedToCraft):
-    def __init__(self, name, value, rarity, weight):
-        super().__init__(name, value, rarity, weight)
+        self.health_recovery = health_recovery

@@ -10,3 +10,4 @@ class WeaknessEnum(Enum):
     SILVER_WEAPONS = "silver_weapons"
     HOLY_DAMAGE = "holy_damage"
     PHYSICAL = "physical"
+    POISON = "poison"

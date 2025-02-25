@@ -2,11 +2,10 @@ from models.enemy_model import EnemyModel
 from enums.weakness_enum import WeaknessEnum
 from enums.immunity_enum import ImmunityEnum
 from enums.enemy_type_enum import EnemyType
-from abilities.crushing_hug import CrushingHug
-from drops.drops import sharp_claws, owl_bear_pelt 
-class OwlBear(EnemyModel):
-    def __init__(self, 
-                  name="Owlbear",
+from enemy.owl_bear.abilities import CrushingHug
+from enemy.owl_bear.drops import sharp_claws, owl_bear_pelt
+
+owl_bear = EnemyModel(name="Owlbear",
                     type=EnemyType.BEAST,
                     attack_points=40,
                     defense_points=30,
@@ -21,19 +20,5 @@ class OwlBear(EnemyModel):
                     drops=[sharp_claws, owl_bear_pelt],
                     location="forest/cave",
                     level = 10, 
-    ) -> None:
-        super().__init__(name,
-                          type,
-                          attack_points, 
-                          defense_points, 
-                          attack_multiplier, 
-                          critical_hit_chance, 
-                          resistance_factor, 
-                          health_points, 
-                          speed, weakness, 
-                          immunities, 
-                          [CrushingHug(level)], 
-                          exp_points, 
-                          drops, 
-                          location,
-                          level)
+                    abilities= [CrushingHug(level=10)]
+)

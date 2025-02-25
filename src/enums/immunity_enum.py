@@ -9,3 +9,5 @@ class ImmunityEnum(Enum):
     NECROTIC = "necrotic"
     RADIANT = "radiant"
     NON_MAGICAL_WEAPONS = "non_magical_weapons"
+    PARALYSIS = "Paralysis"
+    WATER = "Water"

@@ -6,7 +6,7 @@ import curses
 from util.display_message import display_message
 from util.combat_system import combat
 from history.history import the_real_init
-from ores.ores import mine
+from resources import mine
 
 def exit_loop():
     raise StopIteration
@@ -88,7 +88,7 @@ def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: 
                     "You wake up to Damon’s brothers frantically trying to wake you up. "
                     "As you look to the side, you see the lifeless body of the OwlBear and wonder how it all happened..."
                 ), 5000)
-
+    
                 main_character.health_points = main_character.max_hp
                 quest_to_remove = next((quest for quest in main_character.quests if quest.id == 1), None)
                 if quest_to_remove:

@@ -10,12 +10,12 @@ from classes.rogue import Rogue
 from classes.warrior import Warrior
 from classes.wizard import Wizard
 from collections import Counter
+from util.wrap_text import wrap_text
 
 class Hero():
-    
     def __init__(self) -> None:
         self.name: str = "Hero" 
-        self.health_points:int = -1
+        self.health_points:int = 50
         self.max_hp:int = 50
         self.gold:int = 1000000
         self.backpack:List[Union[WeaponModel, ArmorModel]] = []
@@ -27,7 +27,7 @@ class Hero():
             "boots": None,
             "weapons": None
         }
-        self.character_class:CharacterClass = Warrior() 
+        self.character_class:CharacterClass = None
         self.experience:int = 0
         self.next_level_xp:int = 100
         self.attack_points:int = 20
@@ -36,7 +36,7 @@ class Hero():
         self.critical_hit_chance = 5
         self.resistance_factor = 1
         self.quests: List[Union[Quests, CollectableQuest]] = [] 
-        self.concluded_quests: List[Union[Quests, CollectableQuest]] = [Quests(1,2,100,25, "Help the brothes of Damon in OwBear cave!")]
+        self.concluded_quests: List[Union[Quests, CollectableQuest]] = []
         self.speed = 10 
         self.attack_multiplier = 1
         self.proficiencies = []
@@ -219,35 +219,37 @@ class Hero():
                 break
 
     def show_section(self, stdscr: curses.window, title: str, content: list):
-        """Função genérica para exibir uma seção com suporte a rolagem."""
+        """Função genérica para exibir uma seção com suporte a rolagem e quebra de linha."""
         top_index = 0
-
+    
         while True:
             stdscr.clear()
             height, width = stdscr.getmaxyx()
-            visible_height = height - 2  
-
+            visible_height = height - 2  # Ajuste para a altura visível
             stdscr.addstr(0, 0, title.center(width), curses.A_BOLD | curses.A_UNDERLINE)
             stdscr.addstr(1, 0, "Use ↑ e ↓ para navegar e 'q' para voltar.\n")
-
+    
+            wrapped_content = []
+            for line in content:
+                wrapped_content.extend(wrap_text(line, width - 2))  # Aplica quebra de linha
+    
             for i in range(visible_height):
                 idx = top_index + i
-                if idx >= len(content):
+                if idx >= len(wrapped_content):
                     break
-                stdscr.addstr(i + 2, 0, content[idx])
-
+                stdscr.addstr(i + 2, 0, wrapped_content[idx])
+    
             stdscr.refresh()
             key = stdscr.getch()
-
+    
             if key == curses.KEY_DOWN:
-                if top_index + visible_height < len(content):
+                if top_index + visible_height < len(wrapped_content):
                     top_index += 1
             elif key == curses.KEY_UP:
                 if top_index > 0:
                     top_index -= 1
             elif key == ord('q'):
                 break
-
 
     def show_inventory(self, stdscr: curses.window):
         """Mostra o inventário do jogador com navegação e seleção."""

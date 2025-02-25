@@ -2,13 +2,13 @@ from util.id_generator import IDGenerator
 from enums.skill_type_enum import SkillTypeEnum
 
 class BaseAbility():
-    def __init__(self, name: str, cooldown: int, level=0):
+    def __init__(self, name: str, cooldown: int, description, level=0):
         self.id = IDGenerator.generate_id()
         self.name = name
         self.cooldown = cooldown
         self.current_cooldown = 0
         self.level = level
-
+        self.description = description
     def reduce_cooldown(self):
         if self.current_cooldown > 0:
             self.current_cooldown -= 1
@@ -24,8 +24,8 @@ class BaseAbility():
 
 
 class DamageAbility(BaseAbility):
-    def __init__(self, name: str, cooldown: int, damage: int, level=0):
-        super().__init__(name, cooldown, level)
+    def __init__(self, name: str, cooldown: int, damage: int, description, level=0):
+        super().__init__(name, cooldown, level, description)
         self.type = SkillTypeEnum.DAMAGE
         self.damage = damage + (level * 0.5)
 
@@ -37,8 +37,8 @@ class DamageAbility(BaseAbility):
 
 
 class HealAbility(BaseAbility):
-    def __init__(self, name: str, cooldown: int, effect_value: int, level=0):
-        super().__init__(name, cooldown, level)
+    def __init__(self, name: str, cooldown: int, effect_value: int, description, level=0):
+        super().__init__(name, cooldown, level, description)
         self.type = SkillTypeEnum.HEAL
         self.effect_value = effect_value
 
@@ -50,8 +50,8 @@ class HealAbility(BaseAbility):
 
 
 class BuffAbility(BaseAbility):
-    def __init__(self, name: str, cooldown: int, effect_value: int, level=0, buff_type="attack"):
-        super().__init__(name, cooldown, level)
+    def __init__(self, name: str, cooldown: int, effect_value: int, description, level=0, buff_type="attack"):
+        super().__init__(name, cooldown, level, description)
         self.type = SkillTypeEnum.BUFF
         self.effect_value = effect_value
         self.buff_type = buff_type  # Can be 'attack', 'defense', or 'both'
@@ -70,8 +70,8 @@ class BuffAbility(BaseAbility):
 
 
 class DebuffAbility(BaseAbility):
-    def __init__(self, name: str, cooldown: int, effect_value: int, level=0, debuff_type="attack"):
-        super().__init__(name, cooldown, level)
+    def __init__(self, name: str, cooldown: int, effect_value: int, description, level=0, debuff_type="attack"):
+        super().__init__(name, cooldown, level, description)
         self.type = SkillTypeEnum.DEBUFF
         self.effect_value = effect_value
         self.debuff_type = debuff_type  
@@ -90,8 +90,8 @@ class DebuffAbility(BaseAbility):
 
 
 class UtilityAbility(BaseAbility):
-    def __init__(self, name: str, cooldown: int, effect_value: int = 0, level=0):
-        super().__init__(name, cooldown, level)
+    def __init__(self, name: str, cooldown: int, description,  effect_value: int = 0, level=0):
+        super().__init__(name, cooldown, level, description)
         self.type = SkillTypeEnum.UTILITY
         self.effect_value = effect_value
 
