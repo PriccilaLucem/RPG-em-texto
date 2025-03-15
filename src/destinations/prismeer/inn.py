@@ -1,11 +1,13 @@
+from typing import Dict
 from characters.hero import Hero
 import curses
+
 class Inn:
-    def __init__(self, cost: int, name) -> None:
+    def __init__(self, cost: int, name: str) -> None:
         self.cost = cost
         self.name = name
-    
-    def pass_the_night(self, main_character: Hero, stdscr:curses.window ) -> None:
+
+    def pass_the_night(self, main_character: Hero, stdscr: curses.window) -> None:
         stdscr.clear()
         stdscr.refresh()
         while True:
@@ -30,10 +32,21 @@ class Inn:
                 curses.napms(2000)
                 break
             else:
-                    stdscr.clear()
-                    stdscr.addstr("Invalid choice. Try again.\n")
-                    stdscr.refresh()
-                    curses.napms(1000)
-                    stdscr.clear()
-                
-                
+                stdscr.clear()
+                stdscr.addstr("Invalid choice. Try again.\n")
+                stdscr.refresh()
+                curses.napms(1000)
+                stdscr.clear()
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> None:
+        inn = cls(cost=data["cost"], name=data["name"] )
+
+        return inn
+        
+    def to_dict(self) -> Dict:
+        """Convert the Inn instance to a dictionary."""
+        return {
+            "cost": self.cost,
+            "name": self.name
+        }

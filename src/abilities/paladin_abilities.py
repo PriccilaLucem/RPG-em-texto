@@ -9,6 +9,11 @@ class LayOnHands(HealAbility):
             effect_value=20,  # Heal amount
             description="A healing touch that restores health to an ally, mending wounds with divine power."
         )
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 
 class DivineSmite(DamageAbility):
@@ -19,6 +24,11 @@ class DivineSmite(DamageAbility):
             damage=30,  # Damage amount
             description="A powerful strike imbued with divine energy, dealing radiant damage to an enemy."
         )
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 
 class ShieldOfFaith(BuffAbility):
@@ -30,6 +40,11 @@ class ShieldOfFaith(BuffAbility):
             buff_type="defense",
             description="A shimmering shield of divine energy that bolsters an ally's defenses."
         )
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 
 class AuraOfProtection(UtilityAbility):
@@ -40,6 +55,11 @@ class AuraOfProtection(UtilityAbility):
             effect_value=0,
             description="An aura that extends divine protection to nearby allies, enhancing their resilience."
         )
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 
 class OathOfDevotion(UtilityAbility):
@@ -50,3 +70,8 @@ class OathOfDevotion(UtilityAbility):
             effect_value=0,
             description="A solemn vow that empowers allies with unwavering faith and devotion."
         )
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)

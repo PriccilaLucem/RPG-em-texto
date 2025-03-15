@@ -1,11 +1,11 @@
 from models.enemy_model import EnemyModel
 from enums.weakness_enum import WeaknessEnum
-from enums.enemy_type_enum import EnemyType
+from enums.enemy_type_enum import EnemyTypeEnum
 from enemy.giant_spider.drops import venom_gland, spider_silk 
 
 giant_spider = EnemyModel(
     name="Giant Spider",
-    type=EnemyType.BEAST,
+    type=EnemyTypeEnum.BEAST,
     attack_points=35,
     defense_points=20,
     attack_multiplier=1.3,

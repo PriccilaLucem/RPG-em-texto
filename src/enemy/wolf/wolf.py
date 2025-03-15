@@ -1,11 +1,11 @@
 from models.enemy_model import EnemyModel
-from enums.enemy_type_enum import EnemyType
+from enums.enemy_type_enum import EnemyTypeEnum
 from enums.weakness_enum import WeaknessEnum
 from enemy.wolf.drops import sharp_fang, wolf_pelt
 
 wolf = EnemyModel(
     name="Wolf",
-    type=EnemyType.BEAST,
+    type=EnemyTypeEnum.BEAST,
     attack_points=30,
     defense_points=15,
     attack_multiplier=1.1,

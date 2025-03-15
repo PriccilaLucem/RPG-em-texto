@@ -6,10 +6,15 @@ class SneakAttack(DamageAbility):
         super().__init__(
             name="Sneak Attack",
             cooldown=1,
-            damage=25,  # Damage value
+            damage=25,  
             description="A precise and unexpected strike that deals significant damage to an unsuspecting enemy."
         )
 
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 class Evasion(UtilityAbility):
     def __init__(self):
@@ -23,6 +28,11 @@ class Evasion(UtilityAbility):
     def apply(self, caster, target=None):
         caster.dodge_chance += 50
         return f"{caster.name} uses {self.name}, drastically increasing their dodge chance!"
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 
 class UncannyDodge(UtilityAbility):
@@ -33,6 +43,11 @@ class UncannyDodge(UtilityAbility):
             effect_value=0,
             description="A reactive ability that halves the damage of the last attack targeting the user."
         )
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
     def apply(self, caster, target=None):
         if target and hasattr(target, 'last_attack_damage'):
@@ -40,6 +55,11 @@ class UncannyDodge(UtilityAbility):
             target.last_attack_damage -= reduced_damage
             return f"{caster.name} uses {self.name}, reducing the damage received by half!"
         return f"{self.name} failed as no recent attack was detected."
+    def to_dict(self):
+        return super().to_dict()
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)
 
 
 class DisarmTrap(UtilityAbility):
@@ -56,3 +76,10 @@ class DisarmTrap(UtilityAbility):
             target.trap.disarmed = True
             return f"{caster.name} uses {self.name} to disarm a trap!"
         return f"{self.name} failed as no trap was found."
+    
+    def to_dict(self):
+        return super().to_dict()
+    
+    @classmethod
+    def from_dict(cls, data):
+        return super().from_dict(data)

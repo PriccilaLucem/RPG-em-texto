@@ -1,11 +1,11 @@
 from models.enemy_model import EnemyModel
 from enums.weakness_enum import WeaknessEnum
 from enemy.goblin.drops import goblin_ear, rusty_dagger
-from enums.enemy_type_enum import EnemyType
+from enums.enemy_type_enum import EnemyTypeEnum
 
 goblin = EnemyModel(
     name="Goblin",
-    type=EnemyType.HUMANOID,
+    type=EnemyTypeEnum.HUMANOID,
     attack_points=20,
     defense_points=10,
     attack_multiplier=1.2,

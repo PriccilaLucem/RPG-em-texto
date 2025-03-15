@@ -1,6 +1,6 @@
 from enum import Enum
 
-class EnemyType(Enum):
+class EnemyTypeEnum(Enum):
     UNDEAD = "Undead"          
     BEAST = "Beast"            
     HUMANOID = "Humanoid"      

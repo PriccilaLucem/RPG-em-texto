@@ -1,6 +1,6 @@
 def global_commands():
     return"""
-    S - View Status"""
+    M - Menu"""
           
 def game_init():
     return f"""
@@ -10,10 +10,10 @@ def game_init():
 def prismeer_commands():
     return f"""
     {global_commands()}
-    Q - Take a quest
+    B - See the billboard
     I - Rest at the inn
     C - Go to the center
-    E - Exit the city
+    Q - Exit the city
     """
 
 def billboard_commands():
@@ -36,14 +36,14 @@ def shop_commands():
 def cave_commands():
     return f"""
     {global_commands()}
-    Enter - Enter the cave
-    E - Go to Prismeer's surroundings
+    Q - Go to Prismeer's surroundings
+    E - Enter the cave
     """
 def mine_cave_commands():
     return f"""
     {global_commands()}
-    M - Mine some ores
-    E - Leave to outside the cave
+    F - Mine some ores
+    Q - Leave to outside the cave
     """
 def inside_cave_commands():
     return f"""
@@ -51,5 +51,5 @@ def inside_cave_commands():
     1 - Talk to first brother
     2 - Talk to second brother
     3 - Scavenge Owlbear
-    E - Go to outside the cave
+    Q - Go to outside the cave
     """

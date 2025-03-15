@@ -7,12 +7,12 @@ import curses
 def exit_loop():
     raise StopIteration
 
-def forest(regular_forest: Forest, stdscr: curses.window, main_character: Hero) -> None:
+def forest(regular_forest: Forest, main_character: Hero, stdscr: curses.window, menu) -> None:
     curses.curs_set(0)
 
     actions = {
         "S": lambda: main_character.show_status(stdscr),
-        "E": lambda: display_message(stdscr, "Returning to previous menu...", 1000) or exit_loop(),
+        "E": lambda: display_message(stdscr, "Returning to prismeer surroundings", 1000) or exit_loop(),
         "G": lambda: regular_forest.search_for_resources(stdscr, main_character),
         chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit(),
     }

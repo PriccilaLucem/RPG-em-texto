@@ -4,7 +4,6 @@ from enums.rarity_enum import Rarity_Enum
 from enums.armor_type_enum import Armor_Type_Enum
 from enums.weapon_type_enum import Weapon_Type_Enum
 from typing import List
-# Item father class
 
 class ItemModel:
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float) -> None:
@@ -21,7 +20,21 @@ class ItemModel:
         print(f"You sold {self.name} for {self.value} gold.")
         return self.value
 
-# Weapons and armors 
+    def to_dict(self) -> dict:
+        return {
+            "item_id": self.item_id,
+            "name": self.name,
+            "value": self.value,
+            "rarity": self.rarity.name if self.rarity else None,  
+            "weight": self.weight
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        rarity = Rarity_Enum[data["rarity"]]
+        return cls(data["name"], data["value"], rarity, data["weight"])
+
+
 
 class ArmorModel(ItemModel):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], armor_type: Armor_Type_Enum, def_points: int) -> None:
@@ -33,14 +46,31 @@ class ArmorModel(ItemModel):
         self.def_points = def_points
         self.proeficiency = proeficiency
 
-
     def __str__(self): 
         return f"{self.name} - {self.def_points} DEF, {self.weight}kg, {self.value} gold ({self.rarity} {self.type})"
+
+    def to_dict(self) -> dict:
+        base_dict = super().to_dict()
+        base_dict.update({
+            "type": self.type,
+            "def_points": self.def_points,
+            "proeficiency": [p.name for p in self.proeficiency]
+        })
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        rarity = Rarity_Enum[data["rarity"]]
+        proeficiency = [Proeficiency_Enum[p] for p in data["proeficiency"]]
+        armor_type = Armor_Type_Enum[data["type"].upper()]
+        return cls(data["name"], data["value"], rarity, data["weight"], proeficiency, armor_type, data["def_points"])
+
 
 class HeavyArmor(ArmorModel):
     def __init__(self, name: str, def_points:int, weight:float, value: int, rarity: Rarity_Enum, armor_type: Armor_Type_Enum) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.HEAVY_ARMOR], armor_type, def_points)
         self.armor_class = "Heavy"
+
 
 class LightArmor(ArmorModel):
     def __init__(self, name: str, def_points:int, weight:float, value: int, rarity: Rarity_Enum, armor_type: Armor_Type_Enum) -> None:
@@ -58,9 +88,27 @@ class WeaponModel(ItemModel):
         self.attack_points = attack_points
         self.critical_hit_chance = critical_hit_chance
         self.proeficiency = proeficiency
-
+        
     def __str__(self) -> str:
         return f"{self.name} - {self.attack_points} ATK, {self.weight}kg, {self.value} gold ({self.rarity} {self.weapon_type})"
+
+    def to_dict(self) -> dict:
+        base_dict = super().to_dict()
+        base_dict.update({
+            "weapon_type": self.weapon_type,
+            "attack_points": self.attack_points,
+            "critical_hit_chance": self.critical_hit_chance,
+            "proeficiency": [p.name for p in self.proeficiency]
+        })
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        rarity = Rarity_Enum[data["rarity"]]
+        proeficiency = [Proeficiency_Enum[p] for p in data["proeficiency"]]
+        weapon_type = Weapon_Type_Enum[data["weapon_type"]]
+        return cls(data["name"], data["value"], rarity, data["weight"], proeficiency, weapon_type, data["attack_points"], data["critical_hit_chance"])
+
 
 class Sword(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
@@ -116,7 +164,6 @@ class Club(WeaponModel):
         super().__init__(name, attack_points, weight, value, [Proeficiency_Enum.MACES], rarity, Weapon_Type_Enum.CLUB, critical_hit_chance)
 
 
-# Items witch will be used for crafting or to sail
 class ItemsUsedToCraft(ItemModel):
     def __init__(self, name, value, rarity, weight):
         super().__init__(name, value, rarity, weight)
@@ -124,7 +171,39 @@ class ItemsUsedToCraft(ItemModel):
     def __str__(self):
         return f"{self.name} (Rarity: {self.rarity}, Weight: {self.weight})"
     
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "value": self.value,
+            "rarity": self.rarity.name, 
+            "weight": self.weight
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        rarity = Rarity_Enum[data["rarity"]]
+        return cls(data["name"], data["value"], rarity, data["weight"])
+
+
+    
 class Food(ItemsUsedToCraft):
     def __init__(self, name, value, rarity, weight, health_recovery: str):
         super().__init__(name, value, rarity, weight)
         self.health_recovery = health_recovery
+
+    def __str__(self):
+        return f"{self.name} (Rarity: {self.rarity}, Weight: {self.weight}, Health Recovery: {self.health_recovery})"
+
+    def to_dict(self) -> dict:
+        base_dict = super().to_dict()
+        base_dict.update({
+            "health_recovery": self.health_recovery
+        })
+        return base_dict
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        base_data = ItemsUsedToCraft.from_dict(data)
+        health_recovery = data["health_recovery"]
+        food = cls(base_data["name"], base_data["value"], base_data["rarity"], base_data["weight"], health_recovery)
+        return food

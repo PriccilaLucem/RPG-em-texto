@@ -1,12 +1,12 @@
 from models.enemy_model import EnemyModel
 from enums.weakness_enum import WeaknessEnum
 from enums.immunity_enum import ImmunityEnum
-from enums.enemy_type_enum import EnemyType
+from enums.enemy_type_enum import EnemyTypeEnum
 from enemy.owl_bear.abilities import CrushingHug
 from enemy.owl_bear.drops import sharp_claws, owl_bear_pelt
 
 owl_bear = EnemyModel(name="Owlbear",
-                    type=EnemyType.BEAST,
+                    type=EnemyTypeEnum.BEAST,
                     attack_points=40,
                     defense_points=30,
                     attack_multiplier=1.0,

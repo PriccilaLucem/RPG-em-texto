@@ -1,5 +1,5 @@
 import curses
-from typing import List
+from typing import List, Dict, Any
 from models.seller_model import Seller_model
 from characters.hero import Hero
 from global_state.global_state import should_exit, set_exit
@@ -60,7 +60,6 @@ class Shop_model:
                 stdscr.addstr("Invalid key pressed. Try again.\n")
                 stdscr.refresh()
                 curses.napms(1000)
-
 
     def show_inventory(self, stdscr: curses.window, main_character: Hero) -> None:
         """Displays the available items in the shop with scrolling."""
@@ -127,3 +126,19 @@ class Shop_model:
             elif key in {ord('M'), ord('m')}: 
                 self.shop_interactions(stdscr, main_character)
                 break
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Shop_model':
+        name = data['name']
+        seller_name = data['seller_name']
+        speeches = data['speeches']
+        backpack = data['backpack']
+        return cls(name, seller_name, speeches, backpack)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'seller_name': self.seller.name if self.seller else None,
+            'speeches': self.seller.speeches if self.seller else [],
+            'backpack': [item.to_dict() for item in getattr(self.seller, 'backpack', []) if hasattr(item, 'to_dict')]
+        }

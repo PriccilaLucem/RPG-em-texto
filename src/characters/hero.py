@@ -1,6 +1,6 @@
 from typing import Any, List, Union, Optional, Dict
 from quests.quests import Quests, CollectableQuest
-from models.item_model import ArmorModel, WeaponModel
+from models.item_model import ArmorModel, WeaponModel, ItemsUsedToCraft, Food
 from models.abilities_model import BaseAbility
 from models.character_class_model import CharacterClass
 import curses
@@ -11,14 +11,17 @@ from classes.warrior import Warrior
 from classes.wizard import Wizard
 from collections import Counter
 from util.wrap_text import wrap_text
+from util.all_abilities import ABILITY_CLASSES
+from ipdb import set_trace
 
 class Hero():
+
     def __init__(self) -> None:
         self.name: str = "Hero" 
         self.health_points:int = 50
         self.max_hp:int = 50
         self.gold:int = 1000000
-        self.backpack:List[Union[WeaponModel, ArmorModel]] = []
+        self.backpack:List[Union[WeaponModel, ArmorModel, Food, ItemsUsedToCraft]] = []
         self.abilities: List[BaseAbility] = []
         self.equipments: Dict[str, Optional[Union[ArmorModel, WeaponModel]]] = {
             "torso": None,
@@ -219,7 +222,6 @@ class Hero():
                 break
 
     def show_section(self, stdscr: curses.window, title: str, content: list):
-        """Função genérica para exibir uma seção com suporte a rolagem e quebra de linha."""
         top_index = 0
     
         while True:
@@ -394,3 +396,106 @@ class Hero():
     
     def find_quest_by_id(self, quest_id: int):
         return next((quest for quest in self.quests if quest.id == quest_id), None)
+    
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "health_points": self.health_points,
+            "max_hp": self.max_hp,
+            "gold": self.gold,
+            "backpack": [item.to_dict() for item in self.backpack] if self.backpack else [],
+            "abilities":[ability.to_dict() if hasattr(ability, 'to_dict') else ability 
+            for ability in self.abilities
+            ] if self.abilities else [],
+            "equipments": {
+                key: item.to_dict() if hasattr(item, 'to_dict') else item
+                for key, item in (self.equipments or {}).items()
+            },
+            "character_class": self.character_class.to_dict() if self.character_class else None,
+            "experience": self.experience,
+            "next_level_xp": self.next_level_xp,
+            "attack_points": self.attack_points,
+            "defense_points": self.defense_points,
+            "level": self.level,
+            "critical_hit_chance": self.critical_hit_chance,
+            "resistance_factor": self.resistance_factor,
+            "quests": [quest.to_dict() for quest in self.quests] if self.quests else [],
+            "concluded_quests": [quest.to_dict() for quest in self.concluded_quests] if self.concluded_quests else [],
+            "speed": self.speed,
+            "attack_multiplier": self.attack_multiplier,
+            "proficiencies": self.proficiencies,
+            "extra_actions": self.extra_actions,
+            "dodge_chance": self.dodge_chance,
+            "health": self.health,
+            "last_attack_damage": self.last_attack_damage,
+            "carry_weight": self.carry_weight,
+            "weight": self.weight,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        hero = cls()
+        hero.name = data.get("name")
+        hero.health_points = data.get("health_points")
+        hero.max_hp = data.get("max_hp")
+        hero.gold = data.get("gold")
+
+        # Process backpack items
+        hero.backpack = [
+            WeaponModel.from_dict(item) if isinstance(item, dict) and "attack_points" in item else
+            ArmorModel.from_dict(item) if isinstance(item, dict) and "def_points" in item else
+            Food.from_dict(item) if isinstance(item, dict) and "health_recovery" in item else
+            ItemsUsedToCraft.from_dict(item)
+            for item in data.get("backpack", [])
+        ]
+
+        # Process abilities
+        hero.abilities = [
+               ABILITY_CLASSES.get(ability.get("type")).from_dict(ability)
+               if isinstance(ability, dict) and ability.get("type") in ABILITY_CLASSES
+               else ability
+               for ability in data.get("abilities", [])] if data.get("abilities") else []
+
+        # Process equipments
+        hero.equipments = {
+            key: WeaponModel.from_dict(item) if item and "damage" in item else
+            ArmorModel.from_dict(item) if item else None
+            for key, item in data.get("equipments", {}).items()
+        }
+
+        # Process character class
+        hero.character_class = CharacterClass.from_dict(data["character_class"]) if data.get("character_class") else None
+
+        # Process basic attributes
+        hero.experience = data.get("experience")
+        hero.next_level_xp = data.get("next_level_xp")
+        hero.attack_points = data.get("attack_points")
+        hero.defense_points = data.get("defense_points")
+        hero.level = data.get("level")
+        hero.critical_hit_chance = data.get("critical_hit_chance")
+        hero.resistance_factor = data.get("resistance_factor")
+
+        # Process quests
+        hero.quests = [
+            Quests.from_dict(quest) if "items_to_be_collected" not in quest else CollectableQuest.from_dict(quest)
+            for quest in data.get("quests", [])
+        ]
+
+        # Process concluded quests
+        hero.concluded_quests = [
+            Quests.from_dict(quest) if "items_to_be_collected" not in quest else CollectableQuest.from_dict(quest)
+            for quest in data.get("concluded_quests", [])
+        ]
+
+        # Process additional attributes
+        hero.speed = data.get("speed")
+        hero.attack_multiplier = data.get("attack_multiplier")
+        hero.proficiencies = data.get("proficiencies")
+        hero.extra_actions = data.get("extra_actions")
+        hero.dodge_chance = data.get("dodge_chance")
+        hero.health = data.get("health")
+        hero.last_attack_damage = data.get("last_attack_damage")
+        hero.carry_weight = data.get("carry_weight")
+        hero.weight = data.get("weight")
+
+        return hero

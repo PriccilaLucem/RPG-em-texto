@@ -1,4 +1,4 @@
-from enums.enemy_type_enum import EnemyType
+from enums.enemy_type_enum import EnemyTypeEnum
 from enums.weakness_enum import WeaknessEnum
 from enums.immunity_enum import ImmunityEnum
 from models.enemy_model import EnemyModel
@@ -6,7 +6,7 @@ from enemy.treant.drops import ancient_bark, glowing_sap
 
 treant = EnemyModel(
     name="Treant",
-    type=EnemyType.ELEMENTAL,
+    type=EnemyTypeEnum.ELEMENTAL,
     attack_points=40,
     defense_points=50,
     attack_multiplier=1.0,

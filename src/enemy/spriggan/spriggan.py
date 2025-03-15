@@ -1,4 +1,4 @@
-from enums.enemy_type_enum import EnemyType
+from enums.enemy_type_enum import EnemyTypeEnum
 from enums.weakness_enum import WeaknessEnum
 from enums.immunity_enum import ImmunityEnum
 from models.enemy_model import EnemyModel
@@ -7,7 +7,7 @@ from enemy.spriggan.abilities import natures_wrath, healing_aura
 
 spriggan = EnemyModel(
     name="Spriggan",
-    type=EnemyType.MAGICAL,
+    type=EnemyTypeEnum.MAGICAL,
     attack_points=25,
     defense_points=20,
     attack_multiplier=1.2,

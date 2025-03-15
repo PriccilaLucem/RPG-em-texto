@@ -1,17 +1,16 @@
 from typing import List
 import curses
-from quests.quests import Quests
+from quests.quests import Quests, CollectableQuest
 from quests import generate_random_quests
 from characters.hero import Hero
 from commands_allowed import billboard_commands
-from global_state.global_state import set_exit,should_exit
+from global_state.global_state import set_exit, should_exit
 from util.display_message import display_message
 
-class Billboard():
+class Billboard:
     def __init__(self) -> None:
         self.quests: List[Quests] = generate_random_quests()
 
-    
     def billboard_menu(self, stdscr: curses.window, main_character: Hero) -> None:
         curses.curs_set(0)
 
@@ -38,8 +37,6 @@ class Billboard():
 
             except Exception as e:
                 display_message(stdscr, f"An error occurred: {e}", 2000)
-
-
 
     def show_quests(self, stdscr: curses.window, main_character: Hero) -> None:
         """Display all available quests on the billboard."""
@@ -93,8 +90,24 @@ class Billboard():
                 curses.napms(1000)
                 break  
             elif key == ord('Q'):
-                self.billboard_menu(stdscr, main_character) 
+                self.billboard_menu(stdscr, main_character)
 
     def get_quest_from_billboard(self, index: int) -> Quests:
         """Return the quest at the specified index without removing it."""
         return self.quests[index]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> None:
+        billboard = cls()
+
+        billboard.quests = [
+            CollectableQuest.from_dict(quest_data) if "items_to_be_collected" in quest_data 
+            else Quests.from_dict(quest_data) 
+            for quest_data in data["quests"]
+        ]
+        return billboard
+    
+    def to_dict(self) -> dict:
+        return {
+               "quests": [quest.to_dict() for quest in self.quests]
+        }

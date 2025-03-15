@@ -1,5 +1,6 @@
 from characters.hero import Hero
 from models.character_model import Character_model
+from models.item_model import ItemModel
 
 class Seller_model(Character_model):
     
@@ -24,3 +25,14 @@ class Seller_model(Character_model):
                         print("You don't have the necessary gold.")
                         return
             print("Item not found in the shop.")
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "speeches": self.speeches,
+            "backpack": [item.to_dict() if hasattr(item, "to_dict") else str(item) for item in self.backpack]
+        } 
+
+    def from_dict(self, data: dict) -> None:
+        self.name = data.get("name", "")
+        self.speeches = data.get("speeches", [])
+        self.backpack = [ItemModel.from_dict(item) if isinstance(item, dict) else item for item in data.get("backpack", [])]
