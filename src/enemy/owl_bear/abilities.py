@@ -5,6 +5,7 @@ class CrushingHug(DamageAbility):
         super().__init__(
             name="Crushing Hug",
             cooldown=5,
-            damage=  30 + (level * 0.5),
-            description="A powerful ability that deals crushing damage to the target."
+            damage=  30,
+            description="A powerful ability that deals crushing damage to the target.",
+            level= level
         )

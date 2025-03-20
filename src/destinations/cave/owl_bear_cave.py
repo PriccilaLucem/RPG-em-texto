@@ -1,7 +1,7 @@
 from typing import Dict, List
 from models.character_model import Character_model
 from resources.cave.ores import gold_ore, iron_ore
-from enemy.owl_bear.owl_bear import owl_bear
+from enemy.owl_bear.owl_bear import owl_bear, EnemyModel
 from models.item_model import ItemsUsedToCraft
 
 class OwlBearCave():
@@ -20,7 +20,7 @@ class OwlBearCave():
     @classmethod
     def from_dict(cls, data: Dict) -> None:
         owl_bear_cave = cls()
-        owl_bear_cave.owl_bear = data["owl_bear"]
+        owl_bear_cave.owl_bear = EnemyModel.from_dict(data["owl_bear"])
         owl_bear_cave.npcs = [Character_model(npc["name"], npc["speeches"]) for npc in data["npcs"]]
         owl_bear_cave.ores = [ItemsUsedToCraft.from_dict(o) for o in data["ores"]]   
         owl_bear_cave.has_already_mined = data["has_already_mined"]

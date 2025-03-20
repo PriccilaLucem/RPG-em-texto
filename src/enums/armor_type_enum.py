@@ -1,8 +1,8 @@
 from enum import Enum
 
 class Armor_Type_Enum(Enum):
-    TORSO = "torso"
+    CHEST = "chest"
     HELMET = "helmet"
-    PANTS = "pants"
     BOOTS = "boots"
+    PANTS = "pants"
     SHIELD = "shield"

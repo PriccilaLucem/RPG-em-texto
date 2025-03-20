@@ -1,129 +1,175 @@
-from destinations.cave.owl_bear_cave import OwlBearCave
-from characters.hero import Hero
-from global_state.global_state import should_exit, set_exit, exit_loop
-from commands_allowed import cave_commands, inside_cave_commands, mine_cave_commands
 import curses
-from util.display_message import display_message
+from global_state.global_state import should_exit, exit_loop, update_game_state, get_game_state
+from util.display_message import draw_menu, display_message
 from util.combat_system import combat
 from history.history import the_real_init
 from resources import mine
-from global_state.global_state import update_game_state, get_game_state
-
-def npc_interactions(stdscr, actions):
-    while not should_exit():
-        try:
-            stdscr.clear()
-            stdscr.addstr(inside_cave_commands())  
-            stdscr.refresh()
-            
-            owl_bear_cave_key = stdscr.getch()
-            action = actions.get(
-                chr(owl_bear_cave_key).upper(),
-                lambda: display_message(stdscr, "Invalid choice. Try again.", 1000)
-            )
-            action()
-        except StopIteration:
-            break
-        except Exception as e:
-            display_message(stdscr, f"An error occurred: {e}", 2000)
-    
-def cave(owl_bear_cave: OwlBearCave, main_character: Hero, stdscr: curses.window, menu) -> None:
-    
-    if get_game_state()["atual_location"] == "inside_cave":
-        inside_the_cave(stdscr, main_character, owl_bear_cave, menu)
-
-    update_game_state(cave=owl_bear_cave, hero=main_character, atual_location = "cave")
-
-    actions = {
-        "E": lambda: display_message(stdscr, "Entering cave...", 1000) or inside_the_cave(stdscr, main_character, owl_bear_cave, menu),
-        "S": lambda: main_character.show_status(stdscr),
-        "M": lambda: menu(stdscr, main_character, True),
-        "Q": lambda: display_message(stdscr, "Returning to previous menu...", 1000) or exit_loop("prismeer_surroundings"),
-        chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit()
-    }
 
 
-            
+class OutsideCave:
+    def __init__(self, owl_bear_cave, main_character, stdscr, menu):
+        self.owl_bear_cave = owl_bear_cave
+        self.main_character = main_character
+        self.menu = menu
+        self.stdscr = stdscr
+        self.options = [
+            "Menu",
+            "Enter Cave",
+            "Show Status",
+            "Return to Prismeer Surroundings",
+        ]
+        self.selected_index = 0
 
-    while not should_exit():
-        try:
-            stdscr.clear()
-            stdscr.addstr(cave_commands())
-            stdscr.refresh()
-
-            owl_bear_cave_key = stdscr.getch()
-
-            action = actions.get(chr(owl_bear_cave_key).upper(), lambda: display_message(stdscr, "Invalid choice. Try again.", 1000)) 
-            action()
-        except StopIteration:
-            break
-        except Exception as e:   
-            display_message(stdscr, f"An error occurred: {e}", 2000)
-
-
-def inside_the_cave(stdscr: curses.window, main_character: Hero, owl_bear_cave: OwlBearCave, menu) -> None:
-
-    
-    update_game_state(cave=owl_bear_cave, hero=main_character, atual_location = "inside_cave")
-    combat_done = get_game_state()["combat_done"]
-
-    actions = {
-        "M": lambda: menu(stdscr, main_character, True),
-        "S": lambda: main_character.show_status(stdscr),
-        "Q": lambda: display_message(stdscr, "Returning to outside the cave...", 1000) or exit_loop("cave"),
-        "1": lambda: display_message(stdscr, owl_bear_cave.talk_to_npc(1), 1000),
-        "2": lambda: display_message(stdscr, owl_bear_cave.talk_to_npc(2), 1000),
-        "3": lambda: display_message(stdscr, owl_bear_cave.owl_bear.drop_items(main_character), 3000),
-    }
-
-    while not should_exit():
-        if not combat_done and any(quest.id == 1 for quest in main_character.quests):
-            combat_done = True  
-            intro_message = """
-            As you enter the cave, you see two people staring at you, nervously.
-            They are looking behind you!
-            The OwlBear is angry at you and starts running into your direction!
-            """
-            display_message(stdscr, intro_message, 3000)
-
-            if not combat(stdscr, main_character, owl_bear_cave.owl_bear):
-                display_message(stdscr, the_real_init(), 3000)
-                main_character.choose_character_class(stdscr)
-
-                display_message(stdscr, (
-                    "You wake up to Damon’s brothers frantically trying to wake you up. "
-                    "As you look to the side, you see the lifeless body of the OwlBear and wonder how it all happened..."
-                ), 5000)
-            
-                main_character.health_points = main_character.max_hp
-                quest_to_remove = next((quest for quest in main_character.quests if quest.id == 1), None)
-                if quest_to_remove:
-                    main_character.conclude_quests(quest_to_remove)
-                    update_game_state(combat_done = combat_done, hero=main_character, cave = owl_bear_cave, atual_location = "inside_cave")
-
-                npc_interactions(stdscr, actions) 
-        else:
+    def run(self):
+        """Controla a lógica e interação do jogador fora da caverna."""
+        while not should_exit():
             try:
-                while not should_exit():
-                    update_game_state(hero=main_character, cave = owl_bear_cave, atual_location="inside_cave")
-                       
-                    stdscr.clear()
-                    stdscr.addstr(mine_cave_commands())
-                    stdscr.refresh()
-                    actions = {
-                        "S": lambda: main_character.show_status(stdscr),
-                        "Q": lambda: display_message(stdscr, "Returning to outside the cave...", 1000) or exit_loop("inside_cave"),
-                        "M": lambda: menu(stdscr, main_character, True),
-                        "F": lambda: (
-                            display_message(stdscr, "You have already mined this turn.", 1000)
-                            if owl_bear_cave.has_already_mined
-                            else setattr(owl_bear_cave, "has_already_mined", mine(stdscr, owl_bear_cave.ores, main_character))
-                        )}
-                    owl_bear_cave_key = stdscr.getch()
-                    action = actions.get(
-                        chr(owl_bear_cave_key).upper(),
-                        lambda: display_message(stdscr, "Invalid choice. Try again.", 1000)
-                    )
-                    action()
+                self.draw()
+                key = self.stdscr.getch()
+                self.handle_input(key)
             except StopIteration:
                 break
+            except Exception as e:
+                display_message(self.stdscr, f"An error occurred: {e}", 2000)
+
+    def draw(self):
+        """Desenha o menu da entrada da caverna."""
+        draw_menu(self.stdscr, "Outside the Cave", self.options, self.selected_index)
+
+    def handle_input(self, key):
+        """Processa a entrada do jogador."""
+        if key == curses.KEY_UP:
+            self.selected_index = max(0, self.selected_index - 1)
+        elif key == curses.KEY_DOWN:
+            self.selected_index = min(len(self.options) - 1, self.selected_index + 1)
+        elif key == ord('\n'):  # Enter key
+            self.execute_option()
+
+    def execute_option(self):
+        """Executa a ação da opção selecionada."""
+        selected_option = self.options[self.selected_index]
+
+        if selected_option == "Enter Cave":
+            self.enter_cave()
+        elif selected_option == "Show Status":
+            self.main_character.show_status(self.stdscr)
+        elif selected_option == "Menu":
+            self.menu.run()
+        elif selected_option == "Return to Prismeer Surroundings":
+            self.return_to_previous_menu()
+
+    def enter_cave(self):
+        """Entra na caverna e inicia a classe InsideCave."""
+        update_game_state(cave=self.owl_bear_cave, hero=self.main_character, atual_location="cave")
+        display_message(self.stdscr, "Entering cave...", 1000)
+
+        # Criar e iniciar a instância da caverna
+        inside_cave = InsideCave(self.owl_bear_cave, self.main_character, self.menu)
+        inside_cave.run(self.stdscr)
+
+    def return_to_previous_menu(self):
+        display_message(self.stdscr, "Returning to previous menu...", 1000)
+        exit_loop("prismeer_surroundings")
+
+
+class InsideCave:
+    def __init__(self, owl_bear_cave, main_character, menu):
+        self.owl_bear_cave = owl_bear_cave
+        self.main_character = main_character
+        self.menu = menu
+        self.options = [
+            "Talk to First Brother",
+            "Talk to Second Brother",
+            "Scavenge Owlbear",
+            "Mine Resources",
+            "Exit Cave"
+        ]
+        self.selected_index = 0
+        
+    def run(self, stdscr):
+        """Controla a lógica e interação do jogador dentro da caverna."""
+        while not should_exit():
+            if not get_game_state().get("combat_done") and any(quest.id == 1 for quest in self.main_character.quests):
+                import ipdb
+                ipdb.set_trace()
+                self.handle_combat(stdscr)
+            try:
+                self.draw(stdscr)
+                key = stdscr.getch()
+                self.handle_input(stdscr, key)
+            except StopIteration:
+                break
+            except Exception as e:
+                display_message(stdscr, f"An error occurred: {e}", 2000)
+
+    def draw(self, stdscr):
+        """Desenha o menu dentro da caverna."""
+        draw_menu(stdscr, "Inside the Cave", self.options, self.selected_index)
+
+    def handle_input(self, stdscr, key):
+        """Processa a entrada do jogador."""
+        if key == curses.KEY_UP:
+            self.selected_index = max(0, self.selected_index - 1)
+        elif key == curses.KEY_DOWN:
+            self.selected_index = min(len(self.options) - 1, self.selected_index + 1)
+        elif key == ord('\n'):  # Enter key
+            self.execute_option(stdscr)
+
+    def execute_option(self, stdscr):
+        """Executa a ação da opção selecionada."""
+        selected_option = self.options[self.selected_index]
+
+        if selected_option == "Talk to First Brother":
+            display_message(stdscr, self.owl_bear_cave.talk_to_npc(1), 1000)
+        elif selected_option == "Talk to Second Brother":
+            display_message(stdscr, self.owl_bear_cave.talk_to_npc(2), 1000)
+        elif selected_option == "Scavenge Owlbear":
+            self.scavenge_owlbear(stdscr)
+        elif selected_option == "Mine Resources":
+            self.mine_resources(stdscr)
+        elif selected_option == "Exit Cave":
+            self.exit_cave(stdscr)
+
+    def scavenge_owlbear(self, stdscr):
+        """Coleta itens do Owlbear, se possível."""
+        if not self.owl_bear_cave.owl_bear.loot_collected:
+            display_message(stdscr, self.owl_bear_cave.owl_bear.drop_items(self.main_character), 3000)
+        else:
+            display_message(stdscr, "The Owlbear has already been scavenged.", 1000)
+
+    def mine_resources(self, stdscr):
+        """Minerar recursos na caverna."""
+        if not self.owl_bear_cave.has_already_mined:
+            mine(stdscr, self.owl_bear_cave.ores, self.main_character)
+            self.owl_bear_cave.has_already_mined = True
+        else:
+            display_message(stdscr, "You have already mined here.", 1000)
+
+    def exit_cave(self, stdscr):
+        """Retorna para fora da caverna."""
+        display_message(stdscr, "Returning to outside the cave...", 1000)
+        exit_loop("cave")
+
+    def handle_combat(self, stdscr):
+        """Lida com o combate contra o Owlbear."""
+        display_message(stdscr, """
+        As you enter the cave, you see two people staring at you, nervously.
+        They are looking behind you!
+        The OwlBear is angry at you and starts running into your direction!
+        """, 3000)
+
+        if not combat(stdscr, self.main_character, self.owl_bear_cave.owl_bear):
+            display_message(stdscr, the_real_init(), 3000)
+            self.main_character.choose_character_class(stdscr)
+            display_message(stdscr, "You wake up to Damon’s brothers frantically trying to wake you up. As you look to the side, you see the lifeless body of the OwlBear...", 5000)
+
+            self.main_character.health_points = self.main_character.max_hp
+            self.conclude_quest()
+
+        update_game_state(combat_done=True)
+
+    def conclude_quest(self):
+        """Conclui a missão relacionada ao combate com o Owlbear."""
+        quest_to_remove = next((quest for quest in self.main_character.quests if quest.id == 1), None)
+        if quest_to_remove:
+            self.main_character.conclude_quests(quest_to_remove)

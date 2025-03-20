@@ -1,130 +1,188 @@
 from destinations.prismeer.city import City
 from characters.hero import Hero
-from global_state.global_state import should_exit, set_exit, update_game_state, exit_loop, get_game_state
-from commands_allowed import prismeer_commands
-from util.display_message import display_message
+from global_state.global_state import should_exit, set_exit, update_game_state, exit_loop
+from util.display_message import display_message, draw_menu
+
 import curses
 
-def city_menu(prismeer: City, main_character: Hero, stdscr: curses.window, menu) -> None:
-    curses.curs_set(0)  
-    atual_location = get_game_state()["atual_location"]
-    if  atual_location == "city_center": 
-        visit_city_center(prismeer, main_character, stdscr, menu)
+class CityMenu:
+    def __init__(self, city: 'City', main_character: Hero, stdscr: curses.window, menu) -> None:
+        self.city = city
+        self.main_character = main_character
+        self.stdscr = stdscr
+        self.menu = menu
+        self.message_log = [
+            "Welcome to Prismeer!",
+            "You can visit the city center, check the billboard, or rest at the inn.",
+        ]
+        self.menu_options = [
+            "Menu",
+            "Exit the city",
+            "See the billboard",
+            "Rest at the inn",
+            "Go to the center",
+        ]
+        self.selected_index = 0
 
-    update_game_state(prismeer = prismeer, hero=main_character, atual_location = "prismeer")
+    def run(self) -> None:
+        """Main loop for the city menu."""
+        curses.curs_set(0)
+        update_game_state(prismeer=self.city, hero=self.main_character, atual_location="prismeer")
 
-    while not should_exit():
-        try:
-            stdscr.clear()
-            stdscr.addstr("You are at Prismeer\n")
-            stdscr.addstr(prismeer_commands())
-            stdscr.refresh()
-            city_key = stdscr.getch() 
-            
-            key_actions = {
-                'B': lambda: prismeer.billboard.billboard_menu(stdscr, main_character),
-                'I': lambda: prismeer.inn.pass_the_night(main_character, stdscr),
-                'C': lambda: visit_city_center(prismeer, main_character, stdscr, menu),
-                'Q': lambda: display_message(stdscr, "Leaving Prismeer...", 1000) or exit_loop("prismeer_surroundings"),
-                'M': lambda: menu(stdscr, main_character, is_in_game=True),
-            }
-            
-            action = key_actions.get(chr(city_key).upper(), lambda: display_message(stdscr, "Invalid choice. Try again.", 1000))
-            action()
-        except StopIteration:
-            break
-        except Exception as e:
-            display_message(stdscr, f"An error occurred: {e}", 2000)
+        while not should_exit():
+            try:
+                self.draw_menu()
+                self.handle_input()
+            except StopIteration:
+                break
+            except Exception as e:
+                display_message(self.stdscr, f"An error occurred: {e}", 2000)
 
-def visit_city_center(prismeer: City, main_character: Hero, stdscr: curses.window, menu) -> None:
-    curses.curs_set(0)
+    def draw_menu(self) -> None:
+        """Draws the city menu."""
+        draw_menu(self.stdscr, "Welcome to Prismeer", self.menu_options, self.selected_index)
 
-    update_game_state(prismeer = prismeer, hero=main_character, atual_location = "city_center")
 
-    while not should_exit():
-        try:
-            height, width = stdscr.getmaxyx()
 
-            menu_options = [
-                "Q - Exit to prismeer",
-                "M - Show Menu",
-                "A - Visit the armor shop",
-                "W - Visit the weapon shop",
-                "B - Talk to blacksmith",
-                "1 - Talk to Afrac",
-                "2 - Talk to Osvaldo",
-                "3 - Talk to Damon",
-                "4 - Talk to blacskmith",
-                "EXIT - Quit the game",
-            ]
+    def handle_input(self) -> None:
+        """Handles user input for the city menu."""
+        key = self.stdscr.getch()
 
-            if height < len(menu_options) + 3:  
-                menu_text = "\n".join(menu_options[-(height-3):]) 
-            else:
-                menu_text = "\n".join(menu_options)
+        if key == curses.KEY_UP:
+            self.selected_index = max(0, self.selected_index - 1)
+        elif key == curses.KEY_DOWN:
+            self.selected_index = min(len(self.menu_options) - 1, self.selected_index + 1)
+        elif key == ord('\n'):  # Enter key
+            self.handle_menu_option(self.menu_options[self.selected_index])
 
-            stdscr.clear()
-            stdscr.addstr(0, 0, "Welcome to the city center:")
-            stdscr.addstr(2, 0, menu_text)
-            stdscr.refresh()
+    def handle_menu_option(self, option: str) -> None:
+        """Handles the selected menu option."""
+        if option.startswith("See the billboard"):  # See the billboard
+            self.city.billboard.billboard_menu(self.stdscr, self.main_character)
+            self.message_log.append("Checked the billboard.")
+        elif option.startswith("Rest at the inn"):  # Rest at the inn
+            self.city.inn.pass_the_night(self.main_character, self.stdscr)
+            self.message_log.append("Rested at the inn.")
+        elif option.startswith("Go to the center"):  # Go to the center
+            city_center = CityCenter(self.city, self.main_character, self.stdscr, self.menu)
+            city_center.run()
+            self.message_log.append("Visited the city center.")
+        elif option.startswith("Exit the city"):  # Exit the city
+            display_message(self.stdscr, "Leaving Prismeer...", 1000)
+            exit_loop("prismeer_surroundings")
+        elif option.startswith("Menu"):  # Show Menu
+            self.menu(self.stdscr, self.main_character, is_in_game=True)
 
-            center_key = stdscr.getch()
+class CityCenter:
+    def __init__(self, city: 'City', main_character: Hero, stdscr: curses.window, menu) -> None:
+        self.city = city
+        self.main_character = main_character
+        self.stdscr = stdscr
+        self.menu = menu
+        self.message_log = [
+            "Welcome to the City Center!",
+            "You can visit shops, talk to NPCs, or return to Prismeer.",
+        ]
+        self.menu_options = [
+            "Show Menu",
+            "Visit the armor shop",
+            "Visit the weapon shop",
+            "Exit to city menu",
+            "Talk to Afrac",
+            "Talk to Osvaldo",
+            "Talk to Damon",
+            "Talk to blacksmith",
+        ]
+        self.selected_index = 0
 
-            key_actions = {
-                'A': lambda: prismeer.downtown.armor_shop.shop_interactions(main_character, stdscr),
-                'W': lambda: prismeer.downtown.weapon_shop.shop_interactions(main_character, stdscr),
-                'Q': lambda: display_message(stdscr, "Returning to city menu...", 1000) or exit_loop("city_menu"),
-                "B": lambda: prismeer.downtown.talk_to_blacksmith(stdscr, main_character),
-                'M': lambda: menu(stdscr, main_character, True),
-                27: lambda: (set_exit(), display_message(stdscr, "Exiting the game...")),
-            }
+    def run(self) -> None:
+        """Main loop for the city center menu."""
+        curses.curs_set(0)
+        update_game_state(prismeer=self.city, hero=self.main_character, atual_location="city_center")
 
-            if chr(center_key).upper() in key_actions:
-                key_actions[chr(center_key).upper()]()
-            elif center_key == 27:
-                key_actions[27]()
-            elif center_key in {49, 50, 51, 52}:  # Keys 1, 2, 3, 4
-                npc_response = prismeer.downtown.talk_to_npc(int(chr(center_key)), main_character)
-                display_message(stdscr, npc_response, 2000)
+        while not should_exit():
+            try:
+                self.draw_menu()
+                self.handle_input()
+            except StopIteration:
+                break
+            except Exception as e:
+                display_message(self.stdscr, f"An error occurred: {e}", 2000)
 
-                if center_key == 51 and prismeer.downtown.npcs[2].quest is not None:
-                    display_message(stdscr, "Y - Accept the quest \nN - Deny the quest", 0)
-                    quest_key = stdscr.getch()
-                    if quest_key in {ord('Y'), ord('y')}:
-                        prismeer.downtown.append_npc_quest(main_character, 3)
-                        display_message(stdscr, "Quest Accepted", 1000)
-            
-                if center_key == 52:
-                    if prismeer.downtown.npcs[3].quest is not None: 
-                        blacksmith_response = prismeer.downtown.talk_to_npc(4, main_character)
-                        if blacksmith_response == prismeer.downtown.npcs[3].speech(1):
-                            display_message(stdscr, "Y - Accept the quest \nN - Deny the quest", 0)
-                            user_input = stdscr.getch()
-                            if user_input in {ord("Y"), ord("y")}:
-                                prismeer.downtown.append_npc_quest(main_character, 4)  
-                                display_message(stdscr, "Quest Accepted", 1000)
-                            elif user_input in {ord("N"), ord("n")}:
-                                display_message(stdscr, "Quest Denied", 1000)
+    def draw_menu(self) -> None:
+        """Draws the city center menu with improved styling."""
+        draw_menu(self.stdscr, "Welcome to the City Center", self.menu_options, self.selected_index)
 
-                    elif prismeer.downtown.npcs[3].quest is None:  
-                        if any(quest.id == 2 for quest in main_character.quests):
-                            display_message(stdscr, "Blacksmith: How's the progress on the quest?", 1000)
-                            display_message(stdscr, "Deliver the quest items? Y/N", 500)
-                            user_input = stdscr.getch()
-                            if user_input in {ord("Y"), ord("y")}:
-                                try:
-                                    quest = main_character.find_quest_by_id(2)
-                                    main_character.remove_items_from_backpack(quest.items_to_be_collected)
-                                    display_message(stdscr, f"{prismeer.downtown.npcs[3].name}: Thank you, Hero! Here's your reward.", 1000)
-                                    main_character.conclude_quests(quest)
-                                    prismeer.downtown.talk_to_npc(4,main_character)
-                                except ValueError as e:
-                                    display_message(stdscr, str(e), 1000)
-                            elif user_input in {ord("N"), ord("n")}:
-                                display_message(stdscr, f"{prismeer.downtown.npcs[3].name}: Come back when you have the items.", 1000)
-                        else:
-                            display_message(stdscr, prismeer.downtown.talk_to_npc(4))
-        except StopIteration:
-            break
-        except Exception as e:
-            display_message(stdscr, f"An error occurred: {e}", 2000)
+    def handle_input(self) -> None:
+        """Handles user input for the city center menu."""
+        key = self.stdscr.getch()
+
+        if key == curses.KEY_UP:
+            self.selected_index = max(0, self.selected_index - 1)
+        elif key == curses.KEY_DOWN:
+            self.selected_index = min(len(self.menu_options) - 1, self.selected_index + 1)
+        elif key == ord('\n'):  # Enter key
+            self.handle_menu_option(self.menu_options[self.selected_index])
+
+    def handle_menu_option(self, option: str) -> None:
+        """Handles the selected menu option."""
+        if option == "Visit the armor shop":  # Visit the armor shop
+            self.city.downtown.armor_shop.shop_interactions(self.main_character, self.stdscr)
+            self.message_log.append("Visited the armor shop.")
+        elif option == "Visit the weapon shop":  # Visit the weapon shop
+            self.city.downtown.weapon_shop.shop_interactions(self.main_character, self.stdscr)
+            self.message_log.append("Visited the weapon shop.")
+        elif option == "Talk to blacksmith":  # Talk to blacksmith
+            self.city.downtown.talk_to_blacksmith(self.stdscr, self.main_character)
+            self.message_log.append("Talked to the blacksmith.")
+        elif option == "Exit to city menu":  # Exit to city menu
+            display_message(self.stdscr, "Returning to city menu...", 1000)
+            exit_loop("city_menu")
+        elif option == "Show Menu":  # Show Menu
+            self.menu(self.stdscr, self.main_character, True)
+        elif option == "Talk to Afrac":  # Talk to Afrac
+            self.talk_to_npc(1, "Afrac")
+        elif option == "Talk to Osvaldo":  # Talk to Osvaldo
+            self.talk_to_npc(2, "Osvaldo")
+        elif option == "Talk to Damon":  # Talk to Damon
+            self.talk_to_npc(3, "Damon")
+
+    def talk_to_npc(self, npc_id: int, npc_name: str) -> None:
+        """Handles talking to an NPC with improved styling."""
+        npc_response = self.city.downtown.talk_to_npc(npc_id, self.main_character)
+        self.message_log.append(f"Talked to {npc_name}: {npc_response}")
+
+        # Exibe o diálogo com o NPC
+        display_message(self.stdscr, f"{npc_name}: {npc_response}", 2000, curses.color_pair(1))
+
+        # Verifica se o NPC oferece uma missão
+        if npc_id == 3 and self.city.downtown.npcs[2].quest is not None:
+            self.handle_quest_offer(npc_id, npc_name)
+
+
+    def handle_quest_offer(self, npc_id: int, npc_name: str) -> None:
+        """Handles a quest offer from an NPC with improved styling."""
+        self.message_log.append(f"{npc_name} offered a quest.")
+        display_message(self.stdscr, f"{npc_name} offered a quest.", 2000, curses.color_pair(1))
+
+        # Exibe as opções de resposta
+        options = ["Accept the quest", "Deny the quest"]
+        selected_index = 0
+
+        while True:
+            draw_menu(self.stdscr, "Quest Offer", options, selected_index)
+            key = self.stdscr.getch()
+
+            if key == curses.KEY_UP:
+                selected_index = (selected_index - 1) % len(options)
+            elif key == curses.KEY_DOWN:
+                selected_index = (selected_index + 1) % len(options)
+            elif key == 10:  # Tecla ENTER
+                if selected_index == 0:  # Aceitar missão
+                    self.city.downtown.append_npc_quest(self.main_character, npc_id)
+                    self.message_log.append("Quest Accepted")
+                    display_message(self.stdscr, "Quest Accepted!", 1500, curses.color_pair(2))
+                else:  # Recusar missão
+                    self.message_log.append("Quest Denied")
+                    display_message(self.stdscr, "Quest Denied.", 1500, curses.color_pair(2))
+                break

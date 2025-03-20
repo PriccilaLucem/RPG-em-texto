@@ -1,37 +1,62 @@
 from characters.hero import Hero
 from global_state.global_state import should_exit, set_exit
-from util.display_message import display_message
+from util.display_message import display_message, draw_menu
 from destinations.forest.forest import Forest
 import curses
 
-def exit_loop():
-    raise StopIteration
+class ForestMenu:
+    def __init__(self, forest: Forest, main_character: Hero, stdscr: curses.window, menu) -> None:
+        self.forest = forest
+        self.main_character = main_character
+        self.stdscr = stdscr
+        self.menu = menu
+        self.message_log = [
+            "Welcome to the Forest!",
+            "You can gather resources, check your status, or return to Prismeer.",
+        ]
+        self.menu_options = [
+            "View Status",
+            "Gather Resources",
+            "Exit Forest",
+        ]
+        self.selected_index = 0
 
-def forest(regular_forest: Forest, main_character: Hero, stdscr: curses.window, menu) -> None:
-    curses.curs_set(0)
+    def run(self) -> None:
+        """Main loop for the forest menu."""
+        curses.curs_set(0)  # Hide the cursor
 
-    actions = {
-        "S": lambda: main_character.show_status(stdscr),
-        "E": lambda: display_message(stdscr, "Returning to prismeer surroundings", 1000) or exit_loop(),
-        "G": lambda: regular_forest.search_for_resources(stdscr, main_character),
-        chr(27): lambda: display_message(stdscr, "Exiting the game...", 1000) or set_exit(),
-    }
+        while not should_exit():
+            try:
+                self.draw_menu()
+                self.handle_input()
+            except StopIteration:
+                break
+            except Exception as e:
+                display_message(self.stdscr, f"An error occurred: {e}", 2000)
 
-    while not should_exit():
-        try:
-            stdscr.clear()
-            stdscr.addstr("Forest Actions:\n")
-            stdscr.addstr("    S - View Status\n")
-            stdscr.addstr("    G - Gather Resources\n")
-            stdscr.addstr("    E - Exit Forest\n")
-            stdscr.addstr("    ESC - Exit Game\n")
-            stdscr.refresh()
+    def draw_menu(self) -> None:
+        """Draws the forest menu."""
+        draw_menu(self.stdscr, "Forest Actions", self.menu_options, self.selected_index)
 
-            forest_key = stdscr.getch()
+    def handle_input(self) -> None:
+        """Handles user input for the forest menu."""
+        key = self.stdscr.getch()
 
-            action = actions.get(chr(forest_key).upper(), lambda: display_message(stdscr, "Invalid choice. Try again.", 1000))
-            action()
-        except StopIteration:
-            break
-        except Exception as e:
-            display_message(stdscr, f"An error occurred: {e}", 2000)
+        if key == curses.KEY_UP:
+            self.selected_index = max(0, self.selected_index - 1)
+        elif key == curses.KEY_DOWN:
+            self.selected_index = min(len(self.menu_options) - 1, self.selected_index + 1)
+        elif key == ord('\n'):  # Enter key
+            self.handle_menu_option(self.menu_options[self.selected_index])
+
+    def handle_menu_option(self, option: str) -> None:
+        """Handles the selected menu option."""
+        if option == "View Status":  # View Status
+            self.main_character.show_status(self.stdscr)
+            self.message_log.append("Checked status.")
+        elif option == "Gather Resources":  # Gather Resources
+            self.forest.search_for_resources(self.stdscr, self.main_character)
+            self.message_log.append("Gathered resources.")
+        elif option == "Exit Forest":  # Exit Forest
+            display_message(self.stdscr, "Returning to Prismeer surroundings...", 1000)
+            raise StopIteration  # Exit the loop

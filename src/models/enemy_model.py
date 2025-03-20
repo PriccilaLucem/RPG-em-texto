@@ -28,7 +28,6 @@ class EnemyModel:
                  level: int = 0
                  ) -> None:
         self.name = name
-        
         if isinstance(type, EnemyTypeEnum):
             self.type = type
         else:
@@ -48,7 +47,7 @@ class EnemyModel:
         self.drops: List[ItemsUsedToCraft] = drops or []
         self.location = location
         self.level = level
-        self.loot_collected = False 
+        self.loot_collected = False  
 
     def use_skills(self, target) -> str:
         if not self.abilities:
@@ -56,55 +55,57 @@ class EnemyModel:
         
         ability = random.choice(self.abilities)
         
-        if hasattr(ability, 'use_ability'):
+        if callable(getattr(ability, 'use_ability', None)):
             return ability.use_ability(target)
         
         return f"{self.name} tries to use {ability} but it fails due to invalid implementation."
 
     def drop_items(self, main_character: Hero):
         rarity_probabilities = {
-            Rarity_Enum.COMMON: 1,       # 100% chance
-            Rarity_Enum.UNCOMMON: 0.5,   # 50% chance
-            Rarity_Enum.RARE: 0.2,       # 20% chance
-            Rarity_Enum.EPIC: 0.1,       # 10% chance
-            Rarity_Enum.LEGENDARY: 0.05  # 5% chance
+            Rarity_Enum.COMMON: 1.0,
+            Rarity_Enum.UNCOMMON: 0.5,
+            Rarity_Enum.RARE: 0.2,
+            Rarity_Enum.EPIC: 0.1,
+            Rarity_Enum.LEGENDARY: 0.05
         }
-        if not self.loot_collected:
-            dropped_items = []
-            for item in self.drops:
-                if random.random() <= rarity_probabilities.get(item.rarity, 0):
-                    dropped_items.append(item)
-                    main_character.add_to_inventory(random.choice(self.drops))
-            self.loot_collected = True
-            return f"{self.name} dropped: {[str(item) for item in dropped_items]}"
-        
-        return f"The loot from {self.name} has already been collected."
 
-    def from_dict(self, data: Dict) -> None:
-        """Initialize an EnemyModel instance from a dictionary."""
-        self.name = data["name"]
-        self.type = EnemyTypeEnum[data["type"]] 
-        self.attack_points = data["attack_points"]
-        self.defense_points = data["defense_points"]
-        self.attack_multiplier = data["attack_multiplier"]
-        self.critical_hit_chance = data["critical_hit_chance"]
-        self.resistance_factor = data["resistance_factor"]
-        self.health_points = data["health_points"]
-        self.speed = data["speed"]
-        self.weakness = [WeaknessEnum[w] for w in data.get("weakness", [])]
-        self.immunities = [ImmunityEnum[i] for i in data.get("immunities", [])]
-        self.abilities = [BaseAbility.from_dict(ability) for ability in data.get("abilities", [])]  
-        self.exp_points = data["exp_points"]
-        self.drops = [ItemsUsedToCraft.from_dict(item) for item in data.get("drops", [])]
-        self.location = data.get("location", "unknown")
-        self.level = data["level"]
-        self.loot_collected = data.get("loot_collected", False)
+        if self.loot_collected:
+            return f"The loot from {self.name} has already been collected."
 
+        dropped_items = [item for item in self.drops if random.random() <= rarity_probabilities.get(item.rarity, 0)]
+
+        for item in dropped_items:
+            main_character.add_to_inventory(item)
+
+        self.loot_collected = True
+        return f"{self.name} dropped: {[str(item) for item in dropped_items]}" if dropped_items else f"{self.name} dropped nothing."
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> "EnemyModel":
+        return cls(
+            name=data["name"],
+             type=EnemyTypeEnum[data["type"]],
+             attack_points=data["attack_points"],
+             defense_points=data["defense_points"],
+             attack_multiplier=data["attack_multiplier"],
+             critical_hit_chance=data["critical_hit_chance"],
+             resistance_factor=data["resistance_factor"],
+             health_points=data["health_points"],
+             speed=data["speed"],
+             weakness = [WeaknessEnum[w.upper()] for w in data.get("weakness", []) if w.upper() in WeaknessEnum.__members__],
+             immunities = [ImmunityEnum[i.upper()] for i in data.get("immunities", []) if i.upper() in ImmunityEnum.__members__],
+             abilities=[BaseAbility.from_dict(ability) for ability in data.get("abilities", [])],
+             exp_points=data["exp_points"],
+             drops=[ItemsUsedToCraft.from_dict(item) for item in data.get("drops", [])],
+             location=data.get("location", "unknown"),
+             level=data["level"]
+         )
+    
     def to_dict(self) -> Dict:
         """Convert the EnemyModel instance to a dictionary."""
         return {
             "name": self.name,
-            "type": self.type.name,  
+            "type": self.type.name if hasattr(self.type, 'name') else str(self.type),
             "attack_points": self.attack_points,
             "defense_points": self.defense_points,
             "attack_multiplier": self.attack_multiplier,
@@ -112,11 +113,11 @@ class EnemyModel:
             "resistance_factor": self.resistance_factor,
             "health_points": self.health_points,
             "speed": self.speed,
-            "weakness": self.weakness,  
-            "immunities":  self.immunities,  
-            "abilities": [ability.to_dict() for ability in self.abilities],  
+            "weakness": [w.name for w in self.weakness] if self.weakness else [],
+            "immunities": [i.name for i in self.immunities] if self.immunities else [],
+            "abilities": [ability.to_dict() for ability in self.abilities if hasattr(ability, 'to_dict')] if self.abilities else [],
             "exp_points": self.exp_points,
-            "drops": [item.to_dict() for item in self.drops],  
+            "drops": [item.to_dict() for item in self.drops if hasattr(item, 'to_dict')] if self.drops else [],
             "location": self.location,
             "level": self.level,
             "loot_collected": self.loot_collected

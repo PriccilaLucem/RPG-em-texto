@@ -1,5 +1,6 @@
 import random
 import curses
+from typing import List
 from enemy.wolf.wolf import wolf
 from enemy.giant_spider.giant_spider import giant_spider
 from enemy.treant.treant import treant
@@ -11,10 +12,20 @@ from characters.hero import Hero
 from models.tree_model import regular_forest_tree
 from util.combat_system import combat
 from typing import Dict
+from models.enemy_model import EnemyModel
 
-class Forest():
+import random
+import curses
+from typing import List, Dict
+from characters.hero import Hero
+from models.tree_model import regular_forest_tree
+from util.combat_system import combat
+from models.enemy_model import EnemyModel
+from util.deserialize_resource import deserialize_resource
+
+class Forest:
     def __init__(self):
-        self.enemies = [wolf, goblin, giant_spider, treant]
+        self.enemies: List[EnemyModel] = [wolf, goblin, giant_spider, treant]
         self.resources = all_crafting_items + all_food_items + all_rare_items
         self.trees = 10
 
@@ -25,17 +36,29 @@ class Forest():
         
         chance_to_combat = 0.4
 
-        if chance_to_combat < random.random():
+        if random.random() < chance_to_combat:
             combat(stdscr, main_character, random.choice(self.enemies))
         
         found_resource = random.choice(self.resources)
         stdscr.addstr(f"You found: {found_resource.name}\n")
         main_character.add_to_inventory(found_resource)
+        self.resources.remove(found_resource)  # Remove the resource from the forest
 
     def take_down_a_tree(self, stdscr: curses.window, main_character: Hero):
+        if self.trees <= 0:
+            stdscr.addstr("No more trees left in the forest.\n")
+            return
+        
         regular_forest_tree.cut_down_a_tree(stdscr, main_character)
         self.trees -= 1
         stdscr.addstr(f"Remaining trees: {self.trees}\n")
+
+    def to_dict(self) -> Dict:
+        return {
+            "enemies": [enemy.name for enemy in self.enemies],  
+            "resources": [resource.to_dict() if hasattr(resource, 'to_dict') else str(resource) for resource in self.resources],  
+            "trees": self.trees
+        }
     
     @classmethod
     def from_dict(cls, data: Dict) -> "Forest":
@@ -53,17 +76,30 @@ class Forest():
             if enemy_name in enemy_classes:
                 enemy_data = data.get("enemy_data", {}).get(enemy_name, {})
                 enemy_class = enemy_classes[enemy_name]
-                enemy = enemy_class(**enemy_data)  
-                forest.enemies.append(enemy)
+                try:
+                    enemy = enemy_class(**enemy_data)  
+                    forest.enemies.append(enemy)
+                except TypeError as e:
+                    print(f"Error initializing {enemy_name}: {e}")
+                    continue  # Skip this enemy if initialization fails
 
-        forest.resources = data.get("resources", [])
+        # Deserialize resources if they are dictionaries
+        forest.resources = []
+        for resource_data in data.get("resources", []):
+            if isinstance(resource_data, dict):
+                # Assuming you have a function or class to deserialize resources
+                resource = deserialize_resource(resource_data)  # Replace with actual deserialization logic
+                forest.resources.append(resource)
+            else:
+                forest.resources.append(resource_data)
 
         forest.trees = data.get("trees", 0)
         
         return forest  
+
     def to_dict(self) -> Dict:
         return {
             "enemies": [enemy.name for enemy in self.enemies],  
-            "resources": [resource.to_dict() for resource in self.resources],  
+            "resources": [resource.to_dict() if hasattr(resource, 'to_dict') else str(resource) for resource in self.resources],  
             "trees": self.trees
         }
