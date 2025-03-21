@@ -24,7 +24,7 @@ class OwlBearCave():
         owl_bear_cave.npcs = [Character_model(npc["name"], npc["speeches"]) for npc in data["npcs"]]
         owl_bear_cave.ores = [ItemsUsedToCraft.from_dict(o) for o in data["ores"]]   
         owl_bear_cave.has_already_mined = data["has_already_mined"]
-
+        return owl_bear_cave
     def to_dict(self) -> Dict:
         return {
             "owl_bear": self.owl_bear.to_dict(),

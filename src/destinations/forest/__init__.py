@@ -15,7 +15,7 @@ class ForestMenu:
             "You can gather resources, check your status, or return to Prismeer.",
         ]
         self.menu_options = [
-            "View Status",
+            "Menu",
             "Gather Resources",
             "Exit Forest",
         ]
@@ -23,7 +23,7 @@ class ForestMenu:
 
     def run(self) -> None:
         """Main loop for the forest menu."""
-        curses.curs_set(0)  # Hide the cursor
+        curses.curs_set(0)  
 
         while not should_exit():
             try:
@@ -50,10 +50,8 @@ class ForestMenu:
             self.handle_menu_option(self.menu_options[self.selected_index])
 
     def handle_menu_option(self, option: str) -> None:
-        """Handles the selected menu option."""
-        if option == "View Status":  # View Status
-            self.main_character.show_status(self.stdscr)
-            self.message_log.append("Checked status.")
+        if option == "Menu":
+            self.menu.run()           
         elif option == "Gather Resources":  # Gather Resources
             self.forest.search_for_resources(self.stdscr, self.main_character)
             self.message_log.append("Gathered resources.")

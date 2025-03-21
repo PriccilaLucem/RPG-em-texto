@@ -4,7 +4,7 @@ from characters.hero import Hero
 from destinations.prismeer import CityMenu
 from history.history import init_of_the_history
 from global_state.global_state import should_exit, update_game_state, get_game_state
-from util.display_message import display_message, draw_menu
+from util.display_message import display_message, draw_menu, draw_menu_with_history
 from destinations.cave.owl_bear_cave import OwlBearCave
 from destinations.cave import OutsideCave
 from destinations.forest.forest import Forest
@@ -14,51 +14,57 @@ from menu.menu import Menu
 
 def key_pressed_event(stdscr: curses.window, allow_enter_cave: bool, hero: Hero, prismeer: City, owl_bear_cave: OwlBearCave, wood_forest: Forest, atual_location: str, menu: Menu):
     """Handles key press events and triggers corresponding actions."""
-    menu.is_in_game = True
+    update_game_state(is_in_game=True)  # Atualiza o estado global
+
+
+    # Inicializa os menus
     city_menu = CityMenu(prismeer, hero, stdscr, menu)
     forest_menu = ForestMenu(wood_forest, hero, stdscr, menu)
-    cave_menu = OutsideCave(owl_bear_cave, hero, stdscr, menu)
-    if atual_location != "menu" or atual_location != "prismeer surroundings":
-        if atual_location == "prismeer":
+    owl_bear_cave_menu = OutsideCave(owl_bear_cave, hero, stdscr, menu)
+
+    # Executa o menu correspondente à localização atual
+    if atual_location not in ["menu", "prismeer_surroundings"]:
+        if  atual_location in ["prismeer", "prismeer_center"]:
+            
             city_menu.run()
         elif atual_location == "forest":
             forest_menu.run()
         elif atual_location == "cave":
-            cave_menu.run()
-    
-    # Define key actions based on menu options
+            owl_bear_cave_menu.run()
+
+    # Define as ações com base nas opções do menu
     key_actions = {
-        "Menu": lambda: menu.run(),  # Open the main menu
-        "Prismeer": lambda: city_menu.run(),  # Go to Prismeer
-        "Forest": lambda: forest_menu.run(),  # Go to the Forest
-        "Owl Bear Cave": lambda: cave_menu.run()  # Go to the OwlBear Cave
+        "Menu": (lambda: menu.run()),  # Abre o menu principal
+        "Prismeer": lambda: (update_game_state(atual_location="prismeer") or city_menu.run()),  # Vai para Prismeer
+        "Forest": lambda: (update_game_state(atual_location="forest") or forest_menu.run()),  # Vai para a Floresta
+        "Owl Bear Cave": lambda: (update_game_state(atual_location="outside_owl_bear_cave"), owl_bear_cave_menu.run())  # Vai para a Caverna do Owl Bear
     }
 
-    update_game_state(hero=hero, prismeer=prismeer, cave=owl_bear_cave, forest=wood_forest, atual_location="prismeer_surroundings")
+    # Atualiza o estado do jogo
+    update_game_state(hero=hero, prismeer=prismeer, cave=owl_bear_cave, forest=wood_forest, atual_location="prismeer_surroundings", is_in_game = True)
 
     try:
         selected_index = 0
         while True:
-            # Render the UI
+            # Renderiza a interface do usuário
             render_ui(stdscr, allow_enter_cave, selected_index)
 
-            # Get user input
+            # Obtém a entrada do usuário
             key = stdscr.getch()
 
             if key == curses.KEY_UP:
-                selected_index = max(0, selected_index - 1)
+                selected_index = max(0, selected_index - 1)  # Move a seleção para cima
             elif key == curses.KEY_DOWN:
                 menu_options = get_menu_options(allow_enter_cave)
-                selected_index = min(len(menu_options) - 1, selected_index + 1)
-            elif key == ord('\n'):  # Enter key
+                selected_index = min(len(menu_options) - 1, selected_index + 1)  # Move a seleção para baixo
+            elif key == ord('\n'):  # Tecla ENTER
                 menu_options = get_menu_options(allow_enter_cave)
                 selected_option = menu_options[selected_index]
                 action = key_actions.get(selected_option, lambda: display_message(stdscr, "Invalid choice. Try again.", 1000))
-                action()
+                action()  # Executa a ação correspondente
                 break
     except Exception as e:
         display_message(stdscr, f"Error while processing key press: {e}", 1000)
-
 
 def get_menu_options(allow_enter_cave: bool) -> list:
     """Returns a list of menu options with their corresponding action keys."""
@@ -88,9 +94,31 @@ def game_loop(stdscr: curses.window, hero: Hero, prismeer: City, owl_bear_cave: 
     menu.run()
 
     game_state = get_game_state()
+    
     if game_state["is_new_game"]:
         history = init_of_the_history()
-        display_message(stdscr, history, 5000)
+        title = "=== IN SOMEWHERE NEAR PRISMMER ==="
+        options = ["Continue", "Save Game", "Quit"]
+        selected_index = 0
+
+        while True:
+            draw_menu_with_history(stdscr,title,history, options, selected_index )
+            key = stdscr.getch()
+
+            if key == curses.KEY_UP:
+                selected_index = (selected_index - 1) % len(options)
+            elif key == curses.KEY_DOWN:
+                selected_index = (selected_index + 1) % len(options)
+            elif key == 10:  # ENTER
+                if options[selected_index] == "Continue":
+                    # Lógica para continuar o jogo
+                    pass
+                elif options[selected_index] == "Save Game":
+                    # Lógica para salvar o jogo
+                    pass
+                elif options[selected_index] == "Quit":
+                    break
+
         update_game_state(is_new_game=False)
         atual_location = "prismeer_surroundings"
     else:

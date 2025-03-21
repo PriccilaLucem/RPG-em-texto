@@ -14,14 +14,18 @@ class OutsideCave:
         self.stdscr = stdscr
         self.options = [
             "Menu",
-            "Enter Cave",
-            "Show Status",
             "Return to Prismeer Surroundings",
+            "Enter Cave",
         ]
         self.selected_index = 0
+        self.inside_cave = InsideCave(self.owl_bear_cave, self.main_character, self.menu)
 
     def run(self):
-        """Controla a lógica e interação do jogador fora da caverna."""
+        atual_location = get_game_state()["atual_location"]
+        if atual_location == "inside_owl_bear_cave":
+            self.inside_cave.run()
+        if atual_location not in ["inside_owl_bear_cave", "outside_owl_bear_cave"]:
+            return
         while not should_exit():
             try:
                 self.draw()
@@ -51,8 +55,6 @@ class OutsideCave:
 
         if selected_option == "Enter Cave":
             self.enter_cave()
-        elif selected_option == "Show Status":
-            self.main_character.show_status(self.stdscr)
         elif selected_option == "Menu":
             self.menu.run()
         elif selected_option == "Return to Prismeer Surroundings":
@@ -64,8 +66,7 @@ class OutsideCave:
         display_message(self.stdscr, "Entering cave...", 1000)
 
         # Criar e iniciar a instância da caverna
-        inside_cave = InsideCave(self.owl_bear_cave, self.main_character, self.menu)
-        inside_cave.run(self.stdscr)
+        self.inside_cave.run(self.stdscr)
 
     def return_to_previous_menu(self):
         display_message(self.stdscr, "Returning to previous menu...", 1000)
