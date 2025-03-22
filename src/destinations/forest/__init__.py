@@ -57,4 +57,5 @@ class ForestMenu:
             self.message_log.append("Gathered resources.")
         elif option == "Exit Forest":  # Exit Forest
             display_message(self.stdscr, "Returning to Prismeer surroundings...", 1000)
+            
             raise StopIteration  # Exit the loop

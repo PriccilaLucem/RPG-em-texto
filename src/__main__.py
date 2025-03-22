@@ -25,18 +25,17 @@ def key_pressed_event(stdscr: curses.window, allow_enter_cave: bool, hero: Hero,
     # Executa o menu correspondente à localização atual
     if atual_location not in ["menu", "prismeer_surroundings"]:
         if  atual_location in ["prismeer", "prismeer_center"]:
-            
             city_menu.run()
         elif atual_location == "forest":
             forest_menu.run()
-        elif atual_location == "cave":
+        elif atual_location in ["inside_owl_bear_cave", "outside_owl_bear_cave"]:
             owl_bear_cave_menu.run()
 
     # Define as ações com base nas opções do menu
     key_actions = {
         "Menu": (lambda: menu.run()),  # Abre o menu principal
-        "Prismeer": lambda: (update_game_state(atual_location="prismeer") or city_menu.run()),  # Vai para Prismeer
-        "Forest": lambda: (update_game_state(atual_location="forest") or forest_menu.run()),  # Vai para a Floresta
+        "Prismeer": lambda: (update_game_state(atual_location="prismeer") or city_menu.run()), 
+        "Forest": lambda: (update_game_state(atual_location="forest") or forest_menu.run()),  
         "Owl Bear Cave": lambda: (update_game_state(atual_location="outside_owl_bear_cave"), owl_bear_cave_menu.run())  # Vai para a Caverna do Owl Bear
     }
 
@@ -98,27 +97,14 @@ def game_loop(stdscr: curses.window, hero: Hero, prismeer: City, owl_bear_cave: 
     if game_state["is_new_game"]:
         history = init_of_the_history()
         title = "=== IN SOMEWHERE NEAR PRISMMER ==="
-        options = ["Continue", "Save Game", "Quit"]
+        options = ["Continue"]
         selected_index = 0
 
         while True:
             draw_menu_with_history(stdscr,title,history, options, selected_index )
             key = stdscr.getch()
-
-            if key == curses.KEY_UP:
-                selected_index = (selected_index - 1) % len(options)
-            elif key == curses.KEY_DOWN:
-                selected_index = (selected_index + 1) % len(options)
-            elif key == 10:  # ENTER
-                if options[selected_index] == "Continue":
-                    # Lógica para continuar o jogo
-                    pass
-                elif options[selected_index] == "Save Game":
-                    # Lógica para salvar o jogo
-                    pass
-                elif options[selected_index] == "Quit":
-                    break
-
+            if key == 10:  # ENTER
+                break
         update_game_state(is_new_game=False)
         atual_location = "prismeer_surroundings"
     else:

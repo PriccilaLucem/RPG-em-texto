@@ -61,7 +61,7 @@ def draw_menu(stdscr, title, options, selected_index):
             stdscr.addstr(start_y + i, option_x, option, curses.color_pair(1))
     
     # Exibir rodapé com instruções
-    footer_text = "Use ↑/↓ to navigate, ENTER to select, 'q' to quit."
+    footer_text = "Use ↑/↓ to navigate, ENTER to select"
     footer_x = (width - len(footer_text)) // 2
     stdscr.addstr(height - 2, footer_x, footer_text, curses.color_pair(1) | curses.A_BOLD)
     
@@ -113,10 +113,6 @@ def draw_menu_with_history(stdscr, title, history_text, options, selected_index)
             stdscr.addstr(options_start_y + i, option_x, option, curses.color_pair(1))
 
     # Exibir rodapé com instruções
-    footer_text = "Use ↑/↓ to navigate, ENTER to select, 'q' to quit."
-    footer_x = (width - len(footer_text)) // 2
-    stdscr.addstr(height - 2, footer_x, footer_text, curses.color_pair(1) | curses.A_BOLD)
-
     stdscr.refresh()
 
 def display_message_log(stdscr: curses.window, message_log: list):

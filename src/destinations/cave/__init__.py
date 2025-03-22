@@ -1,8 +1,8 @@
 import curses
 from global_state.global_state import should_exit, exit_loop, update_game_state, get_game_state
-from util.display_message import draw_menu, display_message
+from util.display_message import draw_menu, display_message, draw_menu_with_history
 from util.combat_system import combat
-from history.history import the_real_init
+from history.history import the_real_init, entering_owl_bear_cave_first_time
 from resources import mine
 
 
@@ -62,8 +62,8 @@ class OutsideCave:
 
     def enter_cave(self):
         """Entra na caverna e inicia a classe InsideCave."""
-        update_game_state(cave=self.owl_bear_cave, hero=self.main_character, atual_location="cave")
-        display_message(self.stdscr, "Entering cave...", 1000)
+        update_game_state(cave=self.owl_bear_cave, hero=self.main_character, atual_location="inside_owl_bear_cave")
+        display_message(self.stdscr, "Entering cave...", 1000, curses.color_pair(11))
 
         # Criar e iniciar a instância da caverna
         self.inside_cave.run(self.stdscr)
@@ -89,10 +89,11 @@ class InsideCave:
         
     def run(self, stdscr):
         """Controla a lógica e interação do jogador dentro da caverna."""
+        atual_location = get_game_state()["atual_location"]
+        if atual_location != "inside_owl_bear_cave":
+            return
         while not should_exit():
             if not get_game_state().get("combat_done") and any(quest.id == 1 for quest in self.main_character.quests):
-                import ipdb
-                ipdb.set_trace()
                 self.handle_combat(stdscr)
             try:
                 self.draw(stdscr)
@@ -149,16 +150,17 @@ class InsideCave:
     def exit_cave(self, stdscr):
         """Retorna para fora da caverna."""
         display_message(stdscr, "Returning to outside the cave...", 1000)
-        exit_loop("cave")
+        exit_loop("outside_owl_bear_cave")
 
     def handle_combat(self, stdscr):
-        """Lida com o combate contra o Owlbear."""
-        display_message(stdscr, """
-        As you enter the cave, you see two people staring at you, nervously.
-        They are looking behind you!
-        The OwlBear is angry at you and starts running into your direction!
-        """, 3000)
-
+        cave_history = entering_owl_bear_cave_first_time()
+        draw_menu_options = ["Continue"]
+        index = 0
+        while True:
+            draw_menu_with_history(stdscr, "===Entering Cave===", cave_history, draw_menu_options, index)
+            key = stdscr.getch()
+            if key == 10:  # ENTER
+                break
         if not combat(stdscr, self.main_character, self.owl_bear_cave.owl_bear):
             display_message(stdscr, the_real_init(), 3000)
             self.main_character.choose_character_class(stdscr)

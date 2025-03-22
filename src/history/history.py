@@ -15,3 +15,10 @@ def the_real_init():
         "Now you are mine, and everything in your life will make sense."
         
     """
+
+def entering_owl_bear_cave_first_time():
+    return """
+        As you enter the cave, you see two people staring at you, nervously.
+        They are looking behind you!
+        The OwlBear is angry at you and starts running into your direction!
+    """

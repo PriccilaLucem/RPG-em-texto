@@ -7,7 +7,7 @@ from models.item_model import ItemsUsedToCraft
 import random
 from characters.hero import Hero
 from enums.rarity_enum import Rarity_Enum
-
+from util.deserialize_abilities import deserialize_ability
 class EnemyModel:
     def __init__(self, 
                  name: str, 
@@ -94,7 +94,7 @@ class EnemyModel:
              speed=data["speed"],
              weakness = [WeaknessEnum[w.upper()] for w in data.get("weakness", []) if w.upper() in WeaknessEnum.__members__],
              immunities = [ImmunityEnum[i.upper()] for i in data.get("immunities", []) if i.upper() in ImmunityEnum.__members__],
-             abilities=[BaseAbility.from_dict(ability) for ability in data.get("abilities", [])],
+             abilities = [deserialize_ability(ability) for ability in data["abilities"]],            
              exp_points=data["exp_points"],
              drops=[ItemsUsedToCraft.from_dict(item) for item in data.get("drops", [])],
              location=data.get("location", "unknown"),

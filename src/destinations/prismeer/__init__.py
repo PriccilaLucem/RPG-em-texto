@@ -134,7 +134,7 @@ class CityCenter:
         elif option == "Talk to blacksmith":  # Talk to blacksmith
             self.city.downtown.talk_to_blacksmith(self.stdscr, self.main_character)
         elif option == "Exit to city menu":  # Exit to city menu
-            display_message(self.stdscr, "Returning to city menu...", 1000, curses.color_pair(1))
+            display_message(self.stdscr, "Returning to city menu...", 1000, curses.color_pair(11))
             exit_loop("prismeer")
         elif option == "Show Menu":  # Show Menu
             self.menu.run()

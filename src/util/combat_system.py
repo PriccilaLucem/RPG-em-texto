@@ -1,30 +1,27 @@
 from characters.hero import Hero
 from models.enemy_model import EnemyModel
-from typing import Union, Callable, List
+from typing import Union, List
 import random
 import curses
 from enums.skill_type_enum import SkillTypeEnum
-from util.display_message import display_message, draw_menu, display_message_log
+from util.display_message import display_message, draw_menu, display_message_log, draw_menu_with_history
 
 
 def roll_dice(stdscr: curses.window, message: str) -> int:
     """Simulates a dice roll with animation."""
     stdscr.clear()
     height, width = stdscr.getmaxyx()
-    stdscr.addstr(height // 2 - 1, (width - len(message)) // 2, message, curses.A_BOLD)
-    stdscr.refresh()
 
-    # Simulate rolling animation
+    # Exibe a mensagem centralizada
+    display_message(stdscr, message, 500, curses.color_pair(1))
+
+    # Simula a animação do dado
     for _ in range(10):
         roll = random.randint(1, 20)
-        stdscr.addstr(height // 2, (width - len(f"Rolling... {roll}")) // 2, f"Rolling... {roll}")
-        stdscr.refresh()
-        curses.napms(100)  # Pause for 100ms between rolls
+        display_message(stdscr, f"Rolling... {roll}", 100, curses.color_pair(2))
 
     final_roll = random.randint(1, 20)
-    stdscr.addstr(height // 2, (width - len(f"Final Roll: {final_roll}")) // 2, f"Final Roll: {final_roll}", curses.A_BOLD)
-    stdscr.refresh()
-    curses.napms(1000)  # Pause to show the final roll
+    display_message(stdscr, f"Final Roll: {final_roll}", 1000, curses.color_pair(1))
     return final_roll
 
 
@@ -69,7 +66,7 @@ def use_skill(
 ) -> str:
     """Allows the player or enemy to use a skill."""
     if isinstance(caster, Hero):
-        # Display skill selection menu
+        # Exibe o menu de seleção de habilidades
         skill_options = [f"{ability.name} (Cooldown: {ability.current_cooldown})" for ability in caster.abilities]
         selected_index = 0
         while True:
@@ -151,12 +148,12 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
     def hero_action_input() -> str:
         """Gets the hero's action from the player using arrow navigation."""
         options = ["Attack", "Defend", "Use Skill"]
-        if not hero.abilities[0]:  # Remove "Use Skill" if hero has no abilities
+        if not hero.abilities:  # Remove "Use Skill" if hero has no abilities
             options.remove("Use Skill")
         selected_index = 0  # Index of the selected option
 
         while True:
-            draw_menu(stdscr, "=== Choose an Action ===", options, selected_index)
+            draw_menu_with_history(stdscr, "=== Choose an Action ===", "\n".join(message_log[-5:]), options, selected_index)
             key = stdscr.getch()
 
             if key == curses.KEY_UP:
