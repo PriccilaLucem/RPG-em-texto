@@ -5,9 +5,9 @@ from global_state.global_state import update_game_state, get_game_state, should_
 from util.status import show_status
 
 class Menu:
-    def __init__(self, stdscr: curses.window, hero, is_in_game=False):
+    def __init__(self, stdscr: curses.window, MainCharacter, is_in_game=False):
         self.stdscr = stdscr
-        self.hero = hero
+        self.MainCharacter = MainCharacter
         self.is_in_game = is_in_game
         self.in_game_options =  ["Show Status", "Close Menu", "Save Game", "Load Game", "Exit Game"]
         self.menu_options = ["New Game", "Load Game", "Exit Game"]
@@ -30,14 +30,14 @@ class Menu:
         if selected_option == "Close Menu":
             self.close_menu()
         elif selected_option == "Show Status":
-            show_status(self.hero, self.stdscr)
+            show_status(self.MainCharacter, self.stdscr)
         elif selected_option == "Save Game":
             save_game(self.stdscr)
             self.close_menu()
         elif selected_option == "Load Game":
             game_state = load_game_and_update(self.stdscr)
             update_game_state(**game_state)
-            self.hero = game_state.get("hero", self.hero)
+            self.MainCharacter = game_state.get("MainCharacter", self.MainCharacter)
             self.close_menu()
         elif selected_option == "Exit Game":
             self.exit_game()

@@ -5,7 +5,7 @@ from enums.immunity_enum import ImmunityEnum
 from enums.weakness_enum import WeaknessEnum
 from models.item_model import ItemsUsedToCraft
 import random
-from characters.hero import Hero
+from characters.main_character import MainCharacter
 from enums.rarity_enum import Rarity_Enum
 from util.deserialize_abilities import deserialize_ability
 class EnemyModel:
@@ -61,7 +61,7 @@ class EnemyModel:
         
         return f"{self.name} tries to use {ability} but it fails due to invalid implementation."
 
-    def drop_items(self, main_character: Hero):
+    def drop_items(self, main_character: MainCharacter):
         rarity_probabilities = {
             Rarity_Enum.COMMON: 1.0,
             Rarity_Enum.UNCOMMON: 0.5,

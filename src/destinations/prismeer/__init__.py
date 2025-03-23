@@ -1,5 +1,5 @@
 from destinations.prismeer.city import City
-from characters.hero import Hero
+from characters.main_character import MainCharacter
 from global_state.global_state import should_exit, get_game_state, update_game_state, exit_loop
 from util.display_message import display_message, draw_menu
 from destinations.prismeer.billboard import Billboard
@@ -7,11 +7,11 @@ from destinations.prismeer.comercial_center import Comercial_center
 import curses
 
 class CityMenu:
-    def __init__(self, city: 'City', main_character: Hero, stdscr: curses.window, menu) -> None:
-        self.city_center = CityCenter(city, main_character, stdscr, menu)
+    def __init__(self, city: 'City', main_character: MainCharacter, stdscr: curses.window, menu) -> None:
+        self.city_center = CityCenter(city, MainCharacter, stdscr, menu)
         self.city = city
         self.main_character = main_character
-        self.billboard: Billboard = get_game_state().get("billboard") or Billboard(main_character, stdscr)
+        self.billboard: Billboard = get_game_state().get("billboard") or Billboard(MainCharacter, stdscr)
         self.stdscr = stdscr
         self.menu = menu
         self.message_log = [
@@ -36,7 +36,7 @@ class CityMenu:
         
         
 
-        update_game_state(prismeer=self.city, hero=self.main_character, billboard = self.billboard, atual_location="prismeer")
+        update_game_state(prismeer=self.city, MainCharacter=self.main_character, billboard = self.billboard, atual_location="prismeer")
 
         while not should_exit():
             try:
@@ -78,7 +78,7 @@ class CityMenu:
             exit_loop("prismeer_surroundings")
 
 class CityCenter:
-    def __init__(self, city: 'City', main_character: Hero, stdscr: curses.window, menu) -> None:
+    def __init__(self, city: 'City', main_character: MainCharacter, stdscr: curses.window, menu) -> None:
         self.city = city
         self.main_character = main_character
         self.stdscr = stdscr
@@ -104,7 +104,7 @@ class CityCenter:
             return
 
         curses.curs_set(0)
-        update_game_state(prismeer=self.city, hero=self.main_character, prismeer_downtown=self.downtown)
+        update_game_state(prismeer=self.city, main_character=self.main_character, prismeer_downtown=self.downtown)
 
         while not should_exit():
             try:

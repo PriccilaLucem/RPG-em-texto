@@ -1,12 +1,16 @@
 import curses
 import random
-from typing import List
+from typing import List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from characters.main_character import MainCharacter
+
+
 from models.item_model import ItemsUsedToCraft
 from enums.rarity_enum import Rarity_Enum
 from util.display_message import display_message, display_message_log
 
 
-def mine(stdscr: curses.window, ores: List[ItemsUsedToCraft], main_character) -> bool:
+def mine(stdscr: curses.window, ores: List[ItemsUsedToCraft], main_character: "MainCharacter") -> bool:
     curses.start_color()
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)

@@ -1,7 +1,7 @@
 import curses
 from typing import List, Dict, Any
 from models.seller_model import Seller_model
-from characters.hero import Hero
+from characters.main_character import MainCharacter
 from global_state.global_state import should_exit
 from util.display_message import display_message, draw_menu
 from util.classes import ITEM_CLASSES
@@ -14,7 +14,7 @@ class Shop_model:
         self.seller = Seller_model(seller_name, speeches, backpack)
         self.stdscr = stdscr
     
-    def shop_interactions(self, main_character: Hero) -> None:
+    def shop_interactions(self, main_character: "MainCharacter") -> None:
         selected_index = 0
         options = [
             "Show Shop Inventory",
@@ -37,14 +37,14 @@ class Shop_model:
                 self.handle_menu_option(options[selected_index], main_character)
             
 
-    def handle_menu_option(self, option: str, main_character: Hero) -> None:
+    def handle_menu_option(self, option: str, main_character:  "MainCharacter") -> None:
         """Handles the selected menu option."""
         if option == "Show Shop Inventory":
             self.show_inventory(main_character)
         elif option == "Talk to Seller":
             self.talk_to_seller()
             
-    def show_inventory(self, main_character: Hero) -> None:
+    def show_inventory(self, main_character:  "MainCharacter") -> None:
         """Exibe o inventário da loja com navegação e opção de compra."""
         if not self.seller.backpack:
             display_message(self.stdscr, "The shop is out of stock!", 1000, curses.color_pair(2))  # Usa color_pair(2) para o texto
@@ -81,7 +81,7 @@ class Shop_model:
             
     
     
-    def buy_item(self, selected_index: int, main_character: Hero) -> None:
+    def buy_item(self, selected_index: int, main_character: "MainCharacter") -> None:
         """Handles the purchase of an item."""
         selected_item = self.seller.backpack[selected_index]
         if main_character.gold >= selected_item.value:

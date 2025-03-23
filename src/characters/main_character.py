@@ -1,5 +1,5 @@
 from typing import Any, List, Union, Optional, Dict
-from quests.quests import Quests, CollectableQuest
+from models.quests import Quests, CollectableQuest
 from models.item_model import ArmorModel, WeaponModel, ItemsUsedToCraft, Food
 from models.abilities_model import BaseAbility
 from models.character_class_model import CharacterClass
@@ -11,10 +11,10 @@ from classes.warrior import Warrior
 from classes.wizard import Wizard
 from util.classes import ABILITY_CLASSES
 from util.display_message import display_message, draw_menu
-class Hero():
+class MainCharacter():
 
     def __init__(self) -> None:
-        self.name: str = "Hero" 
+        self.name: str = "" 
         self.health_points:int = 50
         self.max_hp:int = 50
         self.gold:int = 100
@@ -196,7 +196,7 @@ class Hero():
         
     
     def apply_class(self, character_class: CharacterClass):
-        """Applies a character class to the hero."""
+        """Applies a character class to the MainCharacter."""
         self.health += character_class.health
         self.max_hp += character_class.health
         self.proficiencies.extend(character_class.proficiencies)
@@ -264,14 +264,14 @@ class Hero():
 
     @classmethod
     def from_dict(cls, data):
-        hero = cls()
-        hero.name = data.get("name")
-        hero.health_points = data.get("health_points")
-        hero.max_hp = data.get("max_hp")
-        hero.gold = data.get("gold")
+        MainCharacter = cls()
+        MainCharacter.name = data.get("name")
+        MainCharacter.health_points = data.get("health_points")
+        MainCharacter.max_hp = data.get("max_hp")
+        MainCharacter.gold = data.get("gold")
 
         # Process backpack items
-        hero.backpack = [
+        MainCharacter.backpack = [
             WeaponModel.from_dict(item) if isinstance(item, dict) and "attack_points" in item else
             ArmorModel.from_dict(item) if isinstance(item, dict) and "def_points" in item else
             Food.from_dict(item) if isinstance(item, dict) and "health_recovery" in item else
@@ -280,52 +280,52 @@ class Hero():
         ]
 
         # Process abilities
-        hero.abilities = [
+        MainCharacter.abilities = [
                ABILITY_CLASSES.get(ability.get("type")).from_dict(ability)
                if isinstance(ability, dict) and ability.get("type") in ABILITY_CLASSES
                else ability
                for ability in data.get("abilities", [])] if data.get("abilities") else []
 
         # Process equipments
-        hero.equipments = {
+        MainCharacter.equipments = {
             key: WeaponModel.from_dict(item) if item and "damage" in item else
             ArmorModel.from_dict(item) if item else None
             for key, item in data.get("equipments", {}).items()
         }
 
         # Process character class
-        hero.character_class = CharacterClass.from_dict(data["character_class"]) if data.get("character_class") else None
+        MainCharacter.character_class = CharacterClass.from_dict(data["character_class"]) if data.get("character_class") else None
 
         # Process basic attributes
-        hero.experience = data.get("experience")
-        hero.next_level_xp = data.get("next_level_xp")
-        hero.attack_points = data.get("attack_points")
-        hero.defense_points = data.get("defense_points")
-        hero.level = data.get("level")
-        hero.critical_hit_chance = data.get("critical_hit_chance")
-        hero.resistance_factor = data.get("resistance_factor")
+        MainCharacter.experience = data.get("experience")
+        MainCharacter.next_level_xp = data.get("next_level_xp")
+        MainCharacter.attack_points = data.get("attack_points")
+        MainCharacter.defense_points = data.get("defense_points")
+        MainCharacter.level = data.get("level")
+        MainCharacter.critical_hit_chance = data.get("critical_hit_chance")
+        MainCharacter.resistance_factor = data.get("resistance_factor")
 
         # Process quests
-        hero.quests = [
+        MainCharacter.quests = [
             Quests.from_dict(quest) if "items_to_be_collected" not in quest else CollectableQuest.from_dict(quest)
             for quest in data.get("quests", [])
         ]
 
         # Process concluded quests
-        hero.concluded_quests = [
+        MainCharacter.concluded_quests = [
             Quests.from_dict(quest) if "items_to_be_collected" not in quest else CollectableQuest.from_dict(quest)
             for quest in data.get("concluded_quests", [])
         ]
 
         # Process additional attributes
-        hero.speed = data.get("speed")
-        hero.attack_multiplier = data.get("attack_multiplier")
-        hero.proficiencies = data.get("proficiencies")
-        hero.extra_actions = data.get("extra_actions")
-        hero.dodge_chance = data.get("dodge_chance")
-        hero.health = data.get("health")
-        hero.last_attack_damage = data.get("last_attack_damage")
-        hero.carry_weight = data.get("carry_weight")
-        hero.weight = data.get("weight")
+        MainCharacter.speed = data.get("speed")
+        MainCharacter.attack_multiplier = data.get("attack_multiplier")
+        MainCharacter.proficiencies = data.get("proficiencies")
+        MainCharacter.extra_actions = data.get("extra_actions")
+        MainCharacter.dodge_chance = data.get("dodge_chance")
+        MainCharacter.health = data.get("health")
+        MainCharacter.last_attack_damage = data.get("last_attack_damage")
+        MainCharacter.carry_weight = data.get("carry_weight")
+        MainCharacter.weight = data.get("weight")
 
-        return hero
+        return MainCharacter

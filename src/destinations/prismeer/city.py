@@ -1,4 +1,3 @@
-from destinations.prismeer.comercial_center import Comercial_center 
 from destinations.prismeer.inn import Inn
 
 class City():

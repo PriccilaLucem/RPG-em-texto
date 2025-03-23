@@ -1,5 +1,10 @@
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, TYPE_CHECKING
 from util.id_generator import IDGenerator
+
+if TYPE_CHECKING:
+    from models.item_model import ItemModel
+    from characters.main_character import MainCharacter
+
 
 class Quests:
     def __init__(self, id: int, difficult_stars: int, xp_given: int, gold_given: int, mission: str) -> None:
@@ -61,3 +66,15 @@ class CollectableQuest(Quests):
         data["items_to_be_collected"] = [{"item": item.to_dict() if hasattr(item, "to_dict") else item, "quantity": quantity} 
                                           for item, quantity in self.items_to_be_collected]
         return data
+    
+class DeliverQuestsItems(Quests):
+    def __init__(self, id: int, difficult_stars: int, xp_given: int, gold_given: int, mission: str, item: "ItemModel") -> None:
+        super().__init__(id, difficult_stars, xp_given, gold_given, mission)
+        self.item = item
+
+    def deliver_item(self, character: "MainCharacter") -> None:
+        if self.item in character.backpack:
+            character.remove_items_from_backpack(self.item)
+
+    def append_item(self, character: "MainCharacter") -> None:
+        character.add_to_inventory(self.item)

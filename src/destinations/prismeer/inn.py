@@ -1,5 +1,6 @@
-from typing import Dict
-from characters.hero import Hero
+from typing import Dict, TYPE_CHECKING
+if TYPE_CHECKING:
+    from characters.main_character import MainCharacter
 import curses
 from util.display_message import display_message, draw_menu
 
@@ -8,7 +9,7 @@ class Inn:
         self.cost = cost
         self.name = name
 
-    def pass_the_night(self, main_character: Hero, stdscr: curses.window) -> None:
+    def pass_the_night(self, main_character: 'MainCharacter', stdscr: curses.window) -> None:
         """Permite ao jogador descansar na pousada."""
         curses.curs_set(0)  # Oculta o cursor
         curses.start_color()

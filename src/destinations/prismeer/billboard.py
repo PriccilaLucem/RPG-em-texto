@@ -1,13 +1,13 @@
 import curses
 from typing import List
-from quests.quests import Quests, CollectableQuest
+from models.quests import Quests, CollectableQuest
 from quests import generate_random_quests
-from characters.hero import Hero
+from characters.main_character import MainCharacter
 from global_state.global_state import exit_loop, should_exit
 from util.display_message import display_message, draw_menu
 
 class Billboard:
-    def __init__(self, main_character: Hero, stdscr: curses.window) -> None:
+    def __init__(self, main_character: MainCharacter, stdscr: curses.window) -> None:
         self.quests: List[Quests] = generate_random_quests()
         self.main_character = main_character
         self.stdscr = stdscr

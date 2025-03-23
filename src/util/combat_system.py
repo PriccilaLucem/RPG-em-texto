@@ -1,6 +1,7 @@
-from characters.hero import Hero
-from models.enemy_model import EnemyModel
-from typing import Union, List
+from typing import Union, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from characters.main_character import MainCharacter
+    from models.enemy_model import EnemyModel
 import random
 import curses
 from enums.skill_type_enum import SkillTypeEnum
@@ -25,7 +26,7 @@ def roll_dice(stdscr: curses.window, message: str) -> int:
     return final_roll
 
 
-def attack(attacker: Union[EnemyModel, Hero], defenser: Union[EnemyModel, Hero], stdscr: curses.window) -> int:
+def attack(attacker: Union["EnemyModel", "MainCharacter"], defenser: Union["EnemyModel", "MainCharacter"], stdscr: curses.window) -> int:
     """Calculates the damage of an attack."""
     roll = roll_dice(stdscr, f"{attacker.name} is rolling for attack!")
     base_damage = (attacker.attack_points + roll * 0.5) * attacker.attack_multiplier - defenser.defense_points
@@ -41,7 +42,7 @@ def attack(attacker: Union[EnemyModel, Hero], defenser: Union[EnemyModel, Hero],
     return int(base_damage)
 
 
-def defend(defender: Union[EnemyModel, Hero], attacker: Union[EnemyModel, Hero], stdscr: curses.window) -> int:
+def defend(defender: Union["EnemyModel", "MainCharacter"], attacker: Union["EnemyModel", "MainCharacter"], stdscr: curses.window) -> int:
     """Calculates the mitigated damage when defending."""
     roll = roll_dice(stdscr, f"{defender.name} is rolling for defense!")
     base_damage = (attacker.attack_points + roll) - defender.defense_points
@@ -59,13 +60,13 @@ def defend(defender: Union[EnemyModel, Hero], attacker: Union[EnemyModel, Hero],
 
 
 def use_skill(
-    caster: Union[Hero, EnemyModel],
+    caster: Union["MainCharacter", "EnemyModel"],
     stdscr: curses.window,
-    target: Union[Hero, EnemyModel],
+    target: Union["MainCharacter", "EnemyModel"],
     message_log: List[str]
 ) -> str:
     """Allows the player or enemy to use a skill."""
-    if isinstance(caster, Hero):
+    if isinstance(caster, MainCharacter):
         # Exibe o menu de seleção de habilidades
         skill_options = [f"{ability.name} (Cooldown: {ability.current_cooldown})" for ability in caster.abilities]
         selected_index = 0
@@ -114,9 +115,9 @@ def use_skill(
     return f"Skill {skill.name} used successfully!"
 
 
-def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
-    """Executes combat between the hero and the enemy."""
-    def roll_initiative(character: Union[Hero, EnemyModel]) -> int:
+def combat(stdscr: curses.window, main_character: "MainCharacter", enemy: "EnemyModel") -> bool:
+    """Executes combat between the main_character and the enemy."""
+    def roll_initiative(character: Union["MainCharacter", "EnemyModel"]) -> int:
         """Rolls initiative for a character."""
         roll = roll_dice(stdscr, f"{character.name} is rolling for initiative!")
         total = roll + character.speed
@@ -124,7 +125,7 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
         message_log.append(message)
         return total
 
-    def perform_action(character: Union[Hero, EnemyModel], opponent: Union[Hero, EnemyModel]) -> None:
+    def perform_action(character: Union["MainCharacter", "EnemyModel"], opponent: Union["MainCharacter", "EnemyModel"]) -> None:
         """Chooses and performs an action for the character."""
         action: str = random.choices(
             ["attack", "use_skill", "defend"],
@@ -145,10 +146,10 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
             message = f"{character.name} braces for the next attack and mitigates {mitigated_damage} damage!"
             message_log.append(message)
 
-    def hero_action_input() -> str:
-        """Gets the hero's action from the player using arrow navigation."""
+    def main_character_action_input() -> str:
+        """Gets the main_character's action from the player using arrow navigation."""
         options = ["Attack", "Defend", "Use Skill"]
-        if not hero.abilities:  # Remove "Use Skill" if hero has no abilities
+        if not main_character.abilities:  # Remove "Use Skill" if main_character has no abilities
             options.pop()
         selected_index = 0  # Index of the selected option
 
@@ -163,47 +164,47 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
             elif key == ord('\n'):  # ENTER key
                 return options[selected_index]  # Return corresponding action
 
-    def reduce_all_cooldowns(character: Union[Hero, EnemyModel]) -> None:
+    def reduce_all_cooldowns(character: Union["MainCharacter", "EnemyModel"]) -> None:
         """Reduces the cooldown of all abilities."""
         for ability in character.abilities:
             ability.reduce_cooldown()
 
     # Initialize message log
     message_log: List[str] = []
-    message_log.append(f"⚔️ Combat begins between {hero.name} and {enemy.name}!")
-    message_log.append(f"{hero.name}: {hero.health_points} HP, {enemy.name}: {enemy.health_points} HP")
+    message_log.append(f"⚔️ Combat begins between {main_character.name} and {enemy.name}!")
+    message_log.append(f"{main_character.name}: {main_character.health_points} HP, {enemy.name}: {enemy.health_points} HP")
     display_message_log(stdscr, message_log)
     curses.napms(2000)  # Pause to allow the player to read the log
 
     turn: int = 0
 
-    while hero.health_points > 0 and enemy.health_points > 0:
+    while main_character.health_points > 0 and enemy.health_points > 0:
         turn += 1
         message_log.append(f"--- Turn {turn} ---")
         display_message(stdscr, f"--- Turn {turn} ---", 1000)
 
         # Roll initiative and determine turn order
-        hero_roll = roll_initiative(hero)
+        main_character_roll = roll_initiative(main_character)
         enemy_roll = roll_initiative(enemy)
-        first_attacker, second_attacker = (hero, enemy) if hero_roll >= enemy_roll else (enemy, hero)
+        first_attacker, second_attacker = (main_character, enemy) if main_character_roll >= enemy_roll else (enemy, main_character)
 
         # Perform actions for each attacker
         for attacker, defender in [(first_attacker, second_attacker), (second_attacker, first_attacker)]:
             if attacker.health_points <= 0 or defender.health_points <= 0:
                 break
 
-            if attacker == hero:
-                hero_action = hero_action_input()
-                if hero_action == "Attack":
-                    damage = attack(hero, enemy, stdscr)
+            if attacker == main_character:
+                main_character_action = main_character_action_input()
+                if main_character_action == "Attack":
+                    damage = attack(main_character, enemy, stdscr)
                     enemy.health_points -= damage
-                    message_log.append(f"{hero.name} attacks {enemy.name} and deals {damage} damage!")
-                elif hero_action == "Use Skill":
-                    message = use_skill(hero, stdscr, enemy, message_log)
+                    message_log.append(f"{main_character.name} attacks {enemy.name} and deals {damage} damage!")
+                elif main_character_action == "Use Skill":
+                    message = use_skill(main_character, stdscr, enemy, message_log)
                     message_log.append(message)
-                elif hero_action == "Defend":
-                    mitigated_damage = defend(hero, enemy, stdscr)
-                    message_log.append(f"{hero.name} braces for the next attack and mitigates {mitigated_damage} damage!")
+                elif main_character_action == "Defend":
+                    mitigated_damage = defend(main_character, enemy, stdscr)
+                    message_log.append(f"{main_character.name} braces for the next attack and mitigates {mitigated_damage} damage!")
             else:
                 perform_action(attacker, defender)
 
@@ -211,19 +212,19 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
                 message_log.append(f"💥 {defender.name} is defeated!")
                 break
 
-        reduce_all_cooldowns(hero)
+        reduce_all_cooldowns(main_character)
         reduce_all_cooldowns(enemy)
 
         # Display updated HP and message log
-        message_log.append(f"{hero.name}: {hero.health_points} HP, {enemy.name}: {enemy.health_points} HP")
+        message_log.append(f"{main_character.name}: {main_character.health_points} HP, {enemy.name}: {enemy.health_points} HP")
         display_message_log(stdscr, message_log)
         curses.napms(2000)  # Pause to allow the player to read the log
 
-    if hero.health_points > 0:
-        display_message(stdscr, f"🏆 {hero.name} is victorious!", 2000, curses.color_pair(1))
-        enemy.drop_items(hero)
+    if main_character.health_points > 0:
+        display_message(stdscr, f"🏆 {main_character.name} is victorious!", 2000, curses.color_pair(1))
+        enemy.drop_items(main_character)
     else:
-        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)  # Texto vermelho, fundo preto
-        display_message(stdscr, f"💔 {hero.name} has been defeated by {enemy.name}.", 2000, curses.color_pair(1))
+        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+        display_message(stdscr, f"💀 {main_character.name} has been defeated!", 2000, curses.color_pair(1))
 
-    return hero.health_points > 0
+    return main_character.health_points > 0  

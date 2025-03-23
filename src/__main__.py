@@ -1,33 +1,28 @@
 import curses
 from destinations.prismeer.city import City
-from characters.hero import Hero
+from characters.main_character import MainCharacter
 from destinations.prismeer import CityMenu
 from history.history import init_of_the_history
 from global_state.global_state import should_exit, update_game_state, get_game_state
 from util.display_message import display_message, draw_menu, draw_menu_with_history
 from destinations.cave.owl_bear_cave import OwlBearCave
 from destinations.cave import OutsideCave
-from destinations.forest.forest import Forest
-from destinations.forest import ForestMenu
 from menu.menu import Menu
 
 
-def key_pressed_event(stdscr: curses.window, allow_enter_cave: bool, hero: Hero, prismeer: City, owl_bear_cave: OwlBearCave, wood_forest: Forest, atual_location: str, menu: Menu):
+def key_pressed_event(stdscr: curses.window, allow_enter_cave: bool, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave, atual_location: str, menu: Menu):
     """Handles key press events and triggers corresponding actions."""
     update_game_state(is_in_game=True)  # Atualiza o estado global
 
 
     # Inicializa os menus
-    city_menu = CityMenu(prismeer, hero, stdscr, menu)
-    forest_menu = ForestMenu(wood_forest, hero, stdscr, menu)
-    owl_bear_cave_menu = OutsideCave(owl_bear_cave, hero, stdscr, menu)
+    city_menu = CityMenu(prismeer, main_character, stdscr, menu)
+    owl_bear_cave_menu = OutsideCave(owl_bear_cave, main_character, stdscr, menu)
 
     # Executa o menu correspondente à localização atual
     if atual_location not in ["menu", "prismeer_surroundings"]:
         if  atual_location in ["prismeer", "prismeer_center"]:
             city_menu.run()
-        elif atual_location == "forest":
-            forest_menu.run()
         elif atual_location in ["inside_owl_bear_cave", "outside_owl_bear_cave"]:
             owl_bear_cave_menu.run()
 
@@ -35,12 +30,11 @@ def key_pressed_event(stdscr: curses.window, allow_enter_cave: bool, hero: Hero,
     key_actions = {
         "Menu": (lambda: menu.run()),  # Abre o menu principal
         "Prismeer": lambda: (update_game_state(atual_location="prismeer") or city_menu.run()), 
-        "Forest": lambda: (update_game_state(atual_location="forest") or forest_menu.run()),  
         "Owl Bear Cave": lambda: (update_game_state(atual_location="outside_owl_bear_cave"), owl_bear_cave_menu.run())  # Vai para a Caverna do Owl Bear
     }
 
     # Atualiza o estado do jogo
-    update_game_state(hero=hero, prismeer=prismeer, cave=owl_bear_cave, forest=wood_forest, atual_location="prismeer_surroundings", is_in_game = True)
+    update_game_state(main_character=main_character, prismeer=prismeer, cave=owl_bear_cave, atual_location="prismeer_surroundings", is_in_game = True)
 
     try:
         selected_index = 0
@@ -84,7 +78,7 @@ def render_ui(stdscr: curses.window, allow_enter_cave: bool, selected_index: int
     draw_menu(stdscr, "Game is running...", menu_options, selected_index)
     stdscr.refresh()
 
-def game_loop(stdscr: curses.window, hero: Hero, prismeer: City, owl_bear_cave: OwlBearCave, wood_forest: Forest):
+def game_loop(stdscr: curses.window, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave):
     """Main game loop."""
     curses.curs_set(0)
     curses.start_color()
@@ -108,8 +102,8 @@ def game_loop(stdscr: curses.window, hero: Hero, prismeer: City, owl_bear_cave: 
         update_game_state(is_new_game=False)
         atual_location = "prismeer_surroundings"
     else:
-        hero, prismeer, owl_bear_cave, wood_forest, atual_location = (
-            game_state["hero"],
+        main_character, prismeer, owl_bear_cave, wood_forest, atual_location = (
+            game_state["main_character"],
             game_state["prismeer"],
             game_state["cave"],
             game_state["forest"],
@@ -119,21 +113,20 @@ def game_loop(stdscr: curses.window, hero: Hero, prismeer: City, owl_bear_cave: 
     while not should_exit():
         allow_enter_cave = any(
             quest.id == 1
-            for quest in (hero.quests or []) + (hero.concluded_quests or [])
+            for quest in (main_character.quests or []) + (main_character.concluded_quests or [])
         )
-        key_pressed_event(stdscr, allow_enter_cave, hero, prismeer, owl_bear_cave, wood_forest, atual_location, menu)
+        key_pressed_event(stdscr, allow_enter_cave, main_character, prismeer, owl_bear_cave, wood_forest, atual_location, menu)
 
 
 def main(stdscr):
     """Initializes the game and starts the main loop."""
-    hero = Hero()
+    main_character = MainCharacter()
     prismeer = City()
     owl_bear_cave = OwlBearCave()
-    forest = Forest()
-    update_game_state(hero=hero, prismeer=prismeer, cave=owl_bear_cave, forest=forest)
+    update_game_state(main_character=main_character, prismeer=prismeer, cave=owl_bear_cave)
 
     try:
-        game_loop(stdscr, hero, prismeer, owl_bear_cave, forest)
+        game_loop(stdscr, main_character, prismeer, owl_bear_cave)
     except KeyboardInterrupt:
         print("Game interrupted.")
     finally:

@@ -1,6 +1,8 @@
-from characters.hero import Hero
-from models.character_model import Character_model
+from typing import TYPE_CHECKING
+from models.npc_model import Character_model
 
+if TYPE_CHECKING:
+    from characters.main_character import MainCharacter
 class Seller_model(Character_model):
     
     def __init__(self, name: str, speeches: list, backpack:list) -> None:
@@ -11,13 +13,13 @@ class Seller_model(Character_model):
         return list(map(str, self.backpack))
         
     
-    def sell_item(self, item_id: int, hero: Hero) -> None:
+    def sell_item(self, item_id: int, main_character:"MainCharacter") -> None:
             for item in self.backpack:
                 if getattr(item, "item_id", None) == item_id:  
-                    if hero.gold >= getattr(item, "cost", 0):  
-                        hero.backpack.append(item)  
+                    if MainCharacterold >= getattr(item, "cost", 0):  
+                        main_character.backpack.append(item)  
                         self.backpack.remove(item)  
-                        hero.gold -= getattr(item, "cost", 0)  
+                        MainCharacterold -= getattr(item, "cost", 0)  
                         print(f"You successfully bought {item.name}!")
                         return
                     else:

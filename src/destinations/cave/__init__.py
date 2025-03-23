@@ -4,12 +4,15 @@ from util.display_message import draw_menu, display_message, draw_menu_with_hist
 from util.combat_system import combat
 from history.history import the_real_init, entering_owl_bear_cave_first_time, after_owl_bear_battle
 from resources import mine
-from characters.hero import Hero
-from destinations.cave.owl_bear_cave import OwlBearCave
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from characters.main_character import MainCharacter
+    from destinations.cave.owl_bear_cave import OwlBearCave
+    
 
 
 class OutsideCave:
-    def __init__(self, owl_bear_cave: OwlBearCave, main_character: Hero, stdscr: curses.window, menu):
+    def __init__(self, owl_bear_cave: "OwlBearCave", main_character: "MainCharacter" , stdscr: curses.window, menu):
         self.owl_bear_cave = owl_bear_cave
         self.main_character = main_character
         self.menu = menu
@@ -67,13 +70,13 @@ class OutsideCave:
 
     def enter_cave(self):
         """Entra na caverna e inicia a classe InsideCave."""
-        update_game_state(cave=self.owl_bear_cave, hero=self.main_character, atual_location="inside_owl_bear_cave")
+        update_game_state(cave=self.owl_bear_cave, main_character=self.main_character, atual_location="inside_owl_bear_cave")
         display_message(self.stdscr, "Entering cave...", 1000, curses.color_pair(11))
         self.inside_cave.run()
 
 
 class InsideCave:
-    def __init__(self, owl_bear_cave: OwlBearCave, main_character: Hero, stdscr: curses.window, menu):
+    def __init__(self, owl_bear_cave: "OwlBearCave", main_character: "MainCharacter", stdscr: curses.window, menu):
         self.owl_bear_cave = owl_bear_cave
         self.main_character = main_character
         self.menu = menu
@@ -94,7 +97,7 @@ class InsideCave:
         atual_location = get_game_state()["atual_location"]
         if atual_location != "inside_owl_bear_cave":
             return
-        update_game_state(cave = self.owl_bear_cave, hero = self.main_character)
+        update_game_state(cave = self.owl_bear_cave, main_character = self.main_character)
         while not should_exit():
             if not get_game_state().get("combat_done") and any(quest.id == 1 for quest in self.main_character.quests):
                 self.handle_combat()

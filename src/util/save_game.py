@@ -3,9 +3,8 @@ import json
 from datetime import datetime
 from cryptography.fernet import Fernet
 import curses
-from characters.hero import Hero
+from characters.main_character import MainCharacter
 from destinations.cave.owl_bear_cave import OwlBearCave
-from destinations.forest.forest import Forest
 from destinations.prismeer import City
 from util.display_message import display_message, draw_menu
 from global_state.global_state import get_game_state
@@ -168,10 +167,9 @@ def load_game(stdscr: curses.window, save_file: str):
         data = json.loads(decrypted_data.decode('utf-8'))
 
         # Deserialize game data
-        hero = Hero.from_dict(data["hero"])
+        main_character = MainCharacter.from_dict(data["MainCharacter"])
         prismeer = City.from_dict(data["prismeer"])
         cave = OwlBearCave.from_dict(data["cave"])
-        forest = Forest.from_dict(data["forest"])
         atual_location = data["atual_location"]
 
         # Display success message and wait for user input
@@ -214,7 +212,7 @@ def load_game(stdscr: curses.window, save_file: str):
                 selected_index = (selected_index + 1) % len(options)
             elif key == 10:  # ENTER
                 # Return the loaded game data
-                return hero, cave, prismeer, forest, atual_location
+                return main_character, cave, prismeer, atual_location
 
     except FileNotFoundError:
         display_message(stdscr, f"File {save_file} not found.", curses.color_pair(2))
@@ -228,10 +226,10 @@ def load_game_and_update(stdscr: curses.window):
     result = list_saves(stdscr)
 
     if result:
-        hero, cave, prismeer, forest, atual_location = result
+        MainCharacter, cave, prismeer, forest, atual_location = result
         return {
             "is_new_game": False,
-            "hero": hero,
+            "MainCharacter": MainCharacter,
             "cave": cave,
             "prismeer": prismeer,
             "forest": forest,

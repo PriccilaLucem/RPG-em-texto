@@ -1,7 +1,7 @@
 exit_game = False 
 
 game_state = {
-    "hero": None,
+    "main_character": None,
     "prismeer": None,
     "cave": None,
     "forest": None,

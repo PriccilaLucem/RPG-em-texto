@@ -1,8 +1,6 @@
 import random
 from typing import List
-from quests.quests import Quests
-from quests.quests import CollectableQuest
-from resources.cave.ores import iron_ore
+from models.quests import Quests
 
 def generate_random_quests(n: int = 5) -> List[Quests]:
     quest_data = [
@@ -36,7 +34,3 @@ def generate_random_quests(n: int = 5) -> List[Quests]:
         quests.append(Quests(None, difficulty, xp_given, reward, f"{title}: {description}"))
 
     return quests
-
-prismeer_owl_bear_quest = Quests(id=1,difficult_stars=4,xp_given=100,gold_given=85, mission="Help the brothes of Damon in OwBear cave!")
-prismeer_blacksmith_quest = CollectableQuest(id=2, difficult_stars=1, xp_given=20, gold_given=50, mission="Collect some iron ores to Walver the blacksmith!",
-                                              items_to_be_collected=[(iron_ore, 3)])
