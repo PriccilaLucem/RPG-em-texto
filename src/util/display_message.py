@@ -10,30 +10,32 @@ def display_message(stdscr: curses.window, message: str, delay: int = 1000, colo
         delay (int): Tempo de espera em milissegundos.
         color_pair (int): Par de cores a ser usado (opcional).
     """
+    curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    
     stdscr.clear()
     height, width = stdscr.getmaxyx()
 
-    # Ensure the message fits within the window width
-    message = message[:width - 1]  # Truncate message if it's too long
+    message = message[:width - 1]  
 
-    # Calculate position to center the message
     message_x = (width - len(message)) // 2
     message_y = height // 2
 
-    # Make sure the message fits in the window
-    if message_y < 0:  # Ensure the message Y-coordinate is valid
+    if message_y < 0: 
         message_y = 0
-    if message_x < 0:  # Ensure the message X-coordinate is valid
+    if message_x < 0:  
         message_x = 0
 
-    # Display the message on the screen
+    stdscr.attron(curses.color_pair(1))
+    stdscr.border()
+    stdscr.attroff(curses.color_pair(1))
+
     stdscr.addstr(message_y, message_x, message, color_pair)
     stdscr.refresh()
     curses.napms(delay)
 
 
 
-def draw_menu(stdscr, title, options, selected_index):
+def draw_menu(stdscr, title, options, selected_index, next = ""):
     curses.start_color()
     curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)  # Título
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Opções normais
@@ -61,7 +63,7 @@ def draw_menu(stdscr, title, options, selected_index):
             stdscr.addstr(start_y + i, option_x, option, curses.color_pair(1))
     
     # Exibir rodapé com instruções
-    footer_text = "Use ↑/↓ to navigate, ENTER to select"
+    footer_text = next if next else  "Use ↑/↓ to navigate, ENTER to select" 
     footer_x = (width - len(footer_text)) // 2
     stdscr.addstr(height - 2, footer_x, footer_text, curses.color_pair(1) | curses.A_BOLD)
     
@@ -116,16 +118,30 @@ def draw_menu_with_history(stdscr, title, history_text, options, selected_index)
     stdscr.refresh()
 
 def display_message_log(stdscr: curses.window, message_log: list):
+    """
+    Exibe o log de mensagens na parte inferior da tela, aplicando as cores corretas.
+    """
+    curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)  # Título
+
     height, width = stdscr.getmaxyx()
 
-    # Define a linha inicial para o log (parte inferior da tela)
+    stdscr.attron(curses.color_pair(1))
+    stdscr.border()
+    stdscr.attroff(curses.color_pair(1))
+
+    # Limpa a área do log para evitar sobreposição
     log_start_line = max(6, height - len(message_log) - 1)
+    for y in range(log_start_line, height - 1):
+        stdscr.move(y, 0)  # Move o cursor para a linha
+        stdscr.clrtoeol()  # Limpa a linha
 
     # Exibe apenas as mensagens que cabem na tela
     visible_messages = message_log[-(height - log_start_line - 1):]
 
-    # Exibe as mensagens
-    for idx, msg in enumerate(visible_messages):
+    # Exibe as mensagens com as cores correspondentes
+    for idx, (msg, color) in enumerate(visible_messages):
         line = log_start_line + idx
-        if line < height:  # Evita escrever fora da tela
-            stdscr.addnstr(line, 0, str(msg), width - 1)  # Limita o texto ao tamanho da tela
+        if line < height - 1:  # Evita escrever fora da tela
+            stdscr.addstr(line, 0, msg, color)  # Aplica a cor correta
+
+    stdscr.refresh()  # Atualiza a tela para exibir as mudanças

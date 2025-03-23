@@ -46,7 +46,7 @@ class ItemModel:
         return item
 
     def __str__(self):
-        return f"{self.name} (Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity})"
+        return f"{self.name} (Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity.name})"
 
 class ArmorModel(ItemModel):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], armor_type: Armor_Type_Enum, def_points: int) -> None:
@@ -59,7 +59,7 @@ class ArmorModel(ItemModel):
         self.proeficiency = proeficiency
 
     def __str__(self):
-        return f"{self.name} (DEF: {self.def_points}, Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity}, Type: {self.type})"
+        return f"{self.name} (DEF: {self.def_points}, Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity}, Type: {self.armor_type.name})"
     
     def to_dict(self) -> dict:
         base_dict = super().to_dict()
@@ -70,7 +70,6 @@ class ArmorModel(ItemModel):
         })
         return base_dict
 
- 
     @classmethod
     def from_dict(cls, data: dict):
         item = super().from_dict(data)
@@ -85,7 +84,7 @@ class HeavyArmor(ArmorModel):
         self.armor_class = "Heavy"
 
     def __str__(self):
-        return f"Heavy Armor: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Armor Class: {self.armor_class})"
+        return f"Heavy Armor: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Armor Class: {self.armor_class})"
 
     def to_dict(self) -> dict:
         base_dict = super().to_dict()
@@ -116,7 +115,7 @@ class LightArmor(ArmorModel):
         self.armor_class = "Light"
 
     def __str__(self):
-        return f"Light Armor: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Armor Class: {self.armor_class})"
+        return f"Light Armor: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Armor Class: {self.armor_class})"
 
     def to_dict(self) -> dict:
         base_dict = super().to_dict()
@@ -146,7 +145,7 @@ class WeaponModel(ItemModel):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], weapon_type: Weapon_Type_Enum, attack_points: int, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight)
         if isinstance(weapon_type, Weapon_Type_Enum):
-            self.weapon_type = weapon_type.name
+            self.weapon_type = weapon_type
         else: 
             raise ValueError(f"Invalid weapon type: {weapon_type}. Must be one of {list(Weapon_Type_Enum)}")
         self.attack_points = attack_points
@@ -154,12 +153,12 @@ class WeaponModel(ItemModel):
         self.proeficiency = proeficiency
         
     def __str__(self):
-        return f"{self.name} (ATK: {self.attack_points}, Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity}, Type: {self.weapon_type}, Crit: {self.critical_hit_chance}%)"
+        return f"{self.name} (ATK: {self.attack_points}, Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity.name}, Type: {self.weapon_type.name}, Crit: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         base_dict = super().to_dict()
         base_dict.update({
-            "weapon_type": self.weapon_type,
+            "weapon_type": self.weapon_type.name,
             "attack_points": self.attack_points,
             "critical_hit_chance": self.critical_hit_chance,
             "proeficiency": [p.name for p in self.proeficiency]
@@ -169,22 +168,24 @@ class WeaponModel(ItemModel):
     @classmethod
     def from_dict(cls, data: dict):
         rarity  = Rarity_Enum[data["rarity"]]
+        weapon_type = Weapon_Type_Enum[data["weapon_type"]]
         return cls(
             name=data["name"],
             value=data["value"],
             rarity=rarity,
             weight=data["weight"],
-            critical_hit_chance = data["critical_hit_chance"],
-            attack_points = data["attack_points"]
+            weapon_type=weapon_type,
+            critical_hit_chance=data["critical_hit_chance"],
+            attack_points=data["attack_points"],
+            proeficiency=[Proeficiency_Enum[p] for p in data["proeficiency"]]
         )
-    
 
 class Sword(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.SWORDS], Weapon_Type_Enum.SWORD, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Sword: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Sword: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -192,14 +193,13 @@ class Sword(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Axe(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.AXES], Weapon_Type_Enum.AXE, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Axe: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Axe: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -207,14 +207,13 @@ class Axe(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Bow(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.BOWS], Weapon_Type_Enum.BOW, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Bow: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Bow: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -222,14 +221,13 @@ class Bow(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Dagger(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.DAGGERS], Weapon_Type_Enum.DAGGER, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Dagger: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Dagger: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -237,14 +235,13 @@ class Dagger(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Shield(ArmorModel):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, proeficiency: List[Proeficiency_Enum], def_points: int) -> None:
         super().__init__(name, value, rarity, weight, proeficiency, Armor_Type_Enum.SHIELD, def_points)
 
     def __str__(self):
-        return f"Shield: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity})"
+        return f"Shield: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name})"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -252,14 +249,13 @@ class Shield(ArmorModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class LightShield(Shield):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, def_points: int) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.SHIELDS, Proeficiency_Enum.LIGHT_ARMOR], def_points)
 
     def __str__(self):
-        return f"Light Shield: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity})"
+        return f"Light Shield: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name})"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -267,14 +263,13 @@ class LightShield(Shield):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class HeavyShield(Shield):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, def_points: int) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.SHIELDS, Proeficiency_Enum.HEAVY_ARMOR], def_points)
 
     def __str__(self):
-        return f"Heavy Shield: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity})"
+        return f"Heavy Shield: {self.name} (DEF: {self.def_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name})"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -282,14 +277,13 @@ class HeavyShield(Shield):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Mace(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.MACES], Weapon_Type_Enum.CLUB, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Mace: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Mace: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -297,14 +291,13 @@ class Mace(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Wand(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.WANDS], Weapon_Type_Enum.WAND, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Wand: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Wand: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -312,7 +305,6 @@ class Wand(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Spellbook(ItemModel):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float) -> None:
@@ -320,7 +312,7 @@ class Spellbook(ItemModel):
         self.proeficiency = [Proeficiency_Enum.SPELLBOOKS]
 
     def __str__(self):
-        return f"Spellbook: {self.name} (Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity})"
+        return f"Spellbook: {self.name} (Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity.name})"
 
     def to_dict(self) -> dict:
         base_dict = super().to_dict()
@@ -334,13 +326,12 @@ class Spellbook(ItemModel):
         rarity = Rarity_Enum[data["rarity"]]
         return cls(data["name"], data["value"], rarity, data["weight"])
 
-
 class Crossbow(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.BOWS], Weapon_Type_Enum.CROSSBOW, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Crossbow: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Crossbow: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -348,14 +339,13 @@ class Crossbow(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Club(WeaponModel):
     def __init__(self, name: str, attack_points: int, weight: float, value: int, rarity: Rarity_Enum, critical_hit_chance: float) -> None:
         super().__init__(name, value, rarity, weight, [Proeficiency_Enum.MACES], Weapon_Type_Enum.CLUB, attack_points, critical_hit_chance)
 
     def __str__(self):
-        return f"Club: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity}, Critical Hit Chance: {self.critical_hit_chance}%)"
+        return f"Club: {self.name} (ATK: {self.attack_points}, Weight: {self.weight}kg, Value: {self.value} Gold, Rarity: {self.rarity.name}, Critical Hit Chance: {self.critical_hit_chance}%)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -363,14 +353,13 @@ class Club(WeaponModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class ItemsUsedToCraft(ItemModel):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float) -> None:
         super().__init__(name, value, rarity, weight)
 
     def __str__(self):
-        return f"{self.name} (Rarity: {self.rarity}, Weight: {self.weight}kg, Value: {self.value} Gold)"
+        return f"{self.name} (Rarity: {self.rarity.name}, Weight: {self.weight}kg, Value: {self.value} Gold)"
 
     def to_dict(self) -> dict:
         return super().to_dict()
@@ -378,7 +367,6 @@ class ItemsUsedToCraft(ItemModel):
     @classmethod
     def from_dict(cls, data: dict):
         return super().from_dict(data)
-
 
 class Food(ItemsUsedToCraft):
     def __init__(self, name: str, value: int, rarity: Rarity_Enum, weight: float, health_recovery: str) -> None:
@@ -386,7 +374,7 @@ class Food(ItemsUsedToCraft):
         self.health_recovery = health_recovery
 
     def __str__(self):
-        return f"Food: {self.name} (Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity}, Health Recovery: {self.health_recovery})"
+        return f"Food: {self.name} (Value: {self.value} Gold, Weight: {self.weight}kg, Rarity: {self.rarity.name}, Health Recovery: {self.health_recovery})"
 
     def to_dict(self) -> dict:
         base_dict = super().to_dict()

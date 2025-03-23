@@ -58,21 +58,17 @@ def save_game(stdscr: curses.window):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     save_file = os.path.join(SAVE_DIR, f"{save_name}_{timestamp}.dat")
 
-    game_state = get_game_state()
-    hero, prismeer, cave, forest, atual_location, combat_done = (
-        game_state["hero"], game_state["prismeer"], game_state["cave"],
-        game_state["forest"], game_state["atual_location"], game_state["combat_done"]
-    )
-    
-    data = {
-        "hero": hero.to_dict(),
-        "prismeer": prismeer.to_dict(),
-        "cave": cave.to_dict(),
-        "forest": forest.to_dict(),
-        "atual_location": atual_location,
-        "combat_done": combat_done,
-    }
 
+ # Converte o item para dicionário, se possível
+
+    
+    # Atribui o item correspondente ou o dicionário convertido
+    data= {}
+    for key, value in get_game_state().items():
+        if hasattr(value, "to_dict"):
+            data[key] = value.to_dict()
+        else:
+            data[key] = value
     try:
         encrypted_data = cipher.encrypt(json.dumps(data).encode('utf-8'))
 
@@ -194,7 +190,7 @@ def load_game(stdscr: curses.window, save_file: str):
             # Mensagem centralizada
             message = "Your adventure awaits!"
             message_x = (width - len(message)) // 2
-            stdscr.addstr(4, message_x, message, curses.color_pair(2) | curses.A_BOLD)
+            stdscr.addstr(4, message_x, message, curses.color_pair(11) | curses.A_BOLD)
 
             # Instruções centralizadas
             instructions = "Press ENTER to continue"
@@ -206,10 +202,7 @@ def load_game(stdscr: curses.window, save_file: str):
             for i, option in enumerate(options):
                 option_x = (width - len(option)) // 2
                 if i == selected_index:
-                    stdscr.addstr(start_y + i, option_x, option, curses.color_pair(3) | curses.A_BOLD)
-                else:
-                    stdscr.addstr(start_y + i, option_x, option, curses.color_pair(2))
-
+                    stdscr.addstr(start_y + i, option_x, option, curses.color_pair(1) | curses.A_UNDERLINE)
             stdscr.refresh()
 
             # Captura a tecla pressionada

@@ -22,3 +22,8 @@ def entering_owl_bear_cave_first_time():
         They are looking behind you!
         The OwlBear is angry at you and starts running into your direction!
     """
+
+def after_owl_bear_battle():
+    return """
+        You wake up to Damon’s brothers frantically trying to wake you up. As you look to the side, you see the lifeless body of the OwlBear...
+    """

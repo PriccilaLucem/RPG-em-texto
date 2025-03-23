@@ -10,17 +10,17 @@ import curses
 from util.display_message import display_message, draw_menu
 
 class Comercial_center:
-    def __init__(self) -> None:
+    def __init__(self, stdscr) -> None:
         self.armor_shop = Shop_model("Two Brothers Armory", "Baron",[
             "Welcome to Two Brothers Armory, what would you like to buy?",
             "We have a great Amory since the foundation of Prissmer",
-            "Take a look in my armory, feel at home"], generate_armor_from_prismeer_seller())
+            "Take a look in my armory, feel at home"], generate_armor_from_prismeer_seller(), stdscr)
 
         self.weapon_shop = Shop_model("Brotherhood of the swords", "Chimaru", [
             "Yo, here we sell swords, only swords. We don't like other weapons",
             "We here opened as a bar, but now we sell swords, because swords are the best",
             "Are you gonna buy or just taking a look?"
-        ], generate_weapon_from_prismeer_seller())
+        ], generate_weapon_from_prismeer_seller(),stdscr)
 
         self.npcs: List[Union[Character_model, Character_with_a_quest_model]] = [
             Character_model("Afrac", ["Hello There i'm Afrac, nice to meet you"]),
@@ -75,46 +75,37 @@ class Comercial_center:
                 main_character.append_quests(npc.quest)
                 npc.quest = None
     
-    def talk_to_blacksmith(self, stdscr, main_character:Hero):
-        """
-        Interage com o ferreiro (Walver), permitindo ao jogador aceitar missões, entregar itens ou conversar.
-        """
-        curses.curs_set(0)
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Título
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)   # Texto
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)    # Opções
-        curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_WHITE)   # Opção selecionada
-    
-        # Obtém o NPC ferreiro (Walver)
+    def talk_to_blacksmith(self, stdscr, main_character: Hero):
+        
         blacksmith = next(npc for npc in self.npcs if npc.name == "Walver")
-    
-        # Diálogo inicial do ferreiro
+
         blacksmith_dialogue = [
             "Walver: You are not ready!",
             "Walver: Please help me find some ores.",
             "Walver: Thank you, now you can use my forge.",
         ]
-    
+
         # Exibe o diálogo inicial
         if not any(quest.id == 2 for quest in main_character.quests):
-            display_message(stdscr, blacksmith_dialogue[0], 2000, curses.color_pair(1))
-            return 
-        curses.napms(500) 
+            display_message(stdscr, blacksmith_dialogue[0], 2000, curses.color_pair(1))  # Usa color_pair(2) para o texto
+            return
+
+        curses.napms(500)
+
+        # Opções do menu
         options = [
             "Ask about quests",
             "Deliver collected items",
             "Return to city center",
         ]
         selected_index = 0
-    
+
         while True:
-            # Desenha o menu de interação
+            
             draw_menu(stdscr, "Blacksmith's Forge", options, selected_index)
-    
-            # Captura a tecla pressionada
+
             key = stdscr.getch()
-    
+
             if key == curses.KEY_UP:
                 selected_index = (selected_index - 1) % len(options)
             elif key == curses.KEY_DOWN:
@@ -122,6 +113,10 @@ class Comercial_center:
             elif key == 10:  # Tecla ENTER
                 if selected_index == 0:  # Perguntar sobre missões
                     self.handle_blacksmith_quest_offer(stdscr, main_character, blacksmith)
+                elif selected_index == 1:  # Entregar itens coletados
+                    self.handle_blacksmith_item_delivery(stdscr, main_character, blacksmith)
+                elif selected_index == 2:  # Retornar ao centro da cidade
+                    break
 
             
     def handle_blacksmith_quest_offer(self, stdscr, main_character, blacksmith):
@@ -130,16 +125,16 @@ class Comercial_center:
         """
         if isinstance(blacksmith, Character_with_a_quest_model) and blacksmith.quest is not None:
             # Exibe a oferta de missão
-            display_message(stdscr, "Walver: Please help me find some ores.", 2000, curses.color_pair(1))
-    
+            display_message(stdscr, "Walver: Please help me find some ores.", 2000, curses.color_pair(2))
+
             # Opções de resposta
             options = ["Y - Accept the quest", "N - Deny the quest"]
             selected_index = 0
-    
+
             while True:
                 draw_menu(stdscr, "Quest Offer", options, selected_index)
                 key = stdscr.getch()
-    
+
                 if key == curses.KEY_UP:
                     selected_index = (selected_index - 1) % len(options)
                 elif key == curses.KEY_DOWN:
@@ -156,5 +151,5 @@ class Comercial_center:
                     break
         else:
             display_message(stdscr, "Walver: I have no quests for you right now.", 2000, curses.color_pair(2))
-    
-                
+        
+                    

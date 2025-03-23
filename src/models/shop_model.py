@@ -9,18 +9,12 @@ from models.seller_model import Seller_model
 
 
 class Shop_model:
-    def __init__(self, name: str, seller_name: str, speeches: List[str], backpack) -> None:
+    def __init__(self, name: str, seller_name: str, speeches: List[str], backpack, stdscr: curses.window) -> None:
         self.name = name
         self.seller = Seller_model(seller_name, speeches, backpack)
-
-    def shop_interactions(self, main_character: Hero, stdscr: curses.window) -> None:
-        """Main loop for shop interactions."""
-        curses.curs_set(0)
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Normal text
-        curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Highlighted text
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)   # Titles and borders
-
+        self.stdscr = stdscr
+    
+    def shop_interactions(self, main_character: Hero) -> None:
         selected_index = 0
         options = [
             "Show Shop Inventory",
@@ -28,163 +22,101 @@ class Shop_model:
             "Exit Shop",
         ]
 
-        while not should_exit():
-            draw_menu(stdscr, f"Welcome to {self.name}!", options, selected_index)
-            key = stdscr.getch()
+        while True:
+            draw_menu(self.stdscr, f"Welcome to {self.name}!", options, selected_index)
+            key = self.stdscr.getch()
 
             if key == curses.KEY_UP:
                 selected_index = (selected_index - 1) % len(options)
             elif key == curses.KEY_DOWN:
                 selected_index = (selected_index + 1) % len(options)
             elif options[selected_index] == "Exit Shop":
-                display_message(stdscr, "Thank you for visiting! Come again.", 1000)
+                display_message(self.stdscr, "Thank you for visiting! Come again.", 1000, curses.color_pair(11))
                 break
-            elif key == 10:  # Enter key
-                self.handle_menu_option(options[selected_index], main_character, stdscr)
+            elif key == 10:  
+                self.handle_menu_option(options[selected_index], main_character)
             
 
-    def handle_menu_option(self, option: str, main_character: Hero, stdscr: curses.window) -> None:
+    def handle_menu_option(self, option: str, main_character: Hero) -> None:
         """Handles the selected menu option."""
         if option == "Show Shop Inventory":
-            self.show_inventory(stdscr, main_character)
+            self.show_inventory(main_character)
         elif option == "Talk to Seller":
-            self.talk_to_seller(stdscr)
+            self.talk_to_seller()
             
-    def show_inventory(self, stdscr: curses.window, main_character: Hero) -> None:
+    def show_inventory(self, main_character: Hero) -> None:
         """Exibe o inventário da loja com navegação e opção de compra."""
         if not self.seller.backpack:
-            display_message(stdscr, "The shop is out of stock!", 1000)
+            display_message(self.stdscr, "The shop is out of stock!", 1000, curses.color_pair(2))  # Usa color_pair(2) para o texto
             return
-    
-        curses.curs_set(0)
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Item selecionado
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Itens normais
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)   # Títulos e bordas
-    
+
         selected_index = 0
-        offset = 0  # Índice de deslocamento para navegação
-        items_to_show = self.seller.show_backpack()
         items = self.seller.backpack
-     
-        while not should_exit():
-            stdscr.clear()
-            height, width = stdscr.getmaxyx()
-    
-            # Título
-            title = f"Items for Sale in {self.name}"
-            stdscr.addstr(0, (width - len(title)) // 2, title, curses.color_pair(3) | curses.A_BOLD | curses.A_UNDERLINE)
-    
-            # Calcular o número de itens que cabem na tela
-            max_items = height - 4  # Reservando espaço para título e instruções
-            start_idx = offset
-            end_idx = min(start_idx + max_items, len(items))
-    
-            # Exibir os itens visíveis
-            for idx in range(start_idx, end_idx):
-                item_str = items_to_show[idx]
-                # Truncar o item se for muito longo
-                if len(item_str) > width - 4:  # Reservando espaço para bordas e seta
-                    item_str = item_str[:width - 7] + "..."  # Truncar e adicionar "..."
-    
-                # Destacar o item selecionado
-                if idx == selected_index:
-                    stdscr.addstr(2 + idx - start_idx, 2, f"> {item_str}", curses.color_pair(1))
-                else:
-                    stdscr.addstr(2 + idx - start_idx, 2, f"  {item_str}", curses.color_pair(2))
-    
-            # Instruções de navegação
-            instructions = "Use UP/DOWN to navigate, ENTER to buy, Q to exit."
-            stdscr.addstr(height - 2, (width - len(instructions)) // 2, instructions, curses.A_DIM)
-            stdscr.refresh()
-    
+        title = f"=== ITEMS FOR SALE IN {self.name} ==="
+
+        while True:
+            # Prepara a lista de itens para exibição
+            items_to_show = [
+                item.__str__() for item in items
+            ]
+            items_to_show.append("Exit")
+            # Desenha o menu com os itens disponíveis
+            draw_menu(self.stdscr, title, items_to_show, selected_index)
+
             # Captura a tecla pressionada
-            key = stdscr.getch()
-    
-            if key == curses.KEY_UP and selected_index > 0:
-                selected_index -= 1
-                if selected_index < offset:
-                    offset = selected_index
-            elif key == curses.KEY_DOWN and selected_index < len(items) - 1:
-                selected_index += 1
-                if selected_index >= offset + max_items:
-                    offset = selected_index - max_items + 1
+            key = self.stdscr.getch()
+
+            if key == curses.KEY_UP:
+                selected_index = (selected_index - 1) % len(items_to_show)  # Navega para cima
+            elif key == curses.KEY_DOWN:
+                selected_index = (selected_index + 1) % len(items_to_show)  # Navega para baixo
             elif key == 10:  # Tecla ENTER
-                self.buy_item(selected_index, main_character, stdscr)
-                items = self.seller.backpack
-                if selected_index >= len(items):
-                    selected_index = len(items) - 1
-            elif key == ord("q") or key == ord("Q"):
-                display_message(stdscr, "Exiting shop inventory.", 1000)
-                break
+                if items_to_show[selected_index] == "Exit":
+                    break
+                self.buy_item(selected_index, main_character)  
+                if not self.seller.backpack:  # Se o inventário estiver vazio após a compra
+                    display_message(self.stdscr, "The shop is out of stock!", 1000, curses.color_pair(2))
+                    break
+                
+            
     
-    def buy_item(self, selected_index: int, main_character: Hero, stdscr: curses.window) -> None:
+    
+    def buy_item(self, selected_index: int, main_character: Hero) -> None:
         """Handles the purchase of an item."""
         selected_item = self.seller.backpack[selected_index]
         if main_character.gold >= selected_item.value:
             main_character.gold -= selected_item.value
             main_character.backpack.append(selected_item)
             self.seller.backpack.remove(selected_item)
-            display_message(stdscr, f"You bought {selected_item.name} for {selected_item.value} gold!", 1000)
+            display_message(self.stdscr, f"You bought {selected_item.name} for {selected_item.value} gold!", 1000)
         else:
-            display_message(stdscr, "You don't have enough gold to buy this item.", 1000)
-
-    def talk_to_seller(self, stdscr: curses.window) -> None:
-        """
-        Handles interaction with the seller, displaying dialogues in a styled and immersive way.
-        """
-        curses.curs_set(0)
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Título
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)   # Texto
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)    # Destaque
-        curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_WHITE)   # Seleção
-
-        # Verifica se o vendedor tem falas
-        if not self.seller.speeches:
-            display_message(stdscr, "The seller has nothing to say.", 1000, curses.color_pair(2))
-            return
-
-        # Usando um atributo para armazenar o índice do último diálogo falado
-        if not hasattr(self, "speech_index"):
-            self.speech_index = 0  # Inicializa o índice na primeira fala
-
-        while True:
-            # Limpa a tela e desenha a borda
-            stdscr.clear()
-            stdscr.border()
-
-            # Obtém as dimensões da tela
-            height, width = stdscr.getmaxyx()
-
-            # Exibe o nome do vendedor centralizado
-            seller_title = f"=== {self.seller.name} ==="
-            stdscr.addstr(2, (width - len(seller_title)) // 2, seller_title, curses.color_pair(1) | curses.A_BOLD)
-
-            # Exibe a fala atual do vendedor centralizada
-            current_speech = self.seller.speeches[self.speech_index]
-            stdscr.addstr(height // 2, (width - len(current_speech)) // 2, current_speech, curses.color_pair(2))
-
-            # Exibe instruções para o jogador
-            instructions = "Press ENTER to continue, Q to exit."
-            stdscr.addstr(height - 2, (width - len(instructions)) // 2, instructions, curses.color_pair(3))
-
-            # Atualiza a tela
-            stdscr.refresh()
-
-            # Captura a tecla pressionada
-            key = stdscr.getch()
-
-            if key == 10:  # Tecla ENTER
-                # Avança para a próxima fala se ainda houverem novas, senão mantém a última
-                if self.speech_index < len(self.seller.speeches) - 1:
-                    self.speech_index += 1
-                else:
-                    display_message(stdscr, "That's all the seller has to say.", 1000, curses.color_pair(2))
-                    break
-            elif key == ord("q") or key == ord("Q"):
-                break
+            display_message(self.stdscr, "You don't have enough gold to buy this item.", 1000)
     
+    def talk_to_seller(self) -> None:
+        """
+        Interage com o vendedor, permitindo ao jogador ouvir suas falas.
+        """
+        if not self.seller.speeches:
+            display_message(self.stdscr, "The seller has nothing to say.", 1000, curses.color_pair(2))  # Usa color_pair(2) para o texto
+            return
+    
+        seller_title = f"=== {self.seller.name} ==="
+        self.speech_index = 0  # Inicializa o índice da fala
+    
+        while True:
+            speech = self.seller.speech(self.speech_index)
+    
+            draw_menu(self.stdscr, seller_title, [speech], 0, "Press ENTER to continue, 'Q' to quit")
+    
+            key = self.stdscr.getch()
+    
+            if key == 10:  # Tecla ENTER
+                if self.speech_index < len(self.seller.speeches) - 1:
+                    self.speech_index += 1  
+                else:
+                    break  
+            elif key == ord('q') or key == ord('Q'):
+                break
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Shop_model':
@@ -202,10 +134,6 @@ class Shop_model:
                 backpack.append(item_class.from_dict(item_data))
             else:
                 raise ValueError(f"Unknown item type: {item_type}")
-
-
-        
-
         return cls(
             name = data["name"],
             speeches = data["speeches"],

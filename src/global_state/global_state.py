@@ -9,6 +9,8 @@ game_state = {
     "is_in_game": False,
     "is_new_game": True,
     "combat_done": False,
+    "billboard": None,
+    "prismeer_downtown": None
 }
 
 def update_game_state(**kwargs):

@@ -52,7 +52,7 @@ def defend(defender: Union[EnemyModel, Hero], attacker: Union[EnemyModel, Hero],
     mitigated_damage = base_damage * defender.resistance_factor
 
     crit_roll = roll_dice(stdscr, f"{defender.name} is rolling for critical defense!")
-    if random.random() < defender.critical_hit_chance:
+    if random.random() < defender.critical_hit_chance * crit_roll/20:
         mitigated_damage *= 0.5
 
     return int(mitigated_damage)
@@ -149,7 +149,7 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
         """Gets the hero's action from the player using arrow navigation."""
         options = ["Attack", "Defend", "Use Skill"]
         if not hero.abilities:  # Remove "Use Skill" if hero has no abilities
-            options.remove("Use Skill")
+            options.pop()
         selected_index = 0  # Index of the selected option
 
         while True:
@@ -161,7 +161,7 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
             elif key == curses.KEY_DOWN:
                 selected_index = min(len(options) - 1, selected_index + 1)  # Move down
             elif key == ord('\n'):  # ENTER key
-                return ["A", "S", "D"][selected_index]  # Return corresponding action
+                return options[selected_index]  # Return corresponding action
 
     def reduce_all_cooldowns(character: Union[Hero, EnemyModel]) -> None:
         """Reduces the cooldown of all abilities."""
@@ -194,14 +194,14 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
 
             if attacker == hero:
                 hero_action = hero_action_input()
-                if hero_action == "A":
+                if hero_action == "Attack":
                     damage = attack(hero, enemy, stdscr)
                     enemy.health_points -= damage
                     message_log.append(f"{hero.name} attacks {enemy.name} and deals {damage} damage!")
-                elif hero_action == "S":
+                elif hero_action == "Use Skill":
                     message = use_skill(hero, stdscr, enemy, message_log)
                     message_log.append(message)
-                elif hero_action == "D":
+                elif hero_action == "Defend":
                     mitigated_damage = defend(hero, enemy, stdscr)
                     message_log.append(f"{hero.name} braces for the next attack and mitigates {mitigated_damage} damage!")
             else:
@@ -220,12 +220,10 @@ def combat(stdscr: curses.window, hero: Hero, enemy: EnemyModel) -> bool:
         curses.napms(2000)  # Pause to allow the player to read the log
 
     if hero.health_points > 0:
-        message_log.append(f"🏆 {hero.name} is victorious!")
+        display_message(stdscr, f"🏆 {hero.name} is victorious!", 2000, curses.color_pair(1))
         enemy.drop_items(hero)
     else:
-        message_log.append(f"💔 {hero.name} has been defeated by {enemy.name}.")
-
-    display_message_log(stdscr, message_log)
-    curses.napms(3000)  # Pause before exiting combat
+        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)  # Texto vermelho, fundo preto
+        display_message(stdscr, f"💔 {hero.name} has been defeated by {enemy.name}.", 2000, curses.color_pair(1))
 
     return hero.health_points > 0

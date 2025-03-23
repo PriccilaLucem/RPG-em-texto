@@ -10,13 +10,14 @@ from classes.rogue import Rogue
 from classes.warrior import Warrior
 from classes.wizard import Wizard
 from util.classes import ABILITY_CLASSES
+from util.display_message import display_message, draw_menu
 class Hero():
 
     def __init__(self) -> None:
         self.name: str = "Hero" 
         self.health_points:int = 50
         self.max_hp:int = 50
-        self.gold:int = 1000000
+        self.gold:int = 100
         self.backpack:List[Union[WeaponModel, ArmorModel, Food, ItemsUsedToCraft]] = []
         self.abilities: List[BaseAbility] = []
         self.equipments: Dict[str, Optional[Union[ArmorModel, WeaponModel]]] = {
@@ -163,27 +164,20 @@ class Hero():
         while True:
             stdscr.clear()
             stdscr.addstr("Use ↑ and ↓ to navigate, Enter to select a class, and 'q' to quit.\n\n")
-
-            for idx, character_class in enumerate(classes):
-                if idx == current_row:
-                    stdscr.addstr(f"> {character_class}\n", curses.A_REVERSE)
-                else:
-                    stdscr.addstr(f"  {character_class}\n")
-
+    
+            # Desenha o menu de classes
+            draw_menu(stdscr, "=== Choose Your Class ===", classes, current_row)
+    
+            # Captura a tecla pressionada
             key = stdscr.getch()
-
+    
             if key == curses.KEY_UP and current_row > 0:
-                current_row -= 1
+                current_row -= 1  # Move para cima
             elif key == curses.KEY_DOWN and current_row < len(classes) - 1:
-                current_row += 1
-            elif key == ord('\n'): 
+                current_row += 1  # Move para baixo
+            elif key == ord('\n'):  # Tecla ENTER
                 selected_class = classes[current_row]
                 break
-            elif key == ord('q'):  
-                return "Defaulting to Fighter."
-
-            stdscr.refresh()
-
         if selected_class == "Fighter":
             self.character_class = Warrior()
         elif selected_class == "Rogue":
@@ -197,7 +191,7 @@ class Hero():
 
         self.apply_class(self.character_class)
 
-        return f"Class {selected_class} chosen successfully!"
+        display_message(stdscr, f"Class {selected_class} chosen successfully!", 2000, curses.color_pair(1))
         
         
     

@@ -25,7 +25,8 @@ class EnemyModel:
                  exp_points: int = 0, 
                  drops: Optional[List[ItemsUsedToCraft]] = None, 
                  location: str = "unknown",
-                 level: int = 0
+                 level: int = 0,
+                 loot_collected: bool = False
                  ) -> None:
         self.name = name
         if isinstance(type, EnemyTypeEnum):
@@ -47,7 +48,7 @@ class EnemyModel:
         self.drops: List[ItemsUsedToCraft] = drops or []
         self.location = location
         self.level = level
-        self.loot_collected = False  
+        self.loot_collected = loot_collected  
 
     def use_skills(self, target) -> str:
         if not self.abilities:
@@ -78,8 +79,12 @@ class EnemyModel:
             main_character.add_to_inventory(item)
 
         self.loot_collected = True
-        return f"{self.name} dropped: {[str(item) for item in dropped_items]}" if dropped_items else f"{self.name} dropped nothing."
-
+        if dropped_items:
+            items_str = ", ".join(str(item.__str__()) for item in dropped_items)  # Junta os itens com ", "
+            return f"{self.name} dropped {items_str}."
+        else:
+            return f"{self.name} dropped nothing."
+    
     @classmethod
     def from_dict(cls, data: Dict) -> "EnemyModel":
         return cls(
@@ -98,7 +103,8 @@ class EnemyModel:
              exp_points=data["exp_points"],
              drops=[ItemsUsedToCraft.from_dict(item) for item in data.get("drops", [])],
              location=data.get("location", "unknown"),
-             level=data["level"]
+             level=data["level"],
+             loot_collected=data["loot_collected"]
          )
     
     def to_dict(self) -> Dict:

@@ -9,7 +9,7 @@ class Menu:
         self.stdscr = stdscr
         self.hero = hero
         self.is_in_game = is_in_game
-        self.in_game_options = ["Close Menu", "Show Status", "Save Game", "Load Game", "Exit Game"]
+        self.in_game_options =  ["Show Status", "Close Menu", "Save Game", "Load Game", "Exit Game"]
         self.menu_options = ["New Game", "Load Game", "Exit Game"]
         self.selected_index = 0
 
