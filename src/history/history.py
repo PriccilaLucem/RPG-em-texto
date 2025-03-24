@@ -1,11 +1,18 @@
 def init_of_the_history():
-    return """
-        Your origin is an epic or tragic prose, but at this moment your story will be an adventure.
-        The clearing opens with a beautiful setting sun above your head, and along with the sound of your steps on the grass,
-        you hear the noise of people living their lives. The city of Prismeer fills the horizon with an intriguing sense of adventure.
-        You encounter yourself in the surroundings of Prismeer, where do you want to go?
+    return """  
+    You wake up after countless nightmares of a demon relentlessly hunting you.  
+    As you regain consciousness, the sound of horses echoes from outside, near the stable.  
+
+    You wonder what kind of person could have arrived now, especially with your family left alone.  
+    Your father went off to war and was never seen again—perhaps it's a deserter.  
+
+    Something tells you this day will be unforgettable.  
+    Somehow, you manage to rise and prepare breakfast.  
+
+    Just as you finish getting ready, your mother approaches you.  
     """
- 
+
+
 
 def the_real_init():
     return """

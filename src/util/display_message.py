@@ -35,36 +35,62 @@ def display_message(stdscr: curses.window, message: str, delay: int = 1000, colo
 
 
 
-def draw_menu(stdscr, title, options, selected_index, next = ""):
+def draw_menu(stdscr, title, options, selected_index, message="", next=""):
+    """
+    Draws a menu with title, optional message, selectable options, and footer instructions.
+    
+    Args:
+        stdscr: curses window object
+        title: menu title string
+        options: list of menu option strings
+        selected_index: currently selected option index
+        message: optional message to display above options (can be multi-line)
+        next: custom footer text (defaults to navigation instructions)
+    """
     curses.start_color()
-    curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)  # Título
-    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Opções normais
-    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Opção selecionada
-    curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Rodapé
+    curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)  # Title
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Normal options
+    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Selected option
+    curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Footer
+    curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)     # Selected option highlight
     
     stdscr.clear()
     height, width = stdscr.getmaxyx()
+    
+    # Draw border
     stdscr.attron(curses.color_pair(1))
     stdscr.border()
     stdscr.attroff(curses.color_pair(1))
-
-    # Exibir título centralizado
-    title_x = (width - len(title)) // 2
-    stdscr.addstr(2, title_x, title, curses.color_pair(1) | curses.A_BOLD)
-
-    # Exibir opções do menu
-    start_y = (height - len(options)) // 2
-    for i, option in enumerate(options):
-        option_x = (width - len(option)) // 2
-        if i == selected_index:
-            curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)  # Vermelho sobre fundo preto
-            stdscr.addstr(start_y + i, option_x, option, curses.color_pair(7) | curses.A_BOLD)
-        else:
-            stdscr.addstr(start_y + i, option_x, option, curses.color_pair(1))
     
-    # Exibir rodapé com instruções
-    footer_text = next if next else  "Use ↑/↓ to navigate, ENTER to select" 
-    footer_x = (width - len(footer_text)) // 2
+    # Calculate positions
+    total_content_height = len(options) + (message.count('\n') + 1 if message else 0)
+    start_y = max(1, (height - total_content_height) // 2)
+    
+    # Draw title (centered)
+    title_x = max(0, (width - len(title)) // 2)
+    stdscr.addstr(1, title_x, title, curses.color_pair(1) | curses.A_BOLD)
+    
+    # Draw message (if any)
+    if message:
+        message_lines = message.split('\n')
+        for i, line in enumerate(message_lines):
+            line_x = max(0, (width - len(line)) // 2)
+            stdscr.addstr(start_y + i, line_x, line, curses.color_pair(2))
+        options_start_y = start_y + len(message_lines)
+    else:
+        options_start_y = start_y
+    
+    # Draw menu options
+    for i, option in enumerate(options):
+        option_x = max(0, (width - len(option)) // 2)
+        if i == selected_index:
+            stdscr.addstr(options_start_y + i, option_x, option, curses.color_pair(7) | curses.A_BOLD)
+        else:
+            stdscr.addstr(options_start_y + i, option_x, option, curses.color_pair(1))
+    
+    # Draw footer instructions
+    footer_text = next if next else "Use ↑/↓ to navigate, ENTER to select"
+    footer_x = max(0, (width - len(footer_text)) // 2)
     stdscr.addstr(height - 2, footer_x, footer_text, curses.color_pair(1) | curses.A_BOLD)
     
     stdscr.refresh()

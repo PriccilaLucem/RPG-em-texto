@@ -3,11 +3,14 @@ from util.save_game import load_game_and_update, save_game
 from util.display_message import display_message, draw_menu
 from global_state.global_state import update_game_state, get_game_state, should_exit
 from util.status import show_status
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from characters.main_character import MainCharacter
+    
 class Menu:
-    def __init__(self, stdscr: curses.window, MainCharacter, is_in_game=False):
+    def __init__(self, stdscr: curses.window, main_character:"MainCharacter", is_in_game=False):
         self.stdscr = stdscr
-        self.MainCharacter = MainCharacter
+        self.main_character = main_character
         self.is_in_game = is_in_game
         self.in_game_options =  ["Show Status", "Close Menu", "Save Game", "Load Game", "Exit Game"]
         self.menu_options = ["New Game", "Load Game", "Exit Game"]
@@ -30,14 +33,14 @@ class Menu:
         if selected_option == "Close Menu":
             self.close_menu()
         elif selected_option == "Show Status":
-            show_status(self.MainCharacter, self.stdscr)
+            show_status(self.main_character, self.stdscr)
         elif selected_option == "Save Game":
             save_game(self.stdscr)
             self.close_menu()
         elif selected_option == "Load Game":
             game_state = load_game_and_update(self.stdscr)
             update_game_state(**game_state)
-            self.MainCharacter = game_state.get("MainCharacter", self.MainCharacter)
+            self.main_character = game_state.get("main_character", self.main_character)
             self.close_menu()
         elif selected_option == "Exit Game":
             self.exit_game()

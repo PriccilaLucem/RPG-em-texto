@@ -1,6 +1,7 @@
 from models.horse_model import Horse
 from typing import List
 from models.npc_model import Character_model
+
 class Stable:
     def __init__(self, horses:List[Horse], owner:Character_model):
         self.horses = horses
