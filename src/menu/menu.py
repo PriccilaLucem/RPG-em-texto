@@ -39,8 +39,11 @@ class Menu:
             self.close_menu()
         elif selected_option == "Load Game":
             game_state = load_game_and_update(self.stdscr)
-            update_game_state(**game_state)
-            self.main_character = game_state.get("main_character", self.main_character)
+            if not game_state:
+                return False
+            else:
+                update_game_state(**game_state)
+                self.main_character = game_state.get("main_character", self.main_character)
             self.close_menu()
         elif selected_option == "Exit Game":
             self.exit_game()
@@ -62,9 +65,8 @@ class Menu:
                 elif key == curses.KEY_DOWN:
                     self.selected_index = min(len(options) - 1, self.selected_index + 1)
                 elif key == ord('\n'):
-                    self.execute_option()
-                elif key == 27:
-                    raise StopIteration
+                    if not self.execute_option():
+                        continue
             except StopIteration:
                 break
             except Exception as e:

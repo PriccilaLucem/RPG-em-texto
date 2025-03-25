@@ -197,7 +197,7 @@ def load_game(stdscr: curses.window, save_file: str):
 
 def load_game_and_update(stdscr: curses.window):
     result = list_saves(stdscr)
-
+    
     if result:
         main_character, nitna_village, cave ,prismeer, atual_location  = result
         return {
