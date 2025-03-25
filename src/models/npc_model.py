@@ -1,4 +1,4 @@
-from models.quests import Quests, CollectableQuest
+from models.quests import Quests, CollectableQuest, DeliverQuestsItems
 from typing import Union
 
 class Character_model:
@@ -21,23 +21,23 @@ class Character_model:
         }
 
 class Character_with_a_quest_model(Character_model):
-    def __init__(self, name: str, speeches: list, quest: Union[Quests, CollectableQuest]) -> None:
+    def __init__(self, name: str, speeches: list, quest: Union[Quests, CollectableQuest, DeliverQuestsItems ]) -> None:
         super().__init__(name, speeches)
         self.quest = quest 
 
     @classmethod
     def from_dict(cls, data: dict):
         instance = cls(name=data['name'], speeches=data['speeches'], quest=None)
-        
         quest_data = data.get('quest')
         if quest_data:
             if 'items_to_be_collected' in quest_data:
                 instance.quest = CollectableQuest.from_dict(quest_data)
+            elif "item_to_be_delivered" in quest_data:
+                instance.quest = DeliverQuestsItems.from_dict(quest_data)
             else:
                 instance.quest = Quests.from_dict(quest_data)
         else:
-            raise ValueError("'quest' não encontrado nos dados")
-        
+            instance.quest = None
         return instance
 
     def to_dict(self):

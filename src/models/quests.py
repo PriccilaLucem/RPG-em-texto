@@ -70,11 +70,33 @@ class CollectableQuest(Quests):
 class DeliverQuestsItems(Quests):
     def __init__(self, id: int, difficult_stars: int, xp_given: int, gold_given: int, mission: str, item: "ItemModel") -> None:
         super().__init__(id, difficult_stars, xp_given, gold_given, mission)
-        self.item = item
+        self.item_to_be_delivered = item
 
     def deliver_item(self, character: "MainCharacter") -> None:
-        if self.item in character.backpack:
-            character.remove_items_from_backpack(self.item)
+        if self.item_to_be_delivered in character.backpack:
+            character.remove_items_from_backpack(self.item_to_be_delivered)
 
     def append_item(self, character: "MainCharacter") -> None:
-        character.add_to_inventory(self.item)
+        character.add_to_inventory(self.item_to_be_delivered)
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "difficult_stars": self.difficult_stars,
+            "xp_given": self.xp_given,
+            "gold_given": self.gold_given,
+            "mission": self.mission,
+            "item_to_be_delivered": self.item_to_be_delivered.to_dict() 
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DeliverQuestsItems":
+        return cls(
+            id=data["id"],
+            difficult_stars=data["difficult_stars"],
+            xp_given=data["xp_given"],
+            gold_given=data["gold_given"],
+            mission=data["mission"],
+            item=ItemModel.from_dict(data["item_to_be_delivered"]) 
+        )
+

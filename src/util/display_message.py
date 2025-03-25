@@ -95,7 +95,7 @@ def draw_menu(stdscr, title, options, selected_index, message="", next=""):
     
     stdscr.refresh()
 
-def draw_menu_with_history(stdscr, title, history_text, options, selected_index):
+def draw_menu_with_history(stdscr, title, history_text, options, selected_index, color_pair=None):
     """
     Desenha um menu na tela com um título, texto de histórico, opções e destaque na opção selecionada.
 
@@ -112,7 +112,7 @@ def draw_menu_with_history(stdscr, title, history_text, options, selected_index)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Opção selecionada
     curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Rodapé
     curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)  # Vermelho sobre fundo preto
-
+    
     stdscr.clear()
     height, width = stdscr.getmaxyx()
     stdscr.attron(curses.color_pair(1))
@@ -129,7 +129,7 @@ def draw_menu_with_history(stdscr, title, history_text, options, selected_index)
 
     for i, line in enumerate(history_lines):
         line_x = (width - len(line)) // 2
-        stdscr.addstr(history_start_y + i, line_x, line, curses.color_pair(2))
+        stdscr.addstr(history_start_y + i, line_x, line, curses.color_pair(2) if not color_pair else color_pair)
 
     # Exibir opções do menu
     options_start_y = history_start_y + len(history_lines) + 1  # Espaço entre o histórico e as opções
@@ -165,9 +165,9 @@ def display_message_log(stdscr: curses.window, message_log: list):
     visible_messages = message_log[-(height - log_start_line - 1):]
 
     # Exibe as mensagens com as cores correspondentes
-    for idx, (msg, color) in enumerate(visible_messages):
+    for idx, (msg) in enumerate(visible_messages):
         line = log_start_line + idx
         if line < height - 1:  # Evita escrever fora da tela
-            stdscr.addstr(line, 0, msg, color)  # Aplica a cor correta
+            stdscr.addstr(line, 0, msg)  # Aplica a cor correta
 
     stdscr.refresh()  # Atualiza a tela para exibir as mudanças

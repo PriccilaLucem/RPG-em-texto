@@ -11,7 +11,9 @@ game_state = {
     "combat_done": False,
     "billboard": None,
     "prismeer_downtown": None,
-    "nitna_village": None
+    "nitna_village": None,
+    "saw_intro_crossroads": False,
+    "saw_game_intro": False
 }
 
 def update_game_state(**kwargs):

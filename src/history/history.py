@@ -34,3 +34,32 @@ def after_owl_bear_battle():
     return """
         You wake up to Damon’s brothers frantically trying to wake you up. As you look to the side, you see the lifeless body of the OwlBear...
     """
+
+def crossroads_history():
+    return """
+    I remember when I was a child 
+    and played in these quiet outskirts, 
+    beyond the village. The fine dust 
+    rose beneath my bare feet as I ran 
+    between the crossing paths, unaware of the weight 
+    that place carried. To me, the crossroads 
+    was just a meeting point, where friends gathered 
+    to play hide-and-seek until the sun began to fade 
+    on the horizon.
+    """
+
+
+def the_mistery_of_crossroads():
+    return """
+    The elders used to say that at midnight, 
+    if someone stood at the center of the crossroads 
+    with a lit candle and a wish in their heart, 
+    an entity would emerge from the shadows 
+    to hear their request. But it was never free. 
+    Those who accepted its favor would, sooner or later, 
+    have to pay the price. I never paid much attention 
+    to these stories—until the day I found, 
+    buried in the dry earth, a worn-out candle 
+    and an almost illegible note, where someone had written, 
+    with trembling hands, a single plea: "bring him back."
+    """

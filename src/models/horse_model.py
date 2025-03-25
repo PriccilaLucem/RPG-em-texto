@@ -17,15 +17,18 @@ class Horse:
             "name": self.name,
             "breed": self.breed,
             "speed": self.speed,
-            "stamina": self.stamina
+            "stamina": self.stamina,
+            "price": self.price
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> "Horse":
-        return cls(
-            id = data["id"],
+        horse =  cls(
             name=data["name"],
             breed=data["breed"],
             speed=data["speed"],
-            stamina=data["stamina"]
+            stamina=data["stamina"],
+            price=data["price"]
         )
+        horse.id = data["id"]
+        return horse

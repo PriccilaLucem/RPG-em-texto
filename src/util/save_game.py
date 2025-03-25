@@ -8,7 +8,7 @@ from destinations.cave.owl_bear_cave import OwlBearCave
 from destinations.prismeer import City
 from util.display_message import display_message, draw_menu
 from global_state.global_state import get_game_state
-
+from destinations.nitna_village.nitna import Nitna
 SAVE_DIR = "saves"
 KEY_FILE = "secret.key"
 
@@ -42,7 +42,7 @@ def save_game(stdscr: curses.window):
         options = [save_name + ("_" if len(save_name) < 30 else "")]  # Simulate input box as an option
 
         # Draw the menu with the input box
-        draw_menu(stdscr, title, options, 0)
+        draw_menu(stdscr, title, options, 0, instructions)
 
         key = stdscr.getch()
 
@@ -57,11 +57,6 @@ def save_game(stdscr: curses.window):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     save_file = os.path.join(SAVE_DIR, f"{save_name}_{timestamp}.dat")
 
-
- # Converte o item para dicionário, se possível
-
-    
-    # Atribui o item correspondente ou o dicionário convertido
     data= {}
     for key, value in get_game_state().items():
         if hasattr(value, "to_dict"):
@@ -82,7 +77,7 @@ def save_game(stdscr: curses.window):
         # Draw the success menu
         selected_index = 0
         while True:
-            draw_menu(stdscr, title, options, selected_index)
+            draw_menu(stdscr, title, options, selected_index, message)
             key = stdscr.getch()
 
             if key == curses.KEY_UP:
@@ -95,30 +90,6 @@ def save_game(stdscr: curses.window):
     except Exception as e:
         display_message(stdscr, f"Error saving the game: {e}", curses.color_pair(2))
 
-
-def load_game(stdscr: curses.window, save_file: str):
-    """Carrega um jogo salvo a partir de um arquivo criptografado."""
-    try:
-        with open(save_file, 'rb') as file:
-            encrypted_data = file.read()
-
-        decrypted_data = cipher.decrypt(encrypted_data)
-        data = json.loads(decrypted_data.decode('utf-8'))
-
-        # Exibe mensagem de sucesso
-        stdscr.clear()
-        stdscr.addstr(0, 0, "=== Game Loaded ===", curses.A_BOLD | curses.A_UNDERLINE)
-        stdscr.addstr(2, 0, "Game loaded successfully!", curses.color_pair(1))
-        stdscr.refresh()
-        curses.napms(2000)  # Pausa para exibir a mensagem
-
-        return data
-    except FileNotFoundError:
-        display_message(stdscr, f"File {save_file} not found.", curses.color_pair(2))
-    except Exception as e:
-        display_message(stdscr, f"Error loading the game: {e}", 40000, curses.color_pair(2))
-
-    return None
 
 def list_saves(stdscr: curses.window):
     """Exibe a lista de saves disponíveis com navegação e seleção, ordenada por data de criação."""
@@ -155,6 +126,7 @@ def list_saves(stdscr: curses.window):
             selected_index = (selected_index + 1) % len(saves)
         elif key == 10:  # Tecla ENTER
             save_file = os.path.join(SAVE_DIR, saves[selected_index])
+
             return load_game(stdscr, save_file)
 
 
@@ -166,12 +138,13 @@ def load_game(stdscr: curses.window, save_file: str):
         decrypted_data = cipher.decrypt(encrypted_data)
         data = json.loads(decrypted_data.decode('utf-8'))
 
+
         # Deserialize game data
-        main_character = MainCharacter.from_dict(data["MainCharacter"])
+        main_character = MainCharacter.from_dict(data["main_character"])
         prismeer = City.from_dict(data["prismeer"])
         cave = OwlBearCave.from_dict(data["cave"])
+        nitna_village = Nitna.from_dict(data["nitna_village"])
         atual_location = data["atual_location"]
-
         # Display success message and wait for user input
         selected_index = 0
         options = ["Continue"]
@@ -211,8 +184,8 @@ def load_game(stdscr: curses.window, save_file: str):
             elif key == curses.KEY_DOWN:
                 selected_index = (selected_index + 1) % len(options)
             elif key == 10:  # ENTER
-                # Return the loaded game data
-                return main_character, cave, prismeer, atual_location
+
+                return main_character, nitna_village, cave ,prismeer, atual_location
 
     except FileNotFoundError:
         display_message(stdscr, f"File {save_file} not found.", curses.color_pair(2))
@@ -226,13 +199,13 @@ def load_game_and_update(stdscr: curses.window):
     result = list_saves(stdscr)
 
     if result:
-        MainCharacter, cave, prismeer, forest, atual_location = result
+        main_character, nitna_village, cave ,prismeer, atual_location  = result
         return {
             "is_new_game": False,
-            "MainCharacter": MainCharacter,
+            "main_character": main_character,
             "cave": cave,
             "prismeer": prismeer,
-            "forest": forest,
+            "nitna_village": nitna_village,
             "atual_location": atual_location
         }
     return None

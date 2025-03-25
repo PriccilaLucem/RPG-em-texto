@@ -2,56 +2,24 @@ import curses
 from destinations.prismeer.city import City
 from characters.main_character import MainCharacter
 from global_state.global_state import should_exit, update_game_state, get_game_state
-from util.display_message import display_message, draw_menu
 from destinations.cave.owl_bear_cave import OwlBearCave
 from destinations.nitna_village.nitna import Nitna
-from destinations.nitna_village import NitnaVillage
+from destinations.nitna_village import NitnaMenu
 from menu.menu import Menu
-from destinations.crossroads.Crossroads import Crossroads
+from destinations.crossroads import CrossRoads
 
-def key_pressed_event(stdscr: curses.window, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave, nitna: Nitna, atual_location: str, menu: Menu):
+
+def key_pressed_event(stdscr: curses.window, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave, nitna: Nitna, menu: Menu):
     update_game_state(is_in_game=True)  # Atualiza o estado global
-
-    nitna_village = NitnaVillage(nitna, stdscr, main_character, menu)
+    nitna_village = NitnaMenu(nitna, stdscr, main_character, menu)
+    crossroads = CrossRoads(main_character, prismeer, nitna, stdscr, menu)
     
-    if atual_location in ["nitna_village"]:
-        nitna_village.run()
-
-    elif atual_location == "crossroads":
-        pass
-
-    menu_options = [
-        "Menu",
-        "Nitna Village",
-        "Crossroads"
-    ]
-
-    key_actions = {
-        "Menu": lambda: menu.run(), 
-        "Crossroads": lambda: display_message(stdscr, "not_ready", 1000, curses.color_pair(1)),
-        "Nitna Village": lambda: (update_game_state(atual_location="nitna_village"), nitna_village.run())
-    }
-
-    try:
-        selected_index = 0
-        while True:
-
-            draw_menu(stdscr, "=== CHOOSE YOUR DESTINATION ===", menu_options, selected_index)
-
-            key = stdscr.getch()
-
-            if key == curses.KEY_UP:
-                selected_index = max(0, selected_index - 1)  # Move a seleção para cima
-            elif key == curses.KEY_DOWN:
-                selected_index = min(len(menu_options) - 1, selected_index + 1)  # Move a seleção para baixo
-            elif key == ord('\n'):  # Enter pressionado
-                selected_option = menu_options[selected_index]
-                action = key_actions.get(selected_option, lambda: display_message(stdscr, "Invalid choice. Try again.", 1000))
-                action()  
-                break
-            
-    except Exception as e:
-        display_message(stdscr, f"Error while processing key press: {e}", 1000)
+    while True:
+        atual_location = get_game_state().get("atual_location")
+        if atual_location in ["nitna_village"]:
+            nitna_village.run()
+        else:
+            crossroads.run()
 
 def game_loop(stdscr: curses.window, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave, nitna: Nitna):
     """Main game loop."""
@@ -68,13 +36,12 @@ def game_loop(stdscr: curses.window, main_character: MainCharacter, prismeer: Ci
     main_character = game_state.get("main_character") if game_state.get("main_character") is not None else main_character
     prismeer = game_state.get("prismeer") if game_state.get("prismeer") is not None else prismeer
     owl_bear_cave = game_state.get("cave") if game_state.get("cave") is not None else owl_bear_cave
-    nitna = game_state.get("nitna") if game_state.get("nitna") is not None else nitna
+    nitna = game_state.get("nitna_village") if game_state.get("nitna_village") is not None else nitna
 
-    update_game_state(main_character=main_character, prismeer=prismeer, cave=owl_bear_cave, nitna=nitna, atual_location = atual_location)
+    update_game_state(main_character=main_character, prismeer=prismeer, cave=owl_bear_cave, nitna_village=nitna, atual_location = atual_location)
     
     while not should_exit():
-        
-        key_pressed_event(stdscr, main_character, prismeer, owl_bear_cave, nitna, atual_location, menu)
+        key_pressed_event(stdscr, main_character, prismeer, owl_bear_cave, nitna, menu)
 
 def main(stdscr):
     """Initializes the game and starts the main loop."""

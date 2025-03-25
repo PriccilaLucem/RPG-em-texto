@@ -9,7 +9,7 @@ from global_state.global_state import  exit_loop, update_game_state, get_game_st
 from util.display_message import display_message, draw_menu, draw_menu_with_history
 from history.history import init_of_the_history
 
-class NitnaVillage:
+class NitnaMenu:
     def __init__(self, nitna: "Nitna", stdscr: curses.window, main_character: "MainCharacter", menu: "Menu"):
         self.stdscr = stdscr
         self.main_character = main_character
@@ -29,15 +29,19 @@ class NitnaVillage:
 
         if game_state.get("atual_location") != "nitna_village":
             return
-        if game_state.get("is_new_game"):
+    
+        if not game_state.get("saw_game_intro", False): 
             self.history()
         
         while True:   
             try:
-                update_game_state(main_character = self.main_character, nitna = self.nitna)
+                update_game_state(main_character = self.main_character, nitna_village = self.nitna, saw_game_intro= True)
                 self.draw()
+                
                 key = self.stdscr.getch()
                 self.handle_input(key)
+            except StopIteration:
+                break
             except Exception as e:
                 display_message(self.stdscr, f"An error occurred: {e}", 2000)
 
@@ -79,9 +83,9 @@ class NitnaVillage:
             display_message(self.stdscr, "Going to Crossroads...", 1000, curses.color_pair(1))
             exit_loop("crossroads")
         elif selected_option == "Talk to Larid":
-            self.nitna.talk_to_npc("Larid")
+            self.nitna.talk_to_npc("Larid",self.main_character)
         elif selected_option == "Talk to Monael":
-            self.nitna.talk_to_npc("Monael")
+            self.nitna.talk_to_npc("Monael",self.main_character)
         elif selected_option == "See the Stable":
             self.view_stable()    
 
@@ -137,17 +141,20 @@ class NitnaVillage:
             options = ["Yes", "No"]
             
             while True:
-                draw_menu(self.stdscr, "CONFIRM PURCHASE", options,  0, message)
+                draw_menu(self.stdscr, "===CONFIRM PURCHASE===", options,  0, message)
                 key = self.stdscr.getch()
-                if key in [ord('y'), ord('Y')]:
-                    self.main_character.gold -= horse.price
-                    self.nitna.stable.horses.remove(horse)
-                    self.stdscr.getch()
-                    return
-                elif key in [ord('n'), ord('N'), 27]:  # ESC or N
-                    return
+                if key == curses.KEY_UP:
+                    index = max(0, index - 1)
+                elif key == curses.KEY_DOWN:
+                    index = min(len(options) - 1, index + 1)
+                elif key == 10:
+                    if options[index].startswith("Yes"):
+                        ...
+                    if options[index].startswith("No"):
+                        return False
         else: 
             display_message(self.stdscr, "You have no money!", 1000, curses.color_pair(1))
+            return False
     def talk_to_nitz(self):
         """Handle conversation with Nitz using custom display"""
         dialogue_index = 0 if not hasattr(self, '_last_dialogue') else 1 - self._last_dialogue
