@@ -8,7 +8,6 @@ from destinations.nitna_village import NitnaMenu
 from menu.menu import Menu
 from destinations.crossroads import CrossRoads
 
-
 def key_pressed_event(stdscr: curses.window, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave, nitna: Nitna, menu: Menu):
     update_game_state(is_in_game=True)  # Atualiza o estado global
     nitna_village = NitnaMenu(nitna, stdscr, main_character, menu)
@@ -50,7 +49,6 @@ def main(stdscr):
     owl_bear_cave = OwlBearCave()
     nitna = Nitna()
     
-
     try:
         game_loop(stdscr, main_character, prismeer, owl_bear_cave, nitna)
     except KeyboardInterrupt:
