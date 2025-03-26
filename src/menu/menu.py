@@ -8,9 +8,9 @@ if TYPE_CHECKING:
     from characters.main_character import MainCharacter
     
 class Menu:
-    def __init__(self, stdscr: curses.window, main_character:"MainCharacter", is_in_game=False):
+    def __init__(self, stdscr: curses.window, is_in_game=False):
         self.stdscr = stdscr
-        self.main_character = main_character
+        self.main_character = None
         self.is_in_game = is_in_game
         self.in_game_options =  ["Show Status", "Close Menu", "Save Game", "Load Game", "Exit Game"]
         self.menu_options = ["New Game", "Load Game", "Exit Game"]
@@ -55,6 +55,7 @@ class Menu:
     def run(self):
         while not should_exit():
             try:
+                self.main_character = get_game_state().get("main_character")
                 self.is_in_game = get_game_state()["is_in_game"]
                 options = self.in_game_options if self.is_in_game else self.menu_options
                 draw_menu(self.stdscr, "=== Game Menu ===", options, self.selected_index)

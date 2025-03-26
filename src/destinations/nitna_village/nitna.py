@@ -24,20 +24,34 @@ class Nitna():
         self.stable = NitnaStable()
 
     def talk_to_npc(self, name, main_character: 'MainCharacter'):
-        for npc in self.villagers + [self.mother]:
-            if name == "Larid":
-                if any(quest.id == -2 for quest in (main_character.concluded_quests or [])):
-                    return f"{npc.name}: {npc.speeches[1]}"
-                else:
-                    return f"{npc.name}: {npc.speeches[0]}"
-            elif name == "Monael":
+        # Find the NPC by name
+        npc = None
+        for villager in self.villagers + [self.mother]:
+            if villager.name == name:
+                npc = villager
+                break
+        
+        if not npc:
+            return f"{name} not found"
+        
+        # Handle dialogue based on NPC name and character state
+        if name == "Larid":
+            if any(quest.id == -2 for quest in (main_character.concluded_quests or [])):
+                return f"{npc.name}: {npc.speeches[1]}"
+            else:
                 return f"{npc.name}: {npc.speeches[0]}"
-            elif name == "Mother":
-                if deliver_sword_to_damon.id in (main_character.quests or []):
-                    return f"{npc.name}: {npc.speeches[1]}"
-                elif deliver_sword_to_damon.id in (main_character.concluded_quests or []):
-                    return f"{npc.name}: Are you okay? What happened to you?"
-    
+        elif name == "Monael":
+            return f"{npc.name}: {npc.speeches[0]}"
+        elif name == "Mother":
+            if deliver_sword_to_damon.id in (main_character.quests or []):
+                return f"{npc.name}: {npc.speeches[1]}"
+            elif deliver_sword_to_damon in (main_character.concluded_quests or []):
+                return f"{npc.name}: Are you okay? What happened to you?"
+            else:
+                return f"{npc.name}: {npc.speeches[0]}"  # Default mother dialogue
+        else:
+            return f"{npc.name}: I have nothing to say right now."
+        
     def to_dict(self) -> Dict[str, Any]:
         """Convert Nitna instance to a dictionary for serialization."""
         return {

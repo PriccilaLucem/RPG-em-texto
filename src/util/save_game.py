@@ -61,6 +61,7 @@ def save_game(stdscr: curses.window):
     for key, value in get_game_state().items():
         if hasattr(value, "to_dict"):
             data[key] = value.to_dict()
+
         else:
             data[key] = value
     try:

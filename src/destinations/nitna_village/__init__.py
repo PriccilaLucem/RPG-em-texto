@@ -26,7 +26,6 @@ class NitnaMenu:
 
     def run(self):   
         game_state = get_game_state()
-
         if game_state.get("atual_location") != "nitna_village":
             return
     
@@ -36,6 +35,7 @@ class NitnaMenu:
         while True:   
             try:
                 update_game_state(main_character = self.main_character, nitna_village = self.nitna, saw_game_intro= True)
+
                 self.draw()
                 
                 key = self.stdscr.getch()
@@ -68,7 +68,8 @@ class NitnaMenu:
             key = self.stdscr.getch()
             if key == 10:
                 display_message(self.stdscr, self.nitna.mother.speech(0), 2000, curses.color_pair(1))
-                display_message(self.stdscr, "Go to prismeer to deliever the sword", 1000, curses.color_pair(1))
+                display_message(self.stdscr, "A new quest has been added to your quests!", 3000, curses.color_pair(1))
+                display_message(self.stdscr, "Go to prismeer deliver the sword!", 3000, curses.color_pair(1))
                 self.main_character.append_quests(self.nitna.mother.quest)
                 self.nitna.mother.quest = None
                 break
@@ -83,9 +84,9 @@ class NitnaMenu:
             display_message(self.stdscr, "Going to Crossroads...", 1000, curses.color_pair(1))
             exit_loop("crossroads")
         elif selected_option == "Talk to Larid":
-            self.nitna.talk_to_npc("Larid",self.main_character)
+            display_message(self.stdscr, self.nitna.talk_to_npc("Larid", self.main_character), 1000, curses.color_pair(1))
         elif selected_option == "Talk to Monael":
-            self.nitna.talk_to_npc("Monael",self.main_character)
+            display_message(self.stdscr, self.nitna.talk_to_npc("Monael", self.main_character), 1000, curses.color_pair(1))
         elif selected_option == "See the Stable":
             self.view_stable()    
 

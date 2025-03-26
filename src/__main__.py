@@ -10,10 +10,10 @@ from destinations.crossroads import CrossRoads
 
 
 def key_pressed_event(stdscr: curses.window, main_character: MainCharacter, prismeer: City, owl_bear_cave: OwlBearCave, nitna: Nitna, menu: Menu):
-    update_game_state(is_in_game=True)  # Atualiza o estado global
+    update_game_state(is_in_game=True)
     nitna_village = NitnaMenu(nitna, stdscr, main_character, menu)
     crossroads = CrossRoads(main_character, prismeer, nitna, stdscr, menu)
-    
+
     while True:
         atual_location = get_game_state().get("atual_location")
         if atual_location in ["nitna_village"]:
@@ -27,7 +27,7 @@ def game_loop(stdscr: curses.window, main_character: MainCharacter, prismeer: Ci
     curses.start_color()
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
     
-    menu = Menu(stdscr, main_character, False)
+    menu = Menu(stdscr, False)
     menu.run()
 
     game_state = get_game_state()
