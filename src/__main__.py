@@ -45,7 +45,7 @@ def game_loop(stdscr: curses.window, main_character: MainCharacter, prismeer: Ci
 def main(stdscr):
     """Initializes the game and starts the main loop."""
     main_character = MainCharacter()
-    prismeer = City()
+    prismeer = City(stdscr)
     owl_bear_cave = OwlBearCave()
     nitna = Nitna()
     

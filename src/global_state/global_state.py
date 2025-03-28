@@ -13,7 +13,8 @@ game_state = {
     "prismeer_downtown": None,
     "nitna_village": None,
     "saw_intro_crossroads": False,
-    "saw_game_intro": False
+    "saw_game_intro": False,
+    "damon_history_start": False
 }
 
 def update_game_state(**kwargs):

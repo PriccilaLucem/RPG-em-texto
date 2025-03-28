@@ -19,10 +19,10 @@ class CrossRoads:
         self.menu = menu
         self.nitna = nitna
         self.options = [
+            "Open Menu",
             "Go to Prismeer",
             "Go to the forest",
             "Go to Nitna Village",
-            "Open Menu"
         ]
         self.selected_index = 0
 

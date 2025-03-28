@@ -4,7 +4,7 @@ from destinations.prismeer.items import generate_armor_from_prismeer_seller, gen
 import curses
 from util.display_message import display_message, draw_menu
 from models.npc_model import Character_with_a_quest_model, Character_model
-from quests.main_quests import prismeer_owl_bear_quest, prismeer_blacksmith_quest
+from quests.main_quests import prismeer_blacksmith_quest
 if TYPE_CHECKING:
     from characters.main_character import MainCharacter
 
@@ -24,9 +24,6 @@ class Comercial_center:
         self.npcs: List[Union[Character_model, Character_with_a_quest_model]] = [
             Character_model("Afrac", ["Hello There i'm Afrac, nice to meet you"]),
             Character_model("Osvaldo", ["Do you have any vodka? I want to drink"]),
-            Character_with_a_quest_model(name="Damon", speeches=[
-                "MainCharacter! MainCharacter! Please you have to help my brothers... They tried to take the treasure of OwBear and now they are trapped in his cave!",
-                "Thank you MainCharacter!"], quest=prismeer_owl_bear_quest),
             Character_with_a_quest_model(name="Walver", speeches=[
                 "You are not ready!",
                 "Please help me find some ores",
@@ -53,20 +50,9 @@ class Comercial_center:
             "npcs": [npc.to_dict() for npc in self.npcs]
         }
 
-    def talk_to_npc(self, key: int, MainCharacter: 'MainCharacter') -> str:
-        npc_to_talk = self.npcs[key - 1]
-        if any(quest.id == 1 for quest in MainCharacter.concluded_quests) and key == 3:
-            return npc_to_talk.speech(1)
-        if key == 4:
-            if any(quest.id == 2 for quest in MainCharacter.concluded_quests):
-                return npc_to_talk.speech(2)
-            elif MainCharacter.character_class is None:
-                return npc_to_talk.speech(0)
-            else:
-                return npc_to_talk.speech(1)
-        else:
-            return npc_to_talk.speech(0)
-
+    # def talk_to_npc(self):TODO
+    
+     
     def append_npc_quest(self, MainCharacter: 'MainCharacter', npc_key: int = None) -> None:
         if npc_key is not None:
             npc = self.npcs[npc_key - 1]

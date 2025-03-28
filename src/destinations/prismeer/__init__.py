@@ -1,22 +1,19 @@
 from destinations.prismeer.city import City
 from characters.main_character import MainCharacter
 from global_state.global_state import should_exit, get_game_state, update_game_state, exit_loop
-from util.display_message import display_message, draw_menu
-from destinations.prismeer.billboard import Billboard
+from util.display_message import display_message, draw_menu, draw_menu_with_history
 from destinations.prismeer.comercial_center import Comercial_center 
-from destinations.prismeer.bar import PrismeerBar
 from menu.menu import Menu
+from history.damon_history import damon_history
 import curses
 
 class CityMenu:
-    def __init__(self, city: 'City', main_character: MainCharacter, stdscr: curses.window, menu:Menu) -> None:
+    def __init__(self, city: City, main_character: MainCharacter, stdscr: curses.window, menu:Menu) -> None:
         self.city_center = CityCenter(city, MainCharacter, stdscr, menu)
         self.city = city
-        self.main_character = main_character
-        self.billboard: Billboard = get_game_state().get("billboard") or Billboard(main_character, stdscr)
-        self.bar:PrismeerBar= get_game_state().get("Bar") or PrismeerBar()
         self.stdscr = stdscr
         self.menu = menu
+        self.main_character = main_character
         self.message_log = [
             "Welcome to Prismeer!",
             "You can visit the city center, check the billboard, or rest at the inn.",
@@ -40,9 +37,18 @@ class CityMenu:
         
         
 
-        update_game_state(prismeer=self.city, MainCharacter=self.main_character, billboard = self.billboard, atual_location="prismeer")
 
         while not should_exit():
+            update_game_state(prismeer=self.city, main_character=self.main_character, atual_location="prismeer")
+            damon_history_start = get_game_state().get("damon_history_start")
+            if not damon_history_start:
+                options = ["Follow Damon"]
+                index = 0
+                while True:
+                    draw_menu_with_history(self.stdscr, "=== You finally meet Damon ===", damon_history(), options, index)
+                    key = self.stdscr.getch()
+                    if key == 10:
+                        self.city.bar.bar_menu(self.main_character, self.city.damon)
             try:
                 self.draw_menu()
                 self.handle_input()
@@ -69,9 +75,9 @@ class CityMenu:
     def handle_menu_option(self, option: str) -> None:
         """Handles the selected menu option."""
         if option.startswith("Go to bar"): # Go to bar
-            self.bar.bar_menu(self.stdscr, self.main_character)
+            self.city.bar.bar_menu(self.stdscr, self.main_character)
         if option.startswith("See the billboard"):  # See the billboard
-            self.billboard.billboard_menu()
+            self.city.billboard.billboard_menu()
         elif option.startswith("Rest at the inn"):  # Rest at the inn
             self.city.inn.pass_the_night(self.main_character, self.stdscr)
         elif option.startswith("Menu"):

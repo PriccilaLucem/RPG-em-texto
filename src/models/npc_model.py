@@ -91,3 +91,18 @@ class Bardo(Character_model):
         self.price = price
         self.history = history
         super().__init__(name, speeches)
+    
+    def to_dict(self):
+        data = super().to_dict()
+        data["price"] = self.price
+        data["history"] = self.history
+        return data
+    
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            name=data["name"],
+            speeches=data["speeches"],
+            price=data["price"],
+            history=data["history"]
+        )

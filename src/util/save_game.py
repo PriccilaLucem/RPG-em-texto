@@ -133,20 +133,17 @@ def list_saves(stdscr: curses.window):
 
 def load_game(stdscr: curses.window, save_file: str):
     try:
-        # Load and decrypt the save file
         with open(save_file, 'rb') as file:
             encrypted_data = file.read()
         decrypted_data = cipher.decrypt(encrypted_data)
         data = json.loads(decrypted_data.decode('utf-8'))
 
 
-        # Deserialize game data
         main_character = MainCharacter.from_dict(data["main_character"])
-        prismeer = City.from_dict(data["prismeer"])
+        prismeer = City.from_dict(data["prismeer"], stdscr)
         cave = OwlBearCave.from_dict(data["cave"])
         nitna_village = Nitna.from_dict(data["nitna_village"])
         atual_location = data["atual_location"]
-        # Display success message and wait for user input
         selected_index = 0
         options = ["Continue"]
 
