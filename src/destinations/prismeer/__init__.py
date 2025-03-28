@@ -4,14 +4,17 @@ from global_state.global_state import should_exit, get_game_state, update_game_s
 from util.display_message import display_message, draw_menu
 from destinations.prismeer.billboard import Billboard
 from destinations.prismeer.comercial_center import Comercial_center 
+from destinations.prismeer.bar import PrismeerBar
+from menu.menu import Menu
 import curses
 
 class CityMenu:
-    def __init__(self, city: 'City', main_character: MainCharacter, stdscr: curses.window, menu) -> None:
+    def __init__(self, city: 'City', main_character: MainCharacter, stdscr: curses.window, menu:Menu) -> None:
         self.city_center = CityCenter(city, MainCharacter, stdscr, menu)
         self.city = city
         self.main_character = main_character
-        self.billboard: Billboard = get_game_state().get("billboard") or Billboard(MainCharacter, stdscr)
+        self.billboard: Billboard = get_game_state().get("billboard") or Billboard(main_character, stdscr)
+        self.bar:PrismeerBar= get_game_state().get("Bar") or PrismeerBar()
         self.stdscr = stdscr
         self.menu = menu
         self.message_log = [
@@ -23,6 +26,7 @@ class CityMenu:
             "Exit the city",
             "See the billboard",
             "Rest at the inn",
+            "Go to bar",
             "Go to the center",
         ]
         self.selected_index = 0
@@ -64,6 +68,8 @@ class CityMenu:
 
     def handle_menu_option(self, option: str) -> None:
         """Handles the selected menu option."""
+        if option.startswith("Go to bar"): # Go to bar
+            self.bar.bar_menu(self.stdscr, self.main_character)
         if option.startswith("See the billboard"):  # See the billboard
             self.billboard.billboard_menu()
         elif option.startswith("Rest at the inn"):  # Rest at the inn

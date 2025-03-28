@@ -7,13 +7,14 @@ if TYPE_CHECKING:
 
 
 class Quests:
-    def __init__(self, id: int, difficult_stars: int, xp_given: int, gold_given: int, mission: str) -> None:
+    def __init__(self, id: int, difficult_stars: int, xp_given: int, gold_given: int, mission: str, additional_info: dict = None, description: str= None) -> None:
         self.difficult_stars = difficult_stars
         self.xp_given = xp_given
         self.gold_given = gold_given
         self.mission = mission
         self.id = id if id is not None else IDGenerator.generate_id()
-
+        self.additional_info = additional_info
+        self.description = description
     def __str__(self) -> str:
         return f"Mission: {self.mission} Difficulty: {self.difficult_stars} stars XP: {self.xp_given} Gold: {self.gold_given}"
 

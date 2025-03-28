@@ -1,6 +1,6 @@
 import curses
 
-def display_message(stdscr: curses.window, message: str, delay: int = 1000, color_pair: int = 0) -> None:
+def display_message(stdscr: curses.window, message: str, delay: int = 2000, color_pair = None) -> None:
     """
     Exibe uma mensagem na tela e espera um período de tempo opcional.
 
@@ -29,7 +29,7 @@ def display_message(stdscr: curses.window, message: str, delay: int = 1000, colo
     stdscr.border()
     stdscr.attroff(curses.color_pair(1))
 
-    stdscr.addstr(message_y, message_x, message, color_pair)
+    stdscr.addstr(message_y, message_x, message, color_pair if color_pair else curses.color_pair(1) )
     stdscr.refresh()
     curses.napms(delay)
 

@@ -1,11 +1,10 @@
 import curses
 from typing import List, Dict, Any
-from models.seller_model import Seller_model
 from characters.main_character import MainCharacter
 from global_state.global_state import should_exit
 from util.display_message import display_message, draw_menu
 from util.classes import ITEM_CLASSES
-from models.seller_model import Seller_model
+from models.npc_model import Seller_model
 
 
 class Shop_model:

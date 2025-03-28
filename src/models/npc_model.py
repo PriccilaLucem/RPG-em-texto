@@ -8,8 +8,10 @@ class Character_model:
         self.speeches = speeches    
 
     def speech(self, list_index: int) -> str:
-        return self.speeches[list_index]
-
+        try:
+            return self.speeches[list_index]
+        except IndexError:
+            return self.speeches[-1]
     @classmethod
     def from_dict(cls, data: dict) -> None:
         npc = cls(name=data["name"], speeches=data["speeches"])
@@ -83,3 +85,9 @@ class Seller_model(Character_model):
         backpack = data.get("backpack", [])
         seller = cls(name=name, speeches=speeches, backpack=backpack)
         return seller   
+    
+class Bardo(Character_model):
+    def __init__(self, name, speeches, price, history):
+        self.price = price
+        self.history = history
+        super().__init__(name, speeches)

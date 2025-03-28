@@ -46,6 +46,7 @@ class MainCharacter():
         self.last_attack_damage = 0
         self.carry_weight = 50
         self.weight = 0
+        self.luck = 0
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
     
@@ -260,6 +261,7 @@ class MainCharacter():
             "last_attack_damage": self.last_attack_damage,
             "carry_weight": self.carry_weight,
             "weight": self.weight,
+            "luck": self.luck,
         }
 
     @classmethod
@@ -327,5 +329,5 @@ class MainCharacter():
         MainCharacter.last_attack_damage = data.get("last_attack_damage")
         MainCharacter.carry_weight = data.get("carry_weight")
         MainCharacter.weight = data.get("weight")
-
+        MainCharacter.luck = data.get("luck")
         return MainCharacter
