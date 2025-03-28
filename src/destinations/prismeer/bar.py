@@ -42,7 +42,7 @@ class PrismeerBar(Bar):
         """Main bar menu navigation"""
         options = [
             "Talk to Patrons",
-            "Order from Bartender",
+            "Talk to Bartender",
             "Listen to the Bard",
             "Leave the Bar"
         ]
@@ -60,8 +60,8 @@ class PrismeerBar(Bar):
             elif key == 10:  # Enter key
                 if options[index] == "Talk to Patrons":
                     self.choose_patron(stdscr, main_character)
-                elif options[index] == "Order from Bartender":
-                    self.order_from_bartender(stdscr, main_character)
+                elif options[index] == "Talk to Bartender":
+                    self.bartender_menu(stdscr, main_character)
                 elif options[index] == "Listen to the Bard":
                     self.talk_to_bard(stdscr, main_character)
                 elif options[index] == "Leave the Bar":
@@ -73,7 +73,6 @@ class PrismeerBar(Bar):
         options = [npc.name for npc in self.people] + ["Back to Bar"]
         index = 0
         title = "=== Who do you approach? ==="
-        speech_index = 0
 
         while True:
             draw_menu(stdscr, title, options, index)
@@ -96,34 +95,48 @@ class PrismeerBar(Bar):
         if not self.current_npc:
             return
 
-        options = ["Keep Talking", "Ask About Quest", "Leave Conversation"]
         index = 0
         title = f"=== {self.current_npc.name} ==="
         speech_index = 0
-        quest_offered = False
+        all_speeches_heard = False
+        quest_available = isinstance(self.current_npc, Character_with_a_quest_model)
 
         while True:
-            # Special case for quest-giving NPCs
-            if isinstance(self.current_npc, Character_with_a_quest_model) and not quest_offered:
-                options = ["Keep Talking", "Ask About Quest", "Leave Conversation"]
-            else:
-                options = ["Keep Talking", "Leave Conversation"]
+            current_options = ["Keep Talking"]
+            
+            if (quest_available and 
+                all_speeches_heard and 
+                isinstance(self.current_npc, Character_with_a_quest_model)):
+                current_options.append("Ask About Quest")
+                
+            current_options.append("Leave Conversation")
 
-            draw_menu(stdscr, title, options, index)
+            draw_menu(stdscr, title, current_options, index)
             key = stdscr.getch()
             
             if key == curses.KEY_UP:
-                index = (index - 1) % len(options)
+                index = (index - 1) % len(current_options)
             elif key == curses.KEY_DOWN:
-                index = (index + 1) % len(options)
-            elif key == 10: 
-                if options[index] == "Keep Talking":
-                    display_message(stdscr,f"{self.current_npc.name}: {self.current_npc.speech(speech_index)}", 2000)
+                index = (index + 1) % len(current_options)
+            elif key == 10:  # Enter key
+                selected_option = current_options[index]
+                
+                if selected_option == "Keep Talking":
+                    display_message(
+                        stdscr,
+                        f"{self.current_npc.name}: {self.current_npc.speech(speech_index)}",
+                        2000
+                    )
                     speech_index = (speech_index + 1) % len(self.current_npc.speeches)
-                elif options[index] == "Ask About Quest" and isinstance(self.current_npc, Character_with_a_quest_model):
+                    
+                    if speech_index == 0:
+                        all_speeches_heard = True
+                        
+                elif selected_option == "Ask About Quest":
                     self.handle_quest(stdscr, main_character)
-                    quest_offered = True
-                elif options[index] == "Leave Conversation":
+                    quest_available = False  
+                    
+                elif selected_option == "Leave Conversation":
                     break
 
     def handle_quest(self, stdscr: curses.window, main_character: MainCharacter):
@@ -134,7 +147,6 @@ class PrismeerBar(Bar):
         quest = self.current_npc.quest
         title = f"=== {quest.mission} ==="
         
-        # Format quest details
         details = [
             quest.description,
             "",
@@ -159,6 +171,33 @@ class PrismeerBar(Bar):
                     main_character.append_quests(quest)
                     display_message(stdscr, f"Quest accepted: {quest.mission}", 2000)
                 break
+    
+    def bartender_menu(self, stdscr: curses.window, main_character: MainCharacter):
+        display_message(stdscr, "What do you want??", 2000)
+        options = [
+            "Talk to bartender",
+            "Buy something",
+            "Back to bar"
+        ]
+        index = 0 
+        title = f"==== {self.bartender.name} ==="
+        bar_speech_index = 0 
+        while True:
+            draw_menu(stdscr, title, options, index)
+            key = stdscr.getch()
+            if key == curses.KEY_UP:
+                index = (index - 1) % len(options)
+            elif key == curses.KEY_DOWN:
+                index = (index + 1) % len(options)
+            elif key == 10:  # Enter key
+                if options[index].startswith("Back to bar"):
+                    break
+                elif options[index].startswith("Talk to bartender"):
+                    display_message(stdscr, f"{self.bartender.name}:  {self.bartender.speech(bar_speech_index)}")
+                    bar_speech_index += 1
+                elif options[index].startswith("Buy something"):
+                    self.order_from_bartender(stdscr, main_character)
+
 
     def order_from_bartender(self, stdscr: curses.window, main_character: MainCharacter):
         """Handle ordering food/drinks from bartender"""
@@ -205,7 +244,7 @@ class PrismeerBar(Bar):
                 index = (index - 1) % len(options)
             elif key == curses.KEY_DOWN:
                 index = (index + 1) % len(options)
-            elif key == 10:  # Enter key
+            elif key == 10:  
                 if options[index] == "Chat with Bard":
                     display_message(stdscr, f"{self.bardo.name} {self.bardo.speech(speech_index)}", 2000)
                     speech_index = (speech_index + 1) % len(self.bardo.speeches)
