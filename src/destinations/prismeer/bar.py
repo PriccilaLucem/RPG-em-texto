@@ -9,7 +9,7 @@ from history.bardo_history import the_ballad_of_prismeer_and_north
 from history.damon_history import enter_the_bar_with_damon
 from util.display_message import draw_menu, display_message, draw_menu_with_history
 from history.damon_history import enter_the_bar_with_damon
-
+from global_state.global_state import get_game_state, update_game_state, exit_loop
 
 class PrismeerBar(Bar):
     def __init__(self, stdscr: curses.window):
@@ -43,7 +43,7 @@ class PrismeerBar(Bar):
         
         super().__init__(self.food, self.people, self.bartender, self.bardo)
     
-    def bar_menu(self, main_character: MainCharacter, damon:Character_with_a_quest_model = None):
+    def bar_menu(self, main_character: MainCharacter, damon:Damon = None):
         """Main bar menu navigation"""
         options = [
             "Talk to Patrons",
@@ -51,16 +51,21 @@ class PrismeerBar(Bar):
             "Listen to the Bard",
             "Leave the Bar"
         ]
-        if damon:
-            index = 0
-            options = ["Talk to Damon"]
-            title = f"=== Entering the {self.name} ==="
-            while True:
-                draw_menu_with_history(self.stdscr, title, enter_the_bar_with_damon(), options, index)
-                if self.stdscr.getch() == 10:
-                    break
-            self._entering_the_bar_with_damon(main_character, damon)
-            
+        first_time_on_bar = get_game_state().get("first_time_on_bar", False)
+        try:
+            if not first_time_on_bar:
+                index = 0
+                talk_option = ["Talk to Damon"]
+                title = f"=== Entering the {self.name} ==="
+                while True:
+                    draw_menu_with_history(self.stdscr, title, enter_the_bar_with_damon(), talk_option, index)
+                    key = self.stdscr.getch()
+                    if key == 10:
+                        self._entering_the_bar_with_damon(main_character, damon)
+                        update_game_state(first_time_on_bar=True)
+                        exit_loop("prismeer")
+        except StopIteration:
+            return 
         
         index = 0
         title = f"=== {self.name} ==="

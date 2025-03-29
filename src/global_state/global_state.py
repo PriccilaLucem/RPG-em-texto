@@ -14,7 +14,8 @@ game_state = {
     "nitna_village": None,
     "saw_intro_crossroads": False,
     "saw_game_intro": False,
-    "damon_history_start": False
+    "damon_history_start": False,
+    "first_time_on_bar": False
 }
 
 def update_game_state(**kwargs):

@@ -2,130 +2,176 @@ import curses
 from models.npc_model import Character_with_a_quest_model
 from util.display_message import draw_menu, draw_menu_with_history
 from quests.main_quests import prismeer_owl_bear_quest
+from history.mine_history import MineHistory
+from history.brothers_history import BrotherDialogue
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from characters.main_character import MainCharacter
 
+
 class Damon(Character_with_a_quest_model):
     def __init__(self, stdscr: curses.window):
         super().__init__(
-            name="Damon", 
+            name="Damon",
             speeches=[
                 "You finally came... I was beginning to think you'd abandoned us.",
                 "The howls from the caves grow louder each night...",
                 "My brothers... they were exploring the mine witch OwlBear have appeared!"
-            ], 
+            ],
             quest=prismeer_owl_bear_quest
         )
         self.stdscr = stdscr
         self.quest_accepted = False
         self.quest_complete = False
-    
+
     def _handle_brothers_dialogue(self):
         index = 0
-        options = ["Continue", "Ask more", "Leave"]
+        options = ["Ask more", "Leave"]
+
         while True:
-            response = """Damon
-                We thought the caves were abandoned...
-                But something's changed. The owlbears... they're not natural.
-                Bigger. Angrier. Eyes glowing like hot coals.
-                My brothers went to investigate three days ago.
-                Haven't returned.
-                We should go there to find the
-            """
-            
+            response = BrotherDialogue.initial_dialogue()
             draw_menu_with_history(self.stdscr, "=== Damon - Veteran Guardsman ===", response, options, index)
+            
             key = self.stdscr.getch()
             
-            if key == 10 and index == 2:  
-                break
+            if key in (curses.KEY_UP, curses.KEY_DOWN):
+                index = (index + 1) % len(options)
+            elif key == 10:  # Enter key
+                if options[index] == "Ask more":
+                    self._handle_ask_more_dialogue()
+                elif options[index] == "Leave":
+                    break
 
-    def _show_reward_info(self):
-        index = 0
-        options = ["Continue", "Ask about the blade", "Leave"]
+    def _handle_ask_more_dialogue(self):
+        ask_index = 0
+        ask_options = [
+            "About Jorik (the elder brother)",
+            "About Baldric (the younger brother)",
+            "About their last mission",
+            "Back"
+        ]
+        
         while True:
-            response = """
-                The town coffers are light, but...
-                Rescue my brothers and I'll give you
-                the ancestral blade from our family armory.
-                It's seen more battles than I have winters.            
-            """
-            draw_menu_with_history(self.stdscr, "=== Reward Information ===", response, options, index)
-            key = self.stdscr.getch()
-            if key == 10:
-                ...  # TODO
-
-    def _show_cave_information(self):
-        options = ["Learn more", "Back"]
-        index = 0
-        while True:
-            response = """
-                Ancient dwarven mining tunnels
-                Abandoned after a cave-in century ago
-                Recent reports of:
-                - Strange lights
-                - Animal mutations
-                - Disappearing travele
-            """
+            ask_response = BrotherDialogue.ask_more_dialogue()
+            draw_menu_with_history(self.stdscr, "=== The Lost Brothers ===", ask_response, ask_options, ask_index)
             
-            draw_menu_with_history(self.stdscr, "The Howling Caverns", response, options, index)
-            key = self.stdscr.getch()
-            if key == 10:
-                ...    
+            ask_key = self.stdscr.getch()
+            
+            if ask_key == curses.KEY_UP:
+                ask_index = max(0, ask_index - 1)
+            elif ask_key == curses.KEY_DOWN:
+                ask_index = min(len(ask_options) - 1, ask_index + 1)
+            elif ask_key == 10:  # Enter
+                if ask_options[ask_index] == "About Jorik (the elder brother)":
+                    self._show_jorik_details()
+                elif ask_options[ask_index] == "About Baldric (the younger brother)":
+                    self._show_baldric_details()
+                elif ask_options[ask_index] == "About their last mission":
+                    self._last_mission_details()
+                elif ask_options[ask_index] == "Back":
+                    break
 
-    def _handle_quest_completion(self, main_character):
-        response = """You brought them back...
-            *he stares at his brothers' wrapped bodies*
-            This wasn't the homecoming I...
-            *he hands you a rusted greatsword*
-            Take it. They'd want you to have 
-            """
-        options = ["Accept sword", "Offer condolences", "Kill Damon", "Run"]
-        index = 0
-        while True:
-            draw_menu_with_history(self.stdscr, "=== Quest Complete ===", response, options, index)
-            #TODO
+    def _last_mission_details(self):
+        last_mission_response = BrotherDialogue.last_mission_details()
+        draw_menu_with_history(self.stdscr, "=== Last Mission ===", last_mission_response, ["Continue"], 0)
+        self.stdscr.getch()
 
+    def _show_jorik_details(self):
+        detail_response = BrotherDialogue.jorik_details()
+        draw_menu_with_history(self.stdscr, "=== Jorik Ironoak ===", detail_response, ["Continue"], 0)
+        self.stdscr.getch()
+
+    def _show_baldric_details(self):
+        detail_response = BrotherDialogue.baldric_details()
+        draw_menu_with_history(self.stdscr, "=== Baldric the Bright ===", detail_response, ["Continue"], 0)
+        self.stdscr.getch()
+    
     def talk_to_damon(self, main_character: 'MainCharacter'):
         while True:
             options = self._show_initial_options()
-            index = 0 
-            
+            index = 0
             key = None
+            
             while key != 10:
                 draw_menu(self.stdscr, "=== Damon - Veteran Guardsman ===", options, index)
                 key = self.stdscr.getch()
                 if key == curses.KEY_UP:
-                    index = max(0, index-1)
+                    index = max(0, index - 1)
                 elif key == curses.KEY_DOWN:
-                    index = min(len(options)-1, index+1)
+                    index = min(len(options) - 1, index + 1)
             
-            if key == 10:
-                selected = options[index]
-                
-                if selected == "What happened to your brothers?":
-                    self._handle_brothers_dialogue()
-                elif selected == "Tell me about the Owlbear caves":
-                    self._show_cave_information()
-                elif selected == "What's in this for me?":
-                    self._show_reward_info()
-                elif selected.startswith("I'm working on"):
-                    self._handle_quest_in_progress(main_character)
-                elif selected == "Leave conversation":
-                    break
-
+            selected = options[index]
+            if selected == "What happened to your brothers?":
+                self._handle_brothers_dialogue()
+            if selected == "Ask about the cave":
+                self._show_cave_information()
+            elif selected == "Leave conversation":
+                break
+    
     def _show_initial_options(self):
         options = [
             "What happened to your brothers?",
-            "Tell me about the Owlbear caves", 
-            "What's in this for me?",
-            "Leave conversation"
+            "Ask about the cave",
+            "Leave conversation",
         ]
-        
         if self.quest_accepted and not self.quest_complete:
             options.insert(0, "I'm working on rescuing your brothers")
-        
         return options
+
+    def _show_cave_information(self):
+            """Show cave info with loop"""
+            options = ["Learn more", "Back"]
+            history = MineHistory.show_cave_information()
+            index = 0
+            while True:
+                draw_menu_with_history(self.stdscr,"=== The ancient Cave ===", history, options, index)
+                
+                key = self.stdscr.getch()
+                
+                if key == curses.KEY_UP:
+                    index = max(0, index-1)
+                elif key == curses.KEY_DOWN:
+                        index = min(len(options)-1, index+1)
+                elif key == 10:
+                    if options[index].startswith("Learn more"):
+                        self._show_cave_history()
+                    elif options[index].startswith("Back"):
+                        break
+    
+    def _show_cave_history(self):
+        options = ["Dwarven builders", "Mining operations", "The Great Collapse", "Recent events", "Back"]
+        index = 0
+        while True:
+            draw_menu(self.stdscr, "=== Mine History ===", options, index)
+            key = self.stdscr.getch()
+            if key == curses.KEY_UP:
+                index = max(0, index - 1)
+            elif key == curses.KEY_DOWN:
+                index = min(len(options) - 1, index + 1)
+            elif key == 10:
+                if options[index] == "Dwarven builders":
+                    detail = MineHistory.dwarven_builders()
+                    draw_menu_with_history(self.stdscr, "=== Builders ===", detail, ["Continue"], 0)
+                    self.stdscr.getch()
+                        
+                elif options[index] == "Mining operations":
+                    detail = MineHistory.mining_operations()
+                    draw_menu_with_history(self.stdscr, "=== Operations ===", detail, ["Continue"], 0)
+                    self.stdscr.getch()
+                        
+                elif options[index] == "The Great Collapse":
+                    detail = MineHistory.the_great_collapse()
+                    draw_menu_with_history(self.stdscr, "=== Collapse ===", detail, ["Continue"], 0)
+                    self.stdscr.getch()
+                        
+                elif options[index] == "Recent events":
+                    detail = MineHistory.recent_events()
+                    draw_menu_with_history(self.stdscr, "=== Recent Times ===", detail, ["Continue"], 0)
+                    self.stdscr.getch()
+                        
+                elif options[index] == "Back":
+                    break
+
 
     @classmethod
     def from_dict(cls, data, stdsc):
@@ -142,3 +188,4 @@ class Damon(Character_with_a_quest_model):
         data["quest_accepted"] = self.quest_accepted
         data["quest_complete"] = self.quest_complete
         return data
+    

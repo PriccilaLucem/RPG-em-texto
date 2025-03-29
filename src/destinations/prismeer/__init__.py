@@ -49,6 +49,8 @@ class CityMenu:
                     key = self.stdscr.getch()
                     if key == 10:
                         self.city.bar.bar_menu(self.main_character, self.city.damon)
+                        update_game_state(damon_history_start=True)
+                        break
             try:
                 self.draw_menu()
                 self.handle_input()
