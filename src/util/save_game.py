@@ -136,17 +136,27 @@ def load_game(stdscr: curses.window, save_file: str):
         with open(save_file, 'rb') as file:
             encrypted_data = file.read()
         decrypted_data = cipher.decrypt(encrypted_data)
-        data = json.loads(decrypted_data.decode('utf-8'))
+        data: dict = json.loads(decrypted_data.decode('utf-8'))
 
+        game_state = {}
 
-        main_character = MainCharacter.from_dict(data["main_character"])
-        prismeer = City.from_dict(data["prismeer"], stdscr)
-        cave = OwlBearCave.from_dict(data["cave"])
-        nitna_village = Nitna.from_dict(data["nitna_village"])
-        atual_location = data["atual_location"]
+        for key, value in data.items():
+            # Handle special cases first (like 'prismeer' needing stdscr)
+            if key == "prismeer":
+                game_state[key] = City.from_dict(value, stdscr)
+                continue
+
+            # Try to find the class dynamically
+            class_name = key.capitalize()  # or a more sophisticated naming conversion
+            class_ref = globals().get(class_name)
+            
+            if class_ref and callable(getattr(class_ref, "from_dict", None)):
+                game_state[key] = class_ref.from_dict(value)
+            else:
+                game_state[key] = value
+        
         selected_index = 0
         options = ["Continue"]
-
         while True:
             stdscr.clear()
             height, width = stdscr.getmaxyx()
@@ -183,8 +193,7 @@ def load_game(stdscr: curses.window, save_file: str):
                 selected_index = (selected_index + 1) % len(options)
             elif key == 10:  # ENTER
 
-                return main_character, nitna_village, cave ,prismeer, atual_location
-
+                return game_state
     except FileNotFoundError:
         display_message(stdscr, f"File {save_file} not found.", curses.color_pair(2))
     except Exception as e:
@@ -197,13 +206,5 @@ def load_game_and_update(stdscr: curses.window):
     result = list_saves(stdscr)
     
     if result:
-        main_character, nitna_village, cave ,prismeer, atual_location  = result
-        return {
-            "is_new_game": False,
-            "main_character": main_character,
-            "cave": cave,
-            "prismeer": prismeer,
-            "nitna_village": nitna_village,
-            "atual_location": atual_location
-        }
+        return result
     return None

@@ -321,7 +321,6 @@ class PrismeerBar(Bar):
         bar.food = [ItemModel.from_dict(item_data) for item_data in data['food']]
         
         bar.bartender = Seller_model.from_dict(data['bartender'])
-        bar.bartender = bar.food  
         
         bar.people = []
         for person_data in data['people']:
