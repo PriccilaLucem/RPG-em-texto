@@ -5,6 +5,7 @@ from quests.main_quests import prismeer_owl_bear_quest
 from history.mine_history import MineHistory
 from history.brothers_history import BrotherDialogue
 from typing import TYPE_CHECKING
+from models.quests import Quests
 if TYPE_CHECKING:
     from characters.main_character import MainCharacter
 
@@ -178,7 +179,7 @@ class Damon(Character_with_a_quest_model):
         damon = cls(stdsc)
         damon.speeches = data["speeches"]
         damon.name = "Damon"
-        damon.quest = data["quest"]
+        damon.quest = Quests.from_dict(data["quest"])
         damon.quest_accepted = data["quest_accepted"]
         damon.quest_complete = data["quest_complete"]
         return damon

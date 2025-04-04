@@ -3,12 +3,9 @@ import json
 from datetime import datetime
 from cryptography.fernet import Fernet
 import curses
-from characters.main_character import MainCharacter
-from destinations.cave.owl_bear_cave import OwlBearCave
-from destinations.prismeer import City
+from util.game_state_loader import GameStateLoader
 from util.display_message import display_message, draw_menu
 from global_state.global_state import get_game_state
-from destinations.nitna_village.nitna import Nitna
 SAVE_DIR = "saves"
 KEY_FILE = "secret.key"
 
@@ -138,22 +135,9 @@ def load_game(stdscr: curses.window, save_file: str):
         decrypted_data = cipher.decrypt(encrypted_data)
         data: dict = json.loads(decrypted_data.decode('utf-8'))
 
-        game_state = {}
+        game_state = GameStateLoader.load(data, stdscr)
 
-        for key, value in data.items():
-            # Handle special cases first (like 'prismeer' needing stdscr)
-            if key == "prismeer":
-                game_state[key] = City.from_dict(value, stdscr)
-                continue
-
-            # Try to find the class dynamically
-            class_name = key.capitalize()  # or a more sophisticated naming conversion
-            class_ref = globals().get(class_name)
-            
-            if class_ref and callable(getattr(class_ref, "from_dict", None)):
-                game_state[key] = class_ref.from_dict(value)
-            else:
-                game_state[key] = value
+        
         
         selected_index = 0
         options = ["Continue"]

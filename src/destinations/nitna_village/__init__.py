@@ -35,9 +35,8 @@ class NitnaMenu:
         while True:   
             try:
                 update_game_state(main_character = self.main_character, nitna_village = self.nitna, saw_game_intro= True)
-
-                self.draw()
                 
+                self.draw()
                 key = self.stdscr.getch()
                 self.handle_input(key)
             except StopIteration:
@@ -67,9 +66,9 @@ class NitnaMenu:
             draw_menu_with_history(self.stdscr, title, init_of_the_history(), options, index)
             key = self.stdscr.getch()
             if key == 10:
-                display_message(self.stdscr, self.nitna.mother.speech(0), 2000, curses.color_pair(1))
-                display_message(self.stdscr, "A new quest has been added to your quests!", 3000, curses.color_pair(1))
-                display_message(self.stdscr, "Go to prismeer deliver the sword!", 3000, curses.color_pair(1))
+                display_message(self.stdscr, self.nitna.mother.speech(0), 2000)
+                display_message(self.stdscr, "A new quest has been added to your quests!", 3000)
+                display_message(self.stdscr, "Make your way to Prismeer and deliver the sword to Damon.", 2500)
                 self.main_character.append_quests(self.nitna.mother.quest)
                 self.nitna.mother.quest = None
                 break
@@ -84,9 +83,19 @@ class NitnaMenu:
             display_message(self.stdscr, "Going to Crossroads...", 1000, curses.color_pair(1))
             exit_loop("crossroads")
         elif selected_option == "Talk to Larid":
-            display_message(self.stdscr, self.nitna.talk_to_npc("Larid", self.main_character), 1000, curses.color_pair(1))
+            count = 0
+            while True:
+                npc = self.nitna.return_npc_by_name("Larid")
+                f"{npc.name}: {npc.speech(count)}"
+                count += 1
+                break
         elif selected_option == "Talk to Monael":
-            display_message(self.stdscr, self.nitna.talk_to_npc("Monael", self.main_character), 1000, curses.color_pair(1))
+            count = 0
+            while True:
+                npc = self.nitna.return_npc_by_name("Monael")
+                f"{npc.name}: {npc.speech(count)}"
+                count += 1
+                break
         elif selected_option == "See the Stable":
             self.view_stable()    
 

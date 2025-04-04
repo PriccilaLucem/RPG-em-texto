@@ -19,5 +19,5 @@ def the_ballad_of_prismeer_and_north():
 
         Bard’s flourish: Let this tale be sung where shadows are cast!
         Of kingdoms lost to pride’s cruel blast…
-        And skies that weep for futures past. 🎶\
+        And skies that weep for futures past. 🎶
         """

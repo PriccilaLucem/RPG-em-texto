@@ -31,7 +31,6 @@ class CrossRoads:
         game_state = get_game_state()
         atual_location = game_state.get("atual_location")
 
-        # Handle cases where player isn't at crossroads
         if atual_location != "crossroads":
             self.handle_non_crossroads_location(atual_location)
             return
@@ -74,7 +73,7 @@ class CrossRoads:
 
     def draw(self):
         """Draw the crossroads menu"""
-        draw_menu(self.stdscr, "CROSSROADS", self.options, self.selected_index)
+        draw_menu(self.stdscr, "=== CROSSROADS ===", self.options, self.selected_index)
 
     def handle_input(self, key):
         """Handle player input"""

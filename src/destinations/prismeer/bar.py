@@ -79,11 +79,11 @@ class PrismeerBar(Bar):
                 index = (index + 1) % len(options)
             elif key == 10:
                 if options[index] == "Talk to Patrons":
-                    self.choose_patron(self.stdscr, main_character)
+                    self.choose_patron(main_character)
                 elif options[index] == "Talk to Bartender":
-                    self.bartender_menu(self.stdscr, main_character)
+                    self.bartender_menu(main_character)
                 elif options[index] == "Listen to the Bard":
-                    self.talk_to_bard(self.stdscr, main_character)
+                    self.talk_to_bard(main_character)
                 elif options[index] == "Leave the Bar":
                     display_message(self.stdscr, "You exit the bar, stepping back into the bustling streets.")
                     break

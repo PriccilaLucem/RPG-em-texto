@@ -1,9 +1,7 @@
 from models.npc_model import Character_with_a_quest_model, Character_model
 from quests.main_quests import deliver_sword_to_damon
 from destinations.nitna_village.nitna_stable import NitnaStable
-from typing import TYPE_CHECKING, Dict, Any
-if TYPE_CHECKING:
-    from characters.main_character import MainCharacter
+from typing import Dict, Any
 
 class Nitna():
     def __init__(self):
@@ -18,39 +16,15 @@ class Nitna():
             ]) 
         ]
         self.mother = Character_with_a_quest_model("Mother", [
-            "I need you to deliver this to Damon in Prismeer. Come back here as soon as you deliver it",
-            "Are you ok? Here take this...",
+            "Please take this sword to Damon in Prismeer. It's urgent - return to me as soon as it's delivered.",
+            "You look pale... Here, take this healing potion before you go."
         ], quest=deliver_sword_to_damon)
         self.stable = NitnaStable()
 
-    def talk_to_npc(self, name, main_character: 'MainCharacter'):
-        # Find the NPC by name
-        npc = None
+    def return_npc_by_name(self, name):
         for villager in self.villagers + [self.mother]:
             if villager.name == name:
-                npc = villager
-                break
-        
-        if not npc:
-            return f"{name} not found"
-        
-        # Handle dialogue based on NPC name and character state
-        if name == "Larid":
-            if any(quest.id == -2 for quest in (main_character.concluded_quests or [])):
-                return f"{npc.name}: {npc.speeches[1]}"
-            else:
-                return f"{npc.name}: {npc.speeches[0]}"
-        elif name == "Monael":
-            return f"{npc.name}: {npc.speeches[0]}"
-        elif name == "Mother":
-            if deliver_sword_to_damon.id in (main_character.quests or []):
-                return f"{npc.name}: {npc.speeches[1]}"
-            elif deliver_sword_to_damon in (main_character.concluded_quests or []):
-                return f"{npc.name}: Are you okay? What happened to you?"
-            else:
-                return f"{npc.name}: {npc.speeches[0]}"  # Default mother dialogue
-        else:
-            return f"{npc.name}: I have nothing to say right now."
+                return villager
         
     def to_dict(self) -> Dict[str, Any]:
         """Convert Nitna instance to a dictionary for serialization."""

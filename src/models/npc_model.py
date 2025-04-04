@@ -2,6 +2,7 @@ from models.quests import Quests, CollectableQuest, DeliverQuestsItems
 from typing import Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from characters.main_character import MainCharacter
+
 class Character_model:
     def __init__(self, name: str, speeches: list) -> None:
         self.name = name
@@ -47,8 +48,8 @@ class Character_with_a_quest_model(Character_model):
         npc = super().to_dict()
         npc['quest'] = self.quest.to_dict() if self.quest else None
         return npc
-class Seller_model(Character_model):
     
+class Seller_model(Character_model):
     def __init__(self, name: str, speeches: list, backpack:list) -> None:
         super().__init__(name, speeches)
         self.backpack = backpack

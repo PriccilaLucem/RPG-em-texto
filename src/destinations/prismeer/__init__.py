@@ -77,11 +77,11 @@ class CityMenu:
     def handle_menu_option(self, option: str) -> None:
         """Handles the selected menu option."""
         if option.startswith("Go to bar"): # Go to bar
-            self.city.bar.bar_menu(self.stdscr, self.main_character)
+            self.city.bar.bar_menu(self.main_character)
         if option.startswith("See the billboard"):  # See the billboard
-            self.city.billboard.billboard_menu()
+            self.city.billboard.billboard_menu(self.main_character)
         elif option.startswith("Rest at the inn"):  # Rest at the inn
-            self.city.inn.pass_the_night(self.main_character, self.stdscr)
+            self.city.inn.pass_the_night(self.main_character)
         elif option.startswith("Menu"):
             self.menu.run()
         elif option.startswith("Go to the center"):  # Go to the center

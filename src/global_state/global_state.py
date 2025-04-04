@@ -1,17 +1,16 @@
 exit_game = False 
 
 game_state = {
+    "nitna_village": None,
     "main_character": None,
     "prismeer": None,
     "cave": None,
     "forest": None,
     "atual_location": None,
+    "prismeer_downtown": None,
     "is_in_game": False,
     "is_new_game": True,
     "combat_done": False,
-    "billboard": None,
-    "prismeer_downtown": None,
-    "nitna_village": None,
     "saw_intro_crossroads": False,
     "saw_game_intro": False,
     "damon_history_start": False,
